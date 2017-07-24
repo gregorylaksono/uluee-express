@@ -1,0 +1,40 @@
+@mixin uluee-layout {
+
+#uluee-root{
+	height:450px;
+	width:610px;
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;	
+	background-color:rgba(255, 255, 255, 0.46);
+}
+
+#uluee-root-parent{
+	background-image:url(../images/root_background.jpg)
+}
+
+#uluee-root .v-margin-left{
+	padding-left:20px;
+}
+#uluee-root .v-margin-top{
+	padding-top:20px;
+}
+#uluee-root .v-margin-right{
+	padding-right:20px;
+}
+#uluee-root .v-margin-bottom{
+	padding-bottom:20px;
+}
+
+.summary-form-layout [class*="margin-top"] > tbody > [class*="firstrow"] > td,
+.summary-form-layout [class*="spacing"] > tbody > [class*="row"] > td{
+	padding-top:0px !important;
+}
+.summary-form-layout [class*="margin-bottom"] > tbody > [class*="lastrow"] > td,
+.summary-form-layout [class*="margin-bottom"] > tbody > [class*="lastrow"] > td{
+	padding-bottom:0px !important;
+}
+.awb-search-section{
+	
+}
+}
