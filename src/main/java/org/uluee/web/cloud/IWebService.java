@@ -18,5 +18,5 @@ public interface IWebService {
 	public List<RSAddName> getShipperFfwAlsoNotifyDeliveredToAddressByMatchService(String match, String sessionId);
 	public List<RSAddName> getConsigneeAddressByMatch(String match, String sessionId);
 	public List<Commodity> getommodity(String commodity,String sessionId);
-	public Map getLatitudeLongitude(String select);
+	public RSAddName getLatitudeLongitude(String select);
 }

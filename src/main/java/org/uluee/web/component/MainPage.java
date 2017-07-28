@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.uluee.web.Uluee_expressUI;
 import org.uluee.web.booking.TracingTab;
+import org.uluee.web.cloud.IModalWindowBridge;
 import org.uluee.web.cloud.model.Commodity;
 import org.uluee.web.cloud.model.RSAddName;
 import org.uluee.web.cloud.model.User;
@@ -36,7 +37,7 @@ import com.zybnet.autocomplete.server.AutocompleteField;
 import com.zybnet.autocomplete.server.AutocompleteQueryListener;
 
 
-public class MainPage extends VerticalLayout implements View{
+public class MainPage extends VerticalLayout implements View, IModalWindowBridge{
 
 	/**
 	 * 
@@ -53,6 +54,10 @@ public class MainPage extends VerticalLayout implements View{
 	private ComboBox itemLongComboBox;
 	private ComboBox itemWidthComboBox;
 	private ComboBox itemHeightComboBox;
+	private Label deptSignLabel;
+	private Label destSignLabel;
+	private RSAddName shipper;
+	private RSAddName consignee;
 
 	@Override
 	public void enter(ViewChangeEvent event) {
@@ -177,9 +182,7 @@ public class MainPage extends VerticalLayout implements View{
 		bottomRightLayout.addComponent(addGoodsButton);
 		addGoodsButton.setStyleName(ValoTheme.BUTTON_FRIENDLY);
 		addGoodsButton.addStyleName(ValoTheme.BUTTON_SMALL);
-		addGoodsButton.addClickListener(e -> {
-			UIFactory.addWindow(new GoogleMapNewDestLayout(), false, true, true);
-		});
+
 
 		return parent;
 	}
@@ -211,23 +214,48 @@ public class MainPage extends VerticalLayout implements View{
 	private VerticalLayout createDeptDestLayout() {
 		VerticalLayout parent = (VerticalLayout) UIFactory.createLayout(LayoutType.VERTICAL, SizeType.FULL, null, true);
 		parent.setHeight(70, Unit.PIXELS);
+		
+		HorizontalLayout deptLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, false);
+		HorizontalLayout destLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, false);
+		
 		deptField = createShipperAutoCompleteComponent();
 		destField = createConsigneeAutoCompleteComponent();
+		
+		deptSignLabel = new Label();
+		destSignLabel = new Label();
+		
+		deptSignLabel.addStyleName("warning-sign");
+		destSignLabel.addStyleName("warning-sign");
+		
+		deptSignLabel.setWidth(null);
+		destSignLabel.setWidth(null);
+		
+		deptLayout.addComponent(deptField);
+		deptLayout.addComponent(deptSignLabel);
+		
+		destLayout.addComponent(destField);
+		destLayout.addComponent(destSignLabel);
+		
+		deptLayout.setExpandRatio(deptField, 1.0f);
+		deptLayout.setExpandRatio(deptSignLabel, 0.0f);
+		
+		destLayout.setExpandRatio(destField, 1.0f);
+		destLayout.setExpandRatio(destSignLabel, 0.0f);
 
 		deptField.setWidth(100, Unit.PERCENTAGE);
 		destField.setWidth(100, Unit.PERCENTAGE);
-		parent.addComponent(deptField);
-		parent.addComponent(destField);
+		parent.addComponent(deptLayout);
+		parent.addComponent(destLayout);
 		return parent;
 	}
 
 	private AutocompleteField createShipperAutoCompleteComponent() {
-		AutocompleteField<String> field = new AutocompleteField<>();
+		AutocompleteField<RSAddName> field = new AutocompleteField<>();
 		field.setWidth(100, Unit.PERCENTAGE);
-		field.setQueryListener(new AutocompleteQueryListener<String>() {
+		field.setQueryListener(new AutocompleteQueryListener<RSAddName>() {
 
 			@Override
-			public void handleUserQuery(AutocompleteField<String> arg0, String arg1) {
+			public void handleUserQuery(AutocompleteField<RSAddName> arg0, String arg1) {
 				User user = ((Uluee_expressUI)UI.getCurrent()).getUser();
 				List<RSAddName> dbData = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getShipperFfwAlsoNotifyDeliveredToAddressByMatchService(arg1, user.getSessionId());
 				if(dbData.size() > 0) {
@@ -242,7 +270,7 @@ public class MainPage extends VerticalLayout implements View{
 						if(countryAdd.length() >= 2){
 							countryAdd = ","+" "+countryAdd.toString();
 						}
-						arg0.addSuggestion(rSAddName.getCompanyID(),rSAddName.getCompanyName()+street+cityAdd+countryAdd);
+						arg0.addSuggestion(rSAddName,rSAddName.getCompanyName()+street+cityAdd+countryAdd);
 						if (arg0.getState().suggestions.size() == 9) {
 							break;
 						}						
@@ -252,10 +280,22 @@ public class MainPage extends VerticalLayout implements View{
 					List<String> rsult = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getGoogleAutocomplete(arg1);
 
 					for(String s:rsult) {
-						arg0.addSuggestion(s, s);
+						RSAddName addName = new RSAddName();
+						addName.setCompanyName(s);
+						arg0.addSuggestion(addName, s);
 					}
 
 				}
+			}
+		});
+		
+		field.setSuggestionPickedListener(e ->{
+			if(e.isNotSaved()) {
+				deptSignLabel.addStyleName("warning-sign");
+				UIFactory.addWindow(new GoogleMapNewDestLayout(GoogleMapNewDestLayout.SHIPPER, MainPage.this), false, true, true);
+			}else {
+				deptSignLabel.addStyleName("check-sign");
+				shipper = e;
 			}
 		});
 		return field;
@@ -375,6 +415,28 @@ public class MainPage extends VerticalLayout implements View{
 		parent.setComponentAlignment(basketButton, Alignment.MIDDLE_RIGHT);
 
 		return parent;
+	}
+
+	public RSAddName getShipper() {
+		return shipper;
+	}
+
+	public void setShipper(RSAddName shipper) {
+		this.shipper = shipper;
+	}
+
+	public RSAddName getConsignee() {
+		return consignee;
+	}
+
+	public void setConsignee(RSAddName consignee) {
+		this.consignee = consignee;
+	}
+
+	@Override
+	public void react() {
+		
+		
 	}
 
 

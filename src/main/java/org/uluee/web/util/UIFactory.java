@@ -1,5 +1,7 @@
 package org.uluee.web.util;
 
+import java.util.Collection;
+
 import org.uluee.web.Uluee_expressUI;
 
 import com.vaadin.shared.ui.MarginInfo;
@@ -92,4 +94,14 @@ public class UIFactory {
 		
 		return layout;
 	}
+
+	public static void closeAllWindow() {
+		Collection<Window> windows = UI.getCurrent().getWindows();
+		for(Window w: windows) {
+			UI.getCurrent().removeWindow(w);
+		}
+		
+	}
+	
+	
 }

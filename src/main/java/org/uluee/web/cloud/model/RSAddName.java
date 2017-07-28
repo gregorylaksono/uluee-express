@@ -22,45 +22,51 @@ public class RSAddName implements Serializable, Comparable<RSAddName>{
 	private String latitude;
 	private String longitude;
 	private String street;
+	private boolean isNotSaved;
 	
 	public String getStreet() {
 		return street;
 	}
 
-	public void setStreet(String street) {
+	public RSAddName setStreet(String street) {
 		this.street = street;
+		return this;
 	}
 
 	public String getCity() {
 		return City;
 	}
 
-	public void setCity(String city) {
+	public RSAddName setCity(String city) {
 		City = city;
+		return this;
 	}
 
 	public String getCountry() {
 		return Country;
 	}
 
-	public void setCountry(String country) {
+	public RSAddName setCountry(String country) {
 		Country = country;
+		return this;
 	}
 
 	public String getLatitude() {
 		return latitude;
 	}
 
-	public void setLatitude(String latitude) {
+	public RSAddName setLatitude(String latitude) {
 		this.latitude = latitude;
+		return this;
 	}
 
 	public String getLongitude() {
 		return longitude;
 	}
 
-	public void setLongitude(String longitude) {
+	public RSAddName setLongitude(String longitude) {
 		this.longitude = longitude;
+		return this;
 	}
 
 	
@@ -70,32 +76,36 @@ public class RSAddName implements Serializable, Comparable<RSAddName>{
 		return companyID;
 	}
 
-	public void setCompanyID(String companyID) {
+	public RSAddName setCompanyID(String companyID) {
 		this.companyID = companyID;
+		return this;
 	}
 
 	public String getCompanyName() {
 		return companyName;
 	}
 
-	public void setCompanyName(String companyName) {
+	public RSAddName setCompanyName(String companyName) {
 		this.companyName = companyName;
+		return this;
 	}
 
 	public String getDefaultAirport() {
 		return defaultAirport;
 	}
 
-	public void setDefaultAirport(String defaultAirport) {
+	public RSAddName setDefaultAirport(String defaultAirport) {
 		this.defaultAirport = defaultAirport;
+		return this;
 	}
 
 	public String getType() {
 		return type;
 	}
 
-	public void setType(String type) {
+	public RSAddName setType(String type) {
 		this.type = type;
+		return this;
 	}
 
 	public int compareTo(RSAddName o) {
@@ -107,9 +117,10 @@ public class RSAddName implements Serializable, Comparable<RSAddName>{
 		return parentID;
 	}
 
-	public void setParentID(String parentID)
+	public RSAddName setParentID(String parentID)
 	{
 		this.parentID = parentID;
+		return this;
 	}
 
 	public Long getCreatorAddId()
@@ -117,9 +128,18 @@ public class RSAddName implements Serializable, Comparable<RSAddName>{
 		return creatorAddId;
 	}
 
-	public void setCreatorAddId(Long creatorAddId)
+	public RSAddName setCreatorAddId(Long creatorAddId)
 	{
 		this.creatorAddId = creatorAddId;
+		return this;
+	}
+
+	public boolean isNotSaved() {
+		return isNotSaved;
+	}
+
+	public void setNotSaved(boolean isNotSaved) {
+		this.isNotSaved = isNotSaved;
 	}
 	
 	

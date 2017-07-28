@@ -4,10 +4,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.uluee.web.Uluee_expressUI;
+import org.uluee.web.cloud.IModalWindowBridge;
 import org.uluee.web.cloud.IWebService;
 import org.uluee.web.cloud.model.RSAddName;
 import org.uluee.web.cloud.model.User;
 import org.uluee.web.util.Constant;
+import org.uluee.web.util.UIFactory;
 
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.tapio.googlemaps.GoogleMap;
@@ -31,9 +33,14 @@ public class GoogleMapNewDestLayout extends VerticalLayout{
 	private static final long serialVersionUID = 1351326827038424796L;
 	private TextField companyNameText;
 	private GoogleMap addressMap;
-
-
-	public GoogleMapNewDestLayout() {
+	public static int SHIPPER = 1;
+	public static int CONSIGNEE = 2;
+	private int type;
+	private IModalWindowBridge parentWindow;
+	
+	public GoogleMapNewDestLayout(int type, IModalWindowBridge parent) {
+		setType(type);
+		setParentWindow(parent);
 		createContents();
 		setSpacing(true);
 		setMargin(true);
@@ -124,17 +131,38 @@ public class GoogleMapNewDestLayout extends VerticalLayout{
 			}
 		});
 		field.setSuggestionPickedListener(e -> {
-			Map  result = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getLatitudeLongitude(e);
-			String latitude = (String) result.get(IWebService.LATITUDE);
-			String longtitude = (String) result.get(IWebService.LONGTITUDE);
-			String company = (String) result.get(IWebService.COMPANY);
+			RSAddName  result = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getLatitudeLongitude(e);
+			String latitude = result.getLatitude();
+			String longtitude = result.getLongitude();
+			String company = result.getCompanyName();
 			
 			LatLon point = new LatLon(Double.parseDouble(latitude), Double.parseDouble(longtitude));
 			addressMap.addMarker("NOT DRAGGABLE: "+e, point, false, null);
 			addressMap.setCenter(point);
-			
 			companyNameText.setValue(company);
+			UIFactory.closeAllWindow();
+			parentWindow.react();
+			
 		});
 		return field;
 	}
+
+	public int getType() {
+		return type;
+	}
+
+	public void setType(int type) {
+		this.type = type;
+	}
+
+	public IModalWindowBridge getParentWindow() {
+		return parentWindow;
+	}
+
+	public void setParentWindow(IModalWindowBridge parentWindow) {
+		this.parentWindow = parentWindow;
+	}
+
+	
+	
 }

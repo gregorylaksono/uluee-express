@@ -154,6 +154,7 @@ public class WebServiceCaller implements IWebService {
 					rsAddNameTemp.setLatitude(array.getProperty("latitude").toString());
 					rsAddNameTemp.setLongitude(array.getProperty("longitude").toString());
 					rsAddNameTemp.setStreet(array.getProperty("street").toString());
+					rsAddNameTemp.setNotSaved(false);
 					shipperNames.add(rsAddNameTemp);
 				}
 			}
@@ -242,11 +243,11 @@ public class WebServiceCaller implements IWebService {
 		return null;
 	}
 
-	public Map getLatitudeLongitude(String select) {
+	public RSAddName getLatitudeLongitude(String select) {
 
 		HttpURLConnection conn = null;
 		StringBuilder jsonResults = new StringBuilder();
-		Map<String, String> result = new HashMap<String, String>();
+		RSAddName addResult = new RSAddName();
 		try {
 			StringBuilder sb = new StringBuilder(Constant.PLACES_API_GEOCODE + Constant.OUT_JSON);
 			sb.append("?sensor=false&key=" + Constant.API_KEY);
@@ -284,33 +285,49 @@ public class WebServiceCaller implements IWebService {
 			String longitude = locationObj.get("lng").toString();
 			String latitude = locationObj.get("lat").toString();
 			String address = "";
+			String street = "";
+			String countryName = "";
+			String countryId = "";
+			String city = "";
 			JSONArray addrresComArray = res.getJSONArray("address_components");
+			
 			for (int i = 0; i < addrresComArray.length(); i++) {
 
 				JSONObject addComObject = (JSONObject) addrresComArray.get(i);
 
 				JSONArray typeArray =  (JSONArray) addComObject.get("types");
 				for (int k = 0; k < typeArray.length(); k++) {
-					//[Jl. Pesona Depok Estate II,  Depok,  Pancoran MAS,  Kota Depok,  Jawa Barat 16431,  Indonesia]
-						String[] formatAddress = res.getString("formatted_address").split(",");
+					String type = typeArray.getString(k);
+					if(type.equals("administrative_area_level_3") ){
+						street = addComObject.getString("short_name").toString();
+					}
+					if(type.equals("country") ){
+						countryName = addComObject.getString("long_name").toString();
+						countryId = addComObject.getString("short_name").toString();
+					}
+					if(type.equals("administrative_area_level_1") ){
+						city = addComObject.getString("long_name").toString();
+						System.out.println(city);
+					}
+					if(address.equals("")){
+						String[] formatAddress = res.getString("formatted_address").split(",");;
 						int addressSize = formatAddress.length;
 						for(int counter = 0; counter < addressSize; counter++){
-							String info = formatAddress[counter];
-							address = address +","+ info;
+							address = address.concat(formatAddress[counter]).concat(",");
+							address = address.substring(0, address.length() - 1);
 						}
-					
+					}
 				}
-			}					
-			result.put(this.COMPANY, select);
-			result.put(this.LONGTITUDE, longitude);
-			result.put(this.LATITUDE, latitude);
-			result.put(this.ADDRESS, address.substring(1, address.length()));
+			addResult.setCompanyName(select).setCity(city).setCountry(countryName).
+			setLatitude(latitude).setLongitude(longitude).setStreet(street).setType("s");
+			}
+	
 		} catch (JSONException e) {
 			System.out.println("Error processing Placses API URL");
 			e.printStackTrace();
 		}
 		
-		return result;
+		return addResult;
 	}
 
 
