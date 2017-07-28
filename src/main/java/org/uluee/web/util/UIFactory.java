@@ -1,10 +1,15 @@
 package org.uluee.web.util;
 
+import org.uluee.web.Uluee_expressUI;
+
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
 public class UIFactory {
@@ -47,6 +52,16 @@ public class UIFactory {
 		}
 		
 		return button;
+	}
+	
+	public static void addWindow(Component content, boolean isDragable, boolean isCloseable, boolean isModal) {
+		Window w = new Window();
+		w.setContent(content);
+		w.setDraggable(isDragable);
+		w.setClosable(isCloseable);
+		w.setModal(isModal);
+		
+		((Uluee_expressUI)UI.getCurrent()).addWindow(w);
 	}
 	
 	public static  AbstractOrderedLayout createLayout(LayoutType layoutType, SizeType sizeType, MarginInfo margin, Boolean isSpacing){

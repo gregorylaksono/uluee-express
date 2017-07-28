@@ -1,7 +1,14 @@
 package org.uluee.web.component;
 
+import java.util.List;
+
+import org.uluee.web.Uluee_expressUI;
 import org.uluee.web.booking.TracingTab;
+import org.uluee.web.cloud.model.Commodity;
+import org.uluee.web.cloud.model.RSAddName;
+import org.uluee.web.cloud.model.User;
 import org.uluee.web.component.window.DisclaimerLayout;
+import org.uluee.web.component.window.GoogleMapNewDestLayout;
 import org.uluee.web.util.UIFactory;
 import org.uluee.web.util.UIFactory.LayoutType;
 import org.uluee.web.util.UIFactory.SizeType;
@@ -58,15 +65,15 @@ public class MainPage extends VerticalLayout implements View{
 	}
 
 	private void initFieldValue() {
-		
-		
+
+
 	}
 
 	private void createContents() {
 		TabSheet bookingTab = createTab();
 		addComponent(bookingTab);
-		
-		
+
+
 	}
 
 	private VerticalLayout createButtonSubmitLayout() {
@@ -84,11 +91,11 @@ public class MainPage extends VerticalLayout implements View{
 			w.setModal(true);
 			w.setDraggable(false);
 			w.setResizable(false);
-//			w.setSizeUndefined();
+			//			w.setSizeUndefined();
 			w.center();
 			UI.getCurrent().addWindow(w);
 		});
-		
+
 		parent.addComponent(submitButton);
 		parent.setComponentAlignment(submitButton, Alignment.MIDDLE_LEFT);
 		return parent;
@@ -97,89 +104,116 @@ public class MainPage extends VerticalLayout implements View{
 	private HorizontalLayout createItemDescriptionLayout() {
 		HorizontalLayout parent  = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, new MarginInfo(true, false, false, false), true);
 		parent.setHeight(null);
-		
+
 		VerticalLayout leftLayout = (VerticalLayout) UIFactory.createLayout(LayoutType.VERTICAL, SizeType.FULL, null, true);
 		VerticalLayout rightLayout = (VerticalLayout) UIFactory.createLayout(LayoutType.VERTICAL, SizeType.FULL, null, true);
 
 		parent.addComponent(leftLayout);
 		parent.addComponent(rightLayout);
 
-		
+
 		//Left layout
 		itemPieceComboBox = new ComboBox();
 		itemWeightComboBox = new ComboBox();
-		itemComodityField = createAutoCompleteComponent();
-		
+		itemComodityField = createCommodityAutoCompleteComponent();
+
 		itemPieceComboBox.setInputPrompt("Piece");
 		itemWeightComboBox.setInputPrompt("Weight");
-		
-		
+
+
 		itemPieceComboBox.setWidth(100, Unit.PERCENTAGE);
 		itemWeightComboBox.setWidth(100, Unit.PERCENTAGE);
 		itemComodityField.setWidth(100, Unit.PERCENTAGE);
-		
+
 		HorizontalLayout topLeftLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, true);
 		HorizontalLayout bottomLeftLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, true);
 		topLeftLayout.setHeight(null);
 		bottomLeftLayout.setHeight(100, Unit.PERCENTAGE);
-		
+
 		leftLayout.addComponent(topLeftLayout);
 		leftLayout.addComponent(bottomLeftLayout);
-		
+
 		leftLayout.setExpandRatio(topLeftLayout, 0.0f);
 		leftLayout.setExpandRatio(bottomLeftLayout, 1.0f);
-		
+
 		topLeftLayout.addComponent(itemPieceComboBox);
 		topLeftLayout.addComponent(itemWeightComboBox);
 		topLeftLayout.setExpandRatio(itemPieceComboBox, 0.50f);
 		topLeftLayout.setExpandRatio(itemWeightComboBox, 0.50f);
 		bottomLeftLayout.addComponent(itemComodityField);
-		
+
 		//Right Layout
 		HorizontalLayout topRightLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, true);
 		HorizontalLayout bottomRightLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, true);
 		topRightLayout.setHeight(null);
-		
+
 		rightLayout.addComponent(topRightLayout);
 		rightLayout.addComponent(bottomRightLayout);
-		
+
 		rightLayout.setExpandRatio(topRightLayout, 0.0f);
 		rightLayout.setExpandRatio(bottomRightLayout, 1.0f);
-		
+
 		itemLongComboBox = new ComboBox();
 		itemWidthComboBox = new ComboBox();
 		itemHeightComboBox = new ComboBox();
-		
+
 		itemLongComboBox.setInputPrompt("L (cm)");
 		itemWidthComboBox.setInputPrompt("W (cm)");
 		itemHeightComboBox.setInputPrompt("H (cm)");
-		
+
 		itemLongComboBox.setWidth(100, Unit.PERCENTAGE);
 		itemHeightComboBox.setWidth(100, Unit.PERCENTAGE);
 		itemWidthComboBox.setWidth(100, Unit.PERCENTAGE);
-		
+
 		topRightLayout.addComponent(itemLongComboBox);
 		topRightLayout.addComponent(itemWidthComboBox);
 		topRightLayout.addComponent(itemHeightComboBox);
-		
+
 		topRightLayout.setExpandRatio(itemLongComboBox, 0.33f);
 		topRightLayout.setExpandRatio(itemWidthComboBox, 0.33f);
 		topRightLayout.setExpandRatio(itemHeightComboBox, 0.33f);
-		
+
 		Button addGoodsButton = new Button("Add Goods");
 		bottomRightLayout.addComponent(addGoodsButton);
 		addGoodsButton.setStyleName(ValoTheme.BUTTON_FRIENDLY);
 		addGoodsButton.addStyleName(ValoTheme.BUTTON_SMALL);
-		
+		addGoodsButton.addClickListener(e -> {
+			UIFactory.addWindow(new GoogleMapNewDestLayout(), false, true, true);
+		});
+
 		return parent;
+	}
+
+	private AutocompleteField createCommodityAutoCompleteComponent() {
+		AutocompleteField<String> field = new AutocompleteField<>();
+		field.setWidth(100, Unit.PERCENTAGE);
+		field.setQueryListener(new AutocompleteQueryListener<String>() {
+
+			@Override
+			public void handleUserQuery(AutocompleteField<String> arg0, String arg1) {
+				User user = ((Uluee_expressUI)UI.getCurrent()).getUser();
+				List<Commodity> dbData = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getommodity(arg1, user.getSessionId());
+
+				for (Commodity commodity : dbData) {
+
+					arg0.addSuggestion(String.valueOf(commodity.getCommId()),commodity.getCommName());
+					if (arg0.getState().suggestions.size() == 9) {
+						break;
+					}						
+				}
+
+
+			}
+		});
+		return field;
 	}
 
 	private VerticalLayout createDeptDestLayout() {
 		VerticalLayout parent = (VerticalLayout) UIFactory.createLayout(LayoutType.VERTICAL, SizeType.FULL, null, true);
 		parent.setHeight(70, Unit.PIXELS);
-		deptField = createAutoCompleteComponent();
-		destField = createAutoCompleteComponent();
-		
+		deptField = createShipperAutoCompleteComponent();
+		destField = createConsigneeAutoCompleteComponent();
+
 		deptField.setWidth(100, Unit.PERCENTAGE);
 		destField.setWidth(100, Unit.PERCENTAGE);
 		parent.addComponent(deptField);
@@ -187,29 +221,94 @@ public class MainPage extends VerticalLayout implements View{
 		return parent;
 	}
 
-	private AutocompleteField createAutoCompleteComponent() {
+	private AutocompleteField createShipperAutoCompleteComponent() {
 		AutocompleteField<String> field = new AutocompleteField<>();
 		field.setWidth(100, Unit.PERCENTAGE);
 		field.setQueryListener(new AutocompleteQueryListener<String>() {
-			
+
 			@Override
 			public void handleUserQuery(AutocompleteField<String> arg0, String arg1) {
-				System.out.println(arg1);
-				
+				User user = ((Uluee_expressUI)UI.getCurrent()).getUser();
+				List<RSAddName> dbData = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getShipperFfwAlsoNotifyDeliveredToAddressByMatchService(arg1, user.getSessionId());
+				if(dbData.size() > 0) {
+					for (RSAddName rSAddName : dbData) {
+						String cityAdd = rSAddName.getCity();
+						String countryAdd = rSAddName.getCountry().toString();
+						String street = (", ").concat(rSAddName.getStreet());
+						if( cityAdd.length() >= 2)
+						{
+							cityAdd = ","+" "+cityAdd.toString();
+						}
+						if(countryAdd.length() >= 2){
+							countryAdd = ","+" "+countryAdd.toString();
+						}
+						arg0.addSuggestion(rSAddName.getCompanyID(),rSAddName.getCompanyName()+street+cityAdd+countryAdd);
+						if (arg0.getState().suggestions.size() == 9) {
+							break;
+						}						
+					}
+				}
+				else {
+					List<String> rsult = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getGoogleAutocomplete(arg1);
+
+					for(String s:rsult) {
+						arg0.addSuggestion(s, s);
+					}
+
+				}
 			}
 		});
 		return field;
 	}
 
+	private AutocompleteField createConsigneeAutoCompleteComponent() {
+		AutocompleteField<String> field = new AutocompleteField<>();
+		field.setWidth(100, Unit.PERCENTAGE);
+		field.setQueryListener(new AutocompleteQueryListener<String>() {
+
+			@Override
+			public void handleUserQuery(AutocompleteField<String> arg0, String arg1) {
+				User user = ((Uluee_expressUI)UI.getCurrent()).getUser();
+				List<RSAddName> dbData = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getConsigneeAddressByMatch(arg1, user.getSessionId());
+				if(dbData.size() > 0) {
+					for (RSAddName rSAddName : dbData) {
+						String cityAdd = rSAddName.getCity();
+						String countryAdd = rSAddName.getCountry().toString();
+						String street = (", ").concat(rSAddName.getStreet());
+						if( cityAdd.length() >= 2)
+						{
+							cityAdd = ","+" "+cityAdd.toString();
+						}
+						if(countryAdd.length() >= 2){
+							countryAdd = ","+" "+countryAdd.toString();
+						}
+						arg0.addSuggestion(rSAddName.getCompanyID(),rSAddName.getCompanyName()+street+cityAdd+countryAdd);
+						if (arg0.getState().suggestions.size() == 9) {
+							break;
+						}						
+					}
+				}
+				else {
+					List<String> rsult = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getGoogleAutocomplete(arg1);
+
+					for(String s:rsult) {
+						arg0.addSuggestion(s, s);
+					}
+
+				}
+			}
+		});
+		return field;
+	}
 	private HorizontalLayout createDateLayout() {
 		HorizontalLayout parent = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, new MarginInfo(true, false, true, false), true);
 		parent.setHeight(null);
 		fromDate = new DateField();
 		toDate = new DateField();
-		
+
 		fromDate.setWidth(100, Unit.PERCENTAGE);
 		toDate.setWidth(100, Unit.PERCENTAGE);
-		
+
 		parent.addComponent(fromDate);
 		parent.addComponent(toDate);
 		return parent;
@@ -221,13 +320,13 @@ public class MainPage extends VerticalLayout implements View{
 		VerticalLayout deptDestLayout = createDeptDestLayout();
 		HorizontalLayout itemDescriptionLayout = createItemDescriptionLayout();
 		VerticalLayout buttonSubmitLayout = createButtonSubmitLayout();
-		
+
 		Label stripe1 = new Label("<hr>"); 
 		Label stripe2 = new Label("<hr>"); 
-		
+
 		stripe1.setContentMode(ContentMode.HTML);
 		stripe2.setContentMode(ContentMode.HTML);
-		
+
 		TabSheet tab = new TabSheet();
 		tab.setHeight(100, Unit.PERCENTAGE);
 		tab.setWidth(100, Unit.PERCENTAGE);
@@ -241,7 +340,7 @@ public class MainPage extends VerticalLayout implements View{
 		content.addComponent(itemDescriptionLayout);
 		content.addComponent(stripe2);
 		content.addComponent(buttonSubmitLayout);
-		
+
 		content.setExpandRatio(topLayout, 0.0f);
 		content.setExpandRatio(dateLayout, 0.0f);
 		content.setExpandRatio(deptDestLayout, 0.0f);
@@ -259,23 +358,24 @@ public class MainPage extends VerticalLayout implements View{
 		bookingOption = new OptionGroup();
 		bookingOption.addItem("Deprature");
 		bookingOption.addItem("Arrival");
-		
+
 		Button basketButton = new Button("Basket");
 		basketButton.setStyleName(ValoTheme.BUTTON_FRIENDLY);
 		basketButton.addStyleName(ValoTheme.BUTTON_SMALL);
-		
+
 		parent.setWidth(100, Unit.PERCENTAGE);
 		parent.setHeight(40, Unit.PIXELS);
 		parent.addComponent(bookingOption);
 		parent.addComponent(basketButton);
-		
+
 		parent.setExpandRatio(bookingOption, 1.0f);
 		parent.setExpandRatio(basketButton, 0.0f);
-		
+
 		parent.setComponentAlignment(bookingOption, Alignment.MIDDLE_LEFT);
 		parent.setComponentAlignment(basketButton, Alignment.MIDDLE_RIGHT);
-		
+
 		return parent;
 	}
+
 
 }

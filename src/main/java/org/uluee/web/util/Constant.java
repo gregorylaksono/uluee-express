@@ -14,5 +14,6 @@ public class Constant {
 	public static final String TYPE_AUTOCOMPLETE = "/autocomplete";
 	public static final String OUT_JSON = "/json";
 	public static final String API_KEY = "AIzaSyAFj7YunZys5V1taEviGXN6p6-bc2McR9M";
+	public static final String GMAP_API_KEY = "AIzaSyBtcT4UkbfN9JV_4haAAYdQnhS-3wsedpk";
 }
 

@@ -7,11 +7,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-
+import java.util.Map;
 
 import org.ksoap2.serialization.SoapObject;
+import org.uluee.web.cloud.model.Commodity;
+import org.uluee.web.cloud.model.RSAddName;
 import org.uluee.web.cloud.model.User;
 import org.uluee.web.util.CallSOAPAction;
 import org.uluee.web.util.CallSOAPAction.ISOAPResultCallBack;
@@ -25,7 +28,6 @@ import com.google.gwt.thirdparty.json.JSONObject;
 
 
 public class WebServiceCaller implements IWebService {
-
 
 
 	@Override
@@ -127,10 +129,189 @@ public class WebServiceCaller implements IWebService {
 	
 	
 	public static void main(String[] args) {
-		new WebServiceCaller().getGoogleAutocomplete("delhi");
+		new WebServiceCaller().getGoogleAutocomplete("mc payment");
 	}
 
+	@Override
+	public List<RSAddName> getShipperFfwAlsoNotifyDeliveredToAddressByMatchService(String match, String sessionId) {
+		List<RSAddName> shipperNames = new ArrayList();
+		LinkedHashMap map = new LinkedHashMap<>();
+		map.put("sessionId", sessionId);
+		map.put("match", match);
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack(){
 
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				for (int i = 0; i < data.getPropertyCount(); i++) {
+					SoapObject array = (SoapObject) data.getProperty(i);
+					RSAddName rsAddNameTemp = new RSAddName();
+					rsAddNameTemp.setParentID(array.getProperty("parentId").toString());
+					rsAddNameTemp.setCompanyID(array.getProperty("id").toString());
+					rsAddNameTemp.setType(array.getProperty("type").toString());
+					rsAddNameTemp.setCompanyName(array.getProperty("name").toString());
+					rsAddNameTemp.setCity(array.getProperty("city").toString());
+					rsAddNameTemp.setCountry(array.getProperty("country").toString());
+					rsAddNameTemp.setLatitude(array.getProperty("latitude").toString());
+					rsAddNameTemp.setLongitude(array.getProperty("longitude").toString());
+					rsAddNameTemp.setStreet(array.getProperty("street").toString());
+					shipperNames.add(rsAddNameTemp);
+				}
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+
+
+			}
+
+		};
+		new CallSOAPAction(map, "getShipperAlsoNotifyDeliveredToAddressByMatch", callBack);
+		return shipperNames;
+	}
+
+	@Override
+	public List<RSAddName> getConsigneeAddressByMatch(String match, String sessionId) {
+		List<RSAddName> consigneeNames = new ArrayList();
+		LinkedHashMap map = new LinkedHashMap<>();
+		map.put("sessionId", sessionId);
+		map.put("match", match);
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack(){
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				for (int i = 0; i < data.getPropertyCount(); i++) {
+					SoapObject array = (SoapObject) data.getProperty(i);
+					RSAddName rsAddNameTemp = new RSAddName();
+					rsAddNameTemp.setParentID(array.getProperty("parentId").toString());
+					rsAddNameTemp.setCompanyID(array.getProperty("id").toString());
+					rsAddNameTemp.setType(array.getProperty("type").toString());
+					rsAddNameTemp.setCompanyName(array.getProperty("name").toString());
+					rsAddNameTemp.setCity(array.getProperty("city").toString());
+					rsAddNameTemp.setCountry(array.getProperty("country").toString());
+					rsAddNameTemp.setLatitude(array.getProperty("latitude").toString());
+					rsAddNameTemp.setLongitude(array.getProperty("longitude").toString());
+					rsAddNameTemp.setStreet(array.getProperty("street").toString());
+					consigneeNames.add(rsAddNameTemp);
+				}
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+
+
+			}
+
+		};
+		new CallSOAPAction(map, "getConsigneeAddressByMatch", callBack);
+		return consigneeNames;
+	}
+
+	@Override
+	public List<Commodity> getommodity(String commodity, String sessionId) {
+		List<Commodity> commodityList = new ArrayList();
+		LinkedHashMap map = new LinkedHashMap<>();
+		map.put("sessionId", sessionId);
+		map.put("match", commodity);
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack(){
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				for (int i = 0; i < data.getPropertyCount(); i++) {
+					String temp = data.getProperty(i).toString();
+					String[] temps = temp.split("\\|");
+					Commodity comm = new Commodity();
+					comm.setAnnId(Long.parseLong(temps[0]));
+					comm.setCommId(Long.parseLong(temps[1]));
+					comm.setCommName(temps[2]);
+					if (temps.length > 3) {
+						comm.setSccCode(temps[3]);
+						comm.setSccName(temps[4]);
+					}
+					commodityList.add(comm);
+				}
+			}
+			@Override
+			public void handleError(String statusCode) {
+
+
+			}
+
+		};
+		new CallSOAPAction(map, "getCommodityByMatch", callBack);
+		
+		return null;
+	}
+
+	public Map getLatitudeLongitude(String select) {
+
+		HttpURLConnection conn = null;
+		StringBuilder jsonResults = new StringBuilder();
+		Map<String, String> result = new HashMap<String, String>();
+		try {
+			StringBuilder sb = new StringBuilder(Constant.PLACES_API_GEOCODE + Constant.OUT_JSON);
+			sb.append("?sensor=false&key=" + Constant.API_KEY);
+			sb.append("&address=" + URLEncoder.encode(select, "utf8"));
+
+			URL url = new URL(sb.toString());
+			conn = (HttpURLConnection) url.openConnection();
+			InputStreamReader in = new InputStreamReader(conn.getInputStream());
+
+			// Load the results into a StringBuilder
+			int read;
+			char[] buff = new char[1024];
+			while ((read = in.read(buff)) != -1) {
+				jsonResults.append(buff, 0, read);
+			}
+		} catch (MalformedURLException e) {
+			System.out.println("Error processing Places API URL");
+			e.printStackTrace();
+
+		} catch (IOException e) {
+			System.out.println("Error processing Places API URL");
+			e.printStackTrace();
+
+		} finally {
+			if (conn != null) {
+				conn.disconnect();
+			}
+		}
+
+		try {
+			// Create a JSON object hierarchy from the results
+			JSONObject jsonObj = new JSONObject(jsonResults.toString());			
+			JSONObject res = jsonObj.getJSONArray("results").getJSONObject(0);
+			JSONObject locationObj = res.getJSONObject("geometry").getJSONObject("location");			
+			String longitude = locationObj.get("lng").toString();
+			String latitude = locationObj.get("lat").toString();
+			String address = "";
+			JSONArray addrresComArray = res.getJSONArray("address_components");
+			for (int i = 0; i < addrresComArray.length(); i++) {
+
+				JSONObject addComObject = (JSONObject) addrresComArray.get(i);
+
+				JSONArray typeArray =  (JSONArray) addComObject.get("types");
+				for (int k = 0; k < typeArray.length(); k++) {
+					//[Jl. Pesona Depok Estate II,  Depok,  Pancoran MAS,  Kota Depok,  Jawa Barat 16431,  Indonesia]
+						String[] formatAddress = res.getString("formatted_address").split(",");
+						int addressSize = formatAddress.length;
+						for(int counter = 0; counter < addressSize; counter++){
+							String info = formatAddress[counter];
+							address = address +","+ info;
+						}
+					
+				}
+			}					
+			result.put(this.COMPANY, select);
+			result.put(this.LONGTITUDE, longitude);
+			result.put(this.LATITUDE, latitude);
+			result.put(this.ADDRESS, address.substring(1, address.length()));
+		} catch (JSONException e) {
+			System.out.println("Error processing Placses API URL");
+			e.printStackTrace();
+		}
+		
+		return result;
+	}
 
 
 
