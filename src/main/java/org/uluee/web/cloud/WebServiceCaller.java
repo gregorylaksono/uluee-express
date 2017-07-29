@@ -208,7 +208,7 @@ public class WebServiceCaller implements IWebService {
 	}
 
 	@Override
-	public List<Commodity> getommodity(String commodity, String sessionId) {
+	public List<Commodity> getCommodity(String commodity, String sessionId) {
 		List<Commodity> commodityList = new ArrayList();
 		LinkedHashMap map = new LinkedHashMap<>();
 		map.put("sessionId", sessionId);
@@ -240,7 +240,7 @@ public class WebServiceCaller implements IWebService {
 		};
 		new CallSOAPAction(map, "getCommodityByMatch", callBack);
 		
-		return null;
+		return commodityList;
 	}
 
 	public RSAddName getLatitudeLongitude(String select) {
@@ -328,6 +328,43 @@ public class WebServiceCaller implements IWebService {
 		}
 		
 		return addResult;
+	}
+
+	@Override
+	public Long saveAddUser(RSAddName result, String sessionId, String email) {
+		LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+	    final StringBuilder sBuilder = new StringBuilder();
+
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack(){
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				Long r = Long.parseLong(String.valueOf(data.getAttribute("value")));
+				sBuilder.append(String.valueOf(r));
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+
+				
+			}
+		};
+		
+		map.put("sessionId", sessionId);
+		map.put("addType", result.getType());
+		map.put("name", result.getCompanyName());
+		map.put("contactPerson", "");
+		map.put("street", result.getStreet());
+		map.put("city", result.getCity());
+		map.put("fax", "");
+		map.put("telp", "");
+		map.put("email", email);
+		map.put("countryName",result.getCountry());
+		map.put("longitude", result.getLongitude());
+		map.put("latitude", result.getLatitude());
+		
+		new CallSOAPAction(map, "addUserDummy", callBack);
+		return Long.parseLong(sBuilder.toString());
 	}
 
 

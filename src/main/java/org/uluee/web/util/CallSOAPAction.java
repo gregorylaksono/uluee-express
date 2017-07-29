@@ -8,6 +8,7 @@ import java.util.Map;
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
 import org.ksoap2.serialization.SoapObject;
+import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 import org.xmlpull.v1.XmlPullParserException;
@@ -60,9 +61,17 @@ public class CallSOAPAction {
 					
 					statusCode = ActernityResponse.getProperty("code")
 							.toString();
+					SoapObject data = null;
 					if (statusCode.equalsIgnoreCase(SUCCESS_CODE)) {
-						SoapObject data = (SoapObject) ActernityResponse
-								.getProperty("data");
+						if(ActernityResponse.getProperty("data") instanceof SoapObject){
+							data = (SoapObject) ActernityResponse
+									.getProperty("data");							
+						}else if(ActernityResponse.getProperty("data") instanceof SoapPrimitive){
+							SoapPrimitive dataPrimitive = (SoapPrimitive) ActernityResponse
+									.getProperty("data");
+							data = new SoapObject(dataPrimitive.getNamespace(), dataPrimitive.getName());
+							data.addAttribute("value", dataPrimitive.toString());
+						}
 						callBack.handleResult(data,statusCode);					
 					}else{
 						callBack.handleError(statusCode);

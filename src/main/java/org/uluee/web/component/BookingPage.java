@@ -95,7 +95,7 @@ public class BookingPage extends VerticalLayout implements View{
 
 	private Table createTable() {
 		Table table = new Table();
-		table.setId("booking-table");
+		table.addStyleName("uluee-table");
 		table.addContainerProperty(FROM, String.class, null);
 		table.addContainerProperty(TO, String.class, null);
 		table.addContainerProperty(DEP_TIME, String.class, null);

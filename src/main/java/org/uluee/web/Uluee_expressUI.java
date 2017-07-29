@@ -10,6 +10,7 @@ import org.uluee.web.component.MainPage;
 import org.uluee.web.util.Constant;
 import org.uluee.web.util.NavigatorConstant;
 
+import com.vaadin.annotations.StyleSheet;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.navigator.Navigator;
@@ -22,6 +23,7 @@ import com.vaadin.ui.VerticalLayout;
 
 @SuppressWarnings("serial")
 @Theme("uluee_express")
+@StyleSheet("https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css")
 public class Uluee_expressUI extends UI {
 
 	@WebServlet(value = "/*", asyncSupported = true)

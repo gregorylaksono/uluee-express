@@ -18,6 +18,8 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -37,8 +39,12 @@ public class GoogleMapNewDestLayout extends VerticalLayout{
 	public static int CONSIGNEE = 2;
 	private int type;
 	private IModalWindowBridge parentWindow;
+	private RSAddName result;
+	private String companyName;
+	private AutocompleteField addressText;
 	
-	public GoogleMapNewDestLayout(int type, IModalWindowBridge parent) {
+	public GoogleMapNewDestLayout(int type, IModalWindowBridge parent, String companyName) {
+		setCompanyName(companyName);
 		setType(type);
 		setParentWindow(parent);
 		createContents();
@@ -56,18 +62,23 @@ public class GoogleMapNewDestLayout extends VerticalLayout{
 
 		setExpandRatio(topLayout, 0.0f);
 		setExpandRatio(gmapContainer, 1.0f);
+		companyNameText.setValue(companyName);
+		addressText.setValue(companyName);
 	}
 
 	private VerticalLayout createGoogleMapLayout() {
+		RSAddName company = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getLatitudeLongitude(getCompanyName());
 		VerticalLayout parent = new VerticalLayout();
 		parent.setWidth(100, Unit.PERCENTAGE);
 		parent.setHeight(100, Unit.PERCENTAGE);
 		addressMap = new GoogleMap(Constant.GMAP_API_KEY, null, "english");
-//		addressMap.addMarker("NOT DRAGGABLE: MC Payment Indonesia", l, false, null);
+		LatLon l = new LatLon(Double.parseDouble(company.getLatitude()), Double.parseDouble(company.getLongitude()));
+		addressMap.addMarker("NOT DRAGGABLE: "+company.getCompanyName(), l, false, null);
 		addressMap.setSizeFull();
 		addressMap.setMinZoom(4);
 		addressMap.setMaxZoom(16);
-	
+		addressMap.setCenter(l);
+		addressMap.setZoom(16);
 		parent.addComponent(addressMap);
 		return parent;
 	}
@@ -81,13 +92,29 @@ public class GoogleMapNewDestLayout extends VerticalLayout{
 		Label text = new Label("GoogleMap");
 
 		companyNameText = new TextField();
-		AutocompleteField addressText = createCompanyAutoComplete();
+		addressText = createCompanyAutoComplete();
 		
-		TextField emailText = new TextField();
+		final TextField emailText = new TextField();
 		Button submit = new Button("Save");
 		submit.setStyleName(ValoTheme.BUTTON_SMALL);
 		submit.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-		
+		submit.addClickListener(e ->{
+			if( result!=null ){
+				User user = ((Uluee_expressUI)UI.getCurrent()).getUser();
+				String email = emailText.getValue();
+				if(email == null || email.equals("")){
+					Notification.show("Please input your email", Type.ERROR_MESSAGE);
+				}else{					
+					Long code = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().saveAddUser(result, user.getSessionId(), email);
+					UIFactory.closeAllWindow();
+					parentWindow.react(result,type);
+					
+				}
+			}else{
+				Notification.show("Address is unknown", Type.ERROR_MESSAGE);
+			}
+			
+		});
 		emailText.setWidth(120, Unit.PIXELS);
 		companyNameText.setWidth(150, Unit.PIXELS);
 		text.setWidth(null);
@@ -131,18 +158,16 @@ public class GoogleMapNewDestLayout extends VerticalLayout{
 			}
 		});
 		field.setSuggestionPickedListener(e -> {
-			RSAddName  result = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getLatitudeLongitude(e);
+			GoogleMapNewDestLayout.this.result = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getLatitudeLongitude(e);
+			result.setType("s");
 			String latitude = result.getLatitude();
 			String longtitude = result.getLongitude();
 			String company = result.getCompanyName();
 			
 			LatLon point = new LatLon(Double.parseDouble(latitude), Double.parseDouble(longtitude));
-			addressMap.addMarker("NOT DRAGGABLE: "+e, point, false, null);
+			addressMap.addMarker("NOT DRAGGABLE: "+company, point, false, null);
 			addressMap.setCenter(point);
-			companyNameText.setValue(company);
-			UIFactory.closeAllWindow();
-			parentWindow.react();
-			
+			companyNameText.setValue(company);			
 		});
 		return field;
 	}
@@ -161,6 +186,14 @@ public class GoogleMapNewDestLayout extends VerticalLayout{
 
 	public void setParentWindow(IModalWindowBridge parentWindow) {
 		this.parentWindow = parentWindow;
+	}
+
+	public String getCompanyName() {
+		return companyName;
+	}
+
+	public void setCompanyName(String companyName) {
+		this.companyName = companyName;
 	}
 
 	

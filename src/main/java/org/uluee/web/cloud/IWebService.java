@@ -17,6 +17,7 @@ public interface IWebService {
 	public List<String> getGoogleAutocomplete(String match);
 	public List<RSAddName> getShipperFfwAlsoNotifyDeliveredToAddressByMatchService(String match, String sessionId);
 	public List<RSAddName> getConsigneeAddressByMatch(String match, String sessionId);
-	public List<Commodity> getommodity(String commodity,String sessionId);
+	public List<Commodity> getCommodity(String commodity,String sessionId);
 	public RSAddName getLatitudeLongitude(String select);
+	public Long saveAddUser(RSAddName result, String sessionId, String email);
 }

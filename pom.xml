@@ -88,7 +88,11 @@
 			<artifactId>json-simple</artifactId>
 			<version>1.1.1</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.vaadin.ui</groupId>
+			<artifactId>NumberField</artifactId>
+			<version>0.1.8</version>
+		</dependency>
 		<!-- Needed when using the widgetset optimizer (custom ConnectorBundleLoaderFactory). 
 			For widgetset compilation, vaadin-client-compiler is automatically added 
 			on the compilation classpath by vaadin-maven-plugin so normally there is 
