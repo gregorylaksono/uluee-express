@@ -12969,7 +12969,7 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .uluee_express #uluee-root {
-	height: 450px;
+	height: 460px;
 	width: 610px;
 	-webkit-border-radius: 6px;
 	-moz-border-radius: 6px;
@@ -13005,7 +13005,7 @@ div.v-layout.v-horizontal.v-widget {
 	padding-bottom: 0px !important;
 }
 
-.uluee_express #booking-table {
+.uluee_express .uluee-table {
 	background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
@@ -13108,21 +13108,23 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .uluee_express .warning-sign:after {
-	content: "!";
+	font-family: FontAwesome;
+	content: "\f071";
 	width: 20px;
-	font-size: 28px;
-	font-weight: bold;
+	font-size: 24px;
+	margin-left: 5px;
 	color: #f38400;
 	height: 100% !important;
 	display: block !important;
 }
 
 .uluee_express .check-sign:after {
-	content: "\2713";
+	font-family: FontAwesome;
+	content: "\f05d";
 	width: 20px;
-	font-size: 28px;
-	font-weight: bold;
 	color: #0fab04;
+	font-size: 24px;
+	margin-left: 5px;
 	height: 100% !important;
 	display: block !important;
 }

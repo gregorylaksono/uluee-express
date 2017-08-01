@@ -52,9 +52,9 @@ public class Sample {
         soapMessage.saveChanges();
 
         /* Print the request message */
-        System.out.print("Request SOAP Message:");
+//        System.out.print("Request SOAP Message:");
         soapMessage.writeTo(System.out);
-        System.out.println();
+//        System.out.println();
 
         return soapMessage;
     }

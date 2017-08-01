@@ -1,12 +1,20 @@
 package org.uluee.web.component;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.xerces.xs.ItemPSVI;
 import org.uluee.web.Uluee_expressUI;
+import org.uluee.web.booking.CheckboxAndBasketLayout;
+import org.uluee.web.booking.DeptDestLayout;
+import org.uluee.web.booking.FromAndToDateLayout;
+import org.uluee.web.booking.ItemDescriptionLayout;
 import org.uluee.web.booking.TracingTab;
 import org.uluee.web.cloud.IModalWindowBridge;
+import org.uluee.web.cloud.model.BookingComponent;
 import org.uluee.web.cloud.model.Commodity;
 import org.uluee.web.cloud.model.CommodityWrapper;
 import org.uluee.web.cloud.model.RSAddName;
@@ -17,6 +25,7 @@ import org.uluee.web.component.window.GoogleMapNewDestLayout;
 import org.uluee.web.util.UIFactory;
 import org.uluee.web.util.UIFactory.LayoutType;
 import org.uluee.web.util.UIFactory.SizeType;
+import org.uluee.web.util.Util;
 import org.vaadin.ui.NumberField;
 
 import com.google.gwt.text.client.DoubleParser;
@@ -33,6 +42,8 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
@@ -54,20 +65,12 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 	private OptionGroup bookingOption;
 	private DateField fromDate ;
 	private DateField toDate;
-	private AutocompleteField destField;
-	private AutocompleteField deptField;
-	private AutocompleteField itemComodityField;
-	private NumberField itemWeightField;
-	private NumberField itemPieceField;
-	private NumberField itemLongField;
-	private NumberField itemWidthField;
-	private NumberField itemHeightField;
-	private Label deptSignLabel;
-	private Label destSignLabel;
-	private RSAddName shipper;
-	private RSAddName consignee;
-	private Commodity commodity;
-	private List<CommodityWrapper> commodities = new ArrayList<>();
+
+	private ItemDescriptionLayout itemDescriptionLayout;
+	private CheckboxAndBasketLayout topLayout;
+	private FromAndToDateLayout dateLayout;
+	private DeptDestLayout deptDestLayout;
+	
 	@Override
 	public void enter(ViewChangeEvent event) {
 
@@ -86,8 +89,6 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 	private void createContents() {
 		TabSheet bookingTab = createTab();
 		addComponent(bookingTab);
-
-
 	}
 
 	private VerticalLayout createButtonSubmitLayout() {
@@ -96,8 +97,12 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 		submitButton.setStyleName(ValoTheme.BUTTON_PRIMARY);
 		submitButton.addStyleName(ValoTheme.BUTTON_SMALL);
 		submitButton.addClickListener( x -> {
+			BookingComponent bookingComponent = validateAllFields();
+			if(bookingComponent == null) {
+				return;
+			}
 			Panel p = new Panel();
-			p.setContent(new DisclaimerLayout());
+			p.setContent(new DisclaimerLayout(bookingComponent));
 			p.setHeight(500, Unit.PIXELS);
 			Window w = new Window();
 			w.setContent(p);
@@ -105,7 +110,6 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 			w.setModal(true);
 			w.setDraggable(false);
 			w.setResizable(false);
-			//			w.setSizeUndefined();
 			w.center();
 			UI.getCurrent().addWindow(w);
 		});
@@ -115,349 +119,191 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 		return parent;
 	}
 
-	private HorizontalLayout createItemDescriptionLayout() {
-		HorizontalLayout parent  = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, new MarginInfo(true, false, false, false), true);
-		parent.setHeight(null);
-
-		VerticalLayout leftLayout = (VerticalLayout) UIFactory.createLayout(LayoutType.VERTICAL, SizeType.FULL, null, true);
-		VerticalLayout rightLayout = (VerticalLayout) UIFactory.createLayout(LayoutType.VERTICAL, SizeType.FULL, null, true);
-		rightLayout.setHeight(100, Unit.PERCENTAGE);
-		leftLayout.setHeight(100, Unit.PERCENTAGE);
-		parent.addComponent(leftLayout);
-		parent.addComponent(rightLayout);
-
-
-		//Left layout
+	private BookingComponent validateAllFields() {
+		if(fromDate.getValue() == null) {
+			Notification.show("Please insert from date", Type.ERROR_MESSAGE);return null;
+		}
+		if(toDate.getValue() == null) {
+			Notification.show("Please insert to date", Type.ERROR_MESSAGE);return null;
+		}
+		if(deptDestLayout.getShipper() == null) {
+			Notification.show("Please input the shipper from", Type.ERROR_MESSAGE);return null;
+		}
+		if(deptDestLayout.getConsignee() == null) {
+			Notification.show("Please input the consignee to", Type.ERROR_MESSAGE);return null;
+		}
+		if(itemDescriptionLayout.getItemWeightField().getValue() == null) {
+			Notification.show("Please input the item weight", Type.ERROR_MESSAGE);return null;
+		}
+		if(itemDescriptionLayout.getItemHeightField().getValue() == null) {
+			Notification.show("Please input the item height", Type.ERROR_MESSAGE);return null;
+		}
+		if(itemDescriptionLayout.getItemLongField().getValue() == null) {
+			Notification.show("Please input the item length", Type.ERROR_MESSAGE);return null;
+		}
+		if(itemDescriptionLayout.getCommodity() == null) {
+			Notification.show("Please choose the commodity", Type.ERROR_MESSAGE);return null;
+		}
 		
-		itemPieceField = new NumberField("Piece");
-		itemWeightField = new NumberField("Weight");
-		itemComodityField = createCommodityAutoCompleteComponent();
+		List<CommodityWrapper> comm = new ArrayList();
+		if(itemDescriptionLayout.getCommodities().size() < 1) {
+			CommodityWrapper c = new CommodityWrapper();
+			
+			c.setHeight(new Double(itemDescriptionLayout.getItemHeightField().getDoubleValueDoNotThrow()).intValue()).
+			setLength(new Double(itemDescriptionLayout.getItemLongField().getDoubleValueDoNotThrow()).intValue()).
+			setPieces(new Double(itemDescriptionLayout.getItemPieceField().getDoubleValueDoNotThrow()).intValue()).
+			setWeight(itemDescriptionLayout.getItemWeightField().getDoubleValueDoNotThrow()).
+			setWidth(new Double(itemDescriptionLayout.getItemWidthField().getDoubleValueDoNotThrow()).intValue()).
 
-		itemPieceField.setWidth(100, Unit.PERCENTAGE);
-		itemWeightField.setWidth(100, Unit.PERCENTAGE);
-		itemComodityField.setWidth(100, Unit.PERCENTAGE);
-
-		HorizontalLayout topLeftLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, true);
-		HorizontalLayout bottomLeftLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, true);
-		topLeftLayout.setHeight(null);
-		bottomLeftLayout.setHeight(100, Unit.PERCENTAGE);
-
-		leftLayout.addComponent(topLeftLayout);
-		leftLayout.addComponent(bottomLeftLayout);
-
-		leftLayout.setExpandRatio(topLeftLayout, 0.0f);
-		leftLayout.setExpandRatio(bottomLeftLayout, 1.0f);
-
-		topLeftLayout.addComponent(itemPieceField);
-		topLeftLayout.addComponent(itemWeightField);
-		topLeftLayout.setExpandRatio(itemPieceField, 0.50f);
-		topLeftLayout.setExpandRatio(itemWeightField, 0.50f);
-		bottomLeftLayout.addComponent(itemComodityField);
-
-		//Right Layout
-		HorizontalLayout topRightLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, true);
-		HorizontalLayout bottomRightLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, true);
-		topRightLayout.setHeight(null);
-		bottomRightLayout.setHeight(100, Unit.PERCENTAGE);
-		bottomRightLayout.setCaption(" ");
-
-		rightLayout.addComponent(topRightLayout);
-		rightLayout.addComponent(bottomRightLayout);
-
-		rightLayout.setExpandRatio(topRightLayout, 0.0f);
-		rightLayout.setExpandRatio(bottomRightLayout, 1.0f);
-
-		itemLongField = new NumberField("Length");
-		itemWidthField = new NumberField("Width");
-		itemHeightField = new NumberField("Height");
-
-		itemLongField.setInputPrompt("L (cm)");
-		itemWidthField.setInputPrompt("W (cm)");
-		itemHeightField.setInputPrompt("H (cm)");
-
-		itemLongField.setWidth(100, Unit.PERCENTAGE);
-		itemHeightField.setWidth(100, Unit.PERCENTAGE);
-		itemWidthField.setWidth(100, Unit.PERCENTAGE);
+			setVolume(itemDescriptionLayout.getItemHeightField().getDoubleValueDoNotThrow()* 
+					  itemDescriptionLayout.getItemLongField().getDoubleValueDoNotThrow() *
+					  itemDescriptionLayout.getItemWidthField().getDoubleValueDoNotThrow());
+			comm.add(c);
+			
+			itemDescriptionLayout.setCommodities(comm);
 		
-		formatAllNumberFields();
+		}
+		BookingComponent commodity = constructItemFormat(comm);
+		LinkedHashMap<String, Object> param = buildRequestParam(commodity);
+		commodity.setParam(param);
+		return commodity;
+		
+	}
 
-		topRightLayout.addComponent(itemLongField);
-		topRightLayout.addComponent(itemWidthField);
-		topRightLayout.addComponent(itemHeightField);
 
-		topRightLayout.setExpandRatio(itemLongField, 0.33f);
-		topRightLayout.setExpandRatio(itemWidthField, 0.33f);
-		topRightLayout.setExpandRatio(itemHeightField, 0.33f);
+	private LinkedHashMap<String, Object> buildRequestParam(BookingComponent c) {
+		LinkedHashMap<String, Object> param = new LinkedHashMap<>();
+		String[] stringCommodities =c.getStringCommodities().split("&&");
 
-		Button addGoodsButton = new Button("Add Goods");
-		bottomRightLayout.addComponent(addGoodsButton);
-		bottomRightLayout.setComponentAlignment(addGoodsButton, Alignment.BOTTOM_LEFT);
-		addGoodsButton.setStyleName(ValoTheme.BUTTON_FRIENDLY);
-		addGoodsButton.addStyleName(ValoTheme.BUTTON_SMALL);
-		addGoodsButton.addClickListener(e ->{
-			boolean isValid = validateItems(itemLongField,itemWidthField,itemHeightField,itemPieceField,itemWeightField);
-			if(isValid){
-				Double volume = Double.parseDouble(itemLongField.getValue()) * Double.parseDouble(itemHeightField.getValue()) *
-							    Double.parseDouble(itemWidthField.getValue());
-				
-				CommodityWrapper commodity = new CommodityWrapper();
-				commodity.setCom_id(String.valueOf(MainPage.this.commodity.getCommId())).setAnn_id(MainPage.this.commodity.getAnnId()).
-				setCommodity(MainPage.this.commodity.getCommName()).setHeight(Double.parseDouble(itemHeightField.getValue())).
-				setLength(Double.parseDouble(itemLongField.getValue())).setPieces(Double.parseDouble(itemPieceField.getValue())).
-				setScc(MainPage.this.commodity.getSccCode()).setVolume(volume).setWeight(Double.parseDouble(itemWeightField.getValue())).
-				setWidth(Double.parseDouble(itemWidthField.getValue()));
-				
-				MainPage.this.commodities.add(commodity);
-				resetAllFields();
+		param.put("sessionId",((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
+		param.put("shipperName", deptDestLayout.getShipper().getCompanyName() );
+		param.put("consigneeName", deptDestLayout.getConsignee().getCompanyName());	
+		param.put("minDep", Util.NORMAL_DATE_FORMAT.format(dateLayout.getFromDate().getValue()));
+		param.put("maxArr", Util.NORMAL_DATE_FORMAT.format(dateLayout.getToDate().getValue()));
+
+		for (int i = 0; i < stringCommodities.length; i++) {
+			param.put("commodities",stringCommodities[i]);
+		}
+
+		param.put("shipperAddId", deptDestLayout.getShipper().getCompanyID());	
+		param.put("latitudeShipper", deptDestLayout.getShipper().getLatitude());	
+		param.put("longitudeShipper", deptDestLayout.getShipper().getLongitude());	
+		param.put("consigneeAddId", deptDestLayout.getConsignee().getCompanyID());
+		param.put("latitudeConsignee", deptDestLayout.getConsignee().getLatitude());	
+		param.put("longitudeConsignee", deptDestLayout.getShipper().getLongitude());
+		return param;
+	}
+
+	private BookingComponent constructItemFormat(List<CommodityWrapper> tempList) {
+		BookingComponent bookingComponent = new BookingComponent();
+		Integer totalPieces = 0;
+		Double totalWeight = 0.0;
+		Double totalVolume = 0.0;
+		Double volumeWeight = 0.0;
+		
+//		String VolumeTotal= null;
+//		String WeightVolume = null;	
+		String insurance = null;
+		
+		String stringCommodities = "";
+		//totalPieces, totalWeight,totalVolume,volumeWeight
+		for(int i = 0; i < tempList.size(); i++) {
+			totalPieces = totalPieces + tempList.get(i).getPieces();
+			totalWeight = totalWeight
+					+ (tempList.get(i).getWeight() * tempList
+							.get(i).getPieces());
+			totalVolume = totalVolume
+					+ (tempList.get(i).getVolume() * tempList
+							.get(i).getPieces());						
+			volumeWeight = volumeWeight
+					+ ((tempList.get(i).getVolume() * tempList.get(
+							i).getPieces()) / 0.006);
+
+			DecimalFormat df = new DecimalFormat("#.##");
+
+					
+			Integer tempLength = tempList.get(i).getLength();
+			Integer tempWidth = tempList.get(i).getWidth();
+			Integer tempHeight = tempList.get(i).getHeight();
+			Double tempInsurance = tempList.get(i).getInsurance();
+			String sInsurance = "";
+			
+			if(tempInsurance != null){
+				sInsurance = df.format(tempInsurance);							
 			}
-		});
-		
-
-		resetAllFields();
-		return parent;
-	}
-
-	private void resetAllFields() {
-		itemPieceField.setValue(1d);
-		itemWeightField.setValue(1d);
-		itemLongField.setValue(1d);
-		itemWidthField.setValue(1d);
-		itemHeightField.setValue(1d);
-		itemComodityField.setText("");
-		
-	}
-
-	private boolean validateItems(NumberField itemLongField, NumberField itemWidthField, NumberField itemHeightField,
-			NumberField itemPieceField, NumberField itemWeightComboBox) {
-		if(itemLongField.getValue() == null || Double.parseDouble(itemLongField.getValue()) < 1) return false;
-		if(itemWidthField.getValue() == null || Double.parseDouble(itemWidthField.getValue()) < 1) return false;
-		if(itemHeightField.getValue() == null || Double.parseDouble(itemHeightField.getValue()) < 1) return false;
-		if(itemPieceField.getValue() == null || Double.parseDouble(itemPieceField.getValue()) < 1) return false;
-		if(itemWeightComboBox.getValue() == null || Double.parseDouble(itemWeightComboBox.getValue()) < 1) return false;
-		if(commodity == null) return false;
-		
-		return true;
-	}
-
-	private void formatAllNumberFields() {
-		itemPieceField.setDecimalAllowed(false);
-		itemPieceField.setDecimalPrecision(0);
-		itemPieceField.setGroupingSeparator('.');
-		itemPieceField.setMinValue(1d);
-		itemPieceField.setMaxLength(3);
-		
-		itemLongField.setDecimalAllowed(true);
-		itemLongField.setDecimalPrecision(2);
-		itemLongField.setDecimalSeparator(',');
-		itemLongField.setGroupingSeparator('.');
-		itemLongField.setMinimumFractionDigits(2);
-		itemLongField.setMinValue(1d);
-		itemLongField.setMaxLength(3);
-		
-		itemWidthField.setDecimalAllowed(true);
-		itemWidthField.setDecimalPrecision(2);
-		itemWidthField.setDecimalSeparator(',');
-		itemWidthField.setGroupingSeparator('.');
-		itemWidthField.setMinimumFractionDigits(2);
-		itemWidthField.setMinValue(1d);
-		itemWidthField.setMaxLength(3);
-		
-		itemHeightField.setDecimalAllowed(true);
-		itemHeightField.setDecimalPrecision(2);
-		itemHeightField.setDecimalSeparator(',');
-		itemHeightField.setGroupingSeparator('.');
-		itemHeightField.setMinimumFractionDigits(2);
-		itemHeightField.setMinValue(1d);
-		itemHeightField.setMaxLength(3);
-		
-	}
-
-	private AutocompleteField createCommodityAutoCompleteComponent() {
-		AutocompleteField<Commodity> field = new AutocompleteField<Commodity>();
-		field.setCaption("Commodity");
-		field.setWidth(100, Unit.PERCENTAGE);
-		field.setQueryListener(new AutocompleteQueryListener<Commodity>() {
-
-			@Override
-			public void handleUserQuery(AutocompleteField<Commodity> arg0, String arg1) {
-				User user = ((Uluee_expressUI)UI.getCurrent()).getUser();
-				List<Commodity> dbData = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getCommodity(arg1, user.getSessionId());
-
-				for (Commodity commodity : dbData) {
-
-					arg0.addSuggestion(commodity,commodity.getCommName());
-					if (arg0.getState().suggestions.size() == 9) {
-						break;
-					}						
-				}
-
-
+			
+			if (tempLength == null && tempWidth == null
+					&& tempHeight == null
+					&& tempList.get(i).getVolume() != null) {
+				tempLength = 0;
+				tempWidth = 0;
+				tempHeight = 0;
 			}
-		});
-		field.setSuggestionPickedListener(e->{
-			MainPage.this.commodity = e;
-		});
-		return field;
-	}
-
-	private VerticalLayout createDeptDestLayout() {
-		VerticalLayout parent = (VerticalLayout) UIFactory.createLayout(LayoutType.VERTICAL, SizeType.FULL, null, true);
-		parent.setHeight(70, Unit.PIXELS);
-		
-		HorizontalLayout deptLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, false);
-		HorizontalLayout destLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, false);
-		
-		deptField = createShipperAutoCompleteComponent();
-		destField = createConsigneeAutoCompleteComponent();
-		
-		deptSignLabel = new Label();
-		destSignLabel = new Label();
-		
-		deptSignLabel.setWidth(null);
-		destSignLabel.setWidth(null);
-		
-		deptLayout.addComponent(deptField);
-		deptLayout.addComponent(deptSignLabel);
-		
-		destLayout.addComponent(destField);
-		destLayout.addComponent(destSignLabel);
-		
-		deptLayout.setExpandRatio(deptField, 1.0f);
-		deptLayout.setExpandRatio(deptSignLabel, 0.0f);
-		
-		destLayout.setExpandRatio(destField, 1.0f);
-		destLayout.setExpandRatio(destSignLabel, 0.0f);
-
-		deptField.setWidth(100, Unit.PERCENTAGE);
-		destField.setWidth(100, Unit.PERCENTAGE);
-		parent.addComponent(deptLayout);
-		parent.addComponent(destLayout);
-		return parent;
-	}
-
-	private AutocompleteField createShipperAutoCompleteComponent() {
-		AutocompleteField<RSAddName> field = new AutocompleteField<>();
-		field.setWidth(100, Unit.PERCENTAGE);
-		field.setQueryListener(new AutocompleteQueryListener<RSAddName>() {
-
-			@Override
-			public void handleUserQuery(AutocompleteField<RSAddName> arg0, String arg1) {
-				User user = ((Uluee_expressUI)UI.getCurrent()).getUser();
-				List<RSAddName> dbData = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getShipperFfwAlsoNotifyDeliveredToAddressByMatchService(arg1, user.getSessionId());
-				if(dbData.size() > 0) {
-					for (RSAddName rSAddName : dbData) {
-						String cityAdd = rSAddName.getCity();
-						String countryAdd = rSAddName.getCountry().toString();
-						String street = (", ").concat(rSAddName.getStreet());
-						if( cityAdd.length() >= 2)
-						{
-							cityAdd = ","+" "+cityAdd.toString();
-						}
-						if(countryAdd.length() >= 2){
-							countryAdd = ","+" "+countryAdd.toString();
-						}
-						arg0.addSuggestion(rSAddName,rSAddName.getCompanyName()+street+cityAdd+countryAdd);
-						if (arg0.getState().suggestions.size() == 9) {
-							break;
-						}						
-					}
-				}
-				else {
-					List<String> rsult = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getGoogleAutocomplete(arg1);
-
-					for(String s:rsult) {
-						RSAddName addName = new RSAddName();
-						addName.setCompanyName(s).setNotSaved(true);
-						arg0.addSuggestion(addName, s);
-					}
-
-				}
+			if(tempList.get(i).getCom_id() == null){
+				stringCommodities = stringCommodities + "&&"
+						+ tempList.get(i).getCommodity() + ":"
+						+ "0" +":"+tempList.get(i).getCommodity()+ "|"
+						+ tempList.get(i).getScc() + "|"
+						+ tempList.get(i).getPieces() + "|" + "Each"
+						+ "|" + tempList.get(i).getWeight() + "|"
+						+ tempLength + "|" + tempWidth + "|"
+						+ tempHeight + "|"
+						+ tempList.get(i).getVolume()
+						+ "|"+sInsurance+"| | | | | | ";
+			}					
+			else{
+				stringCommodities = stringCommodities + "&&"
+						+ tempList.get(i).getCom_id()+ ":"
+						+ tempList.get(i).getAnn_id()
+						+ ":"+tempList.get(i).getCommodity() + "|"
+						+ tempList.get(i).getScc() + "|"
+						+ tempList.get(i).getPieces() + "|" + "Each"
+						+ "|" + tempList.get(i).getWeight() + "|"
+						+ tempLength + "|" + tempWidth + "|"
+						+ tempHeight + "|"
+						+ tempList.get(i).getVolume()
+						+ "|"+sInsurance+"| | | | | | ";
 			}
-		});
+		}
+		stringCommodities = stringCommodities.substring(2);
 		
-		field.setSuggestionPickedListener(e ->{
-			if(e.isNotSaved()) {
-				deptSignLabel.addStyleName("warning-sign");
-				UIFactory.addWindow(new GoogleMapNewDestLayout(GoogleMapNewDestLayout.SHIPPER, MainPage.this, e.getCompanyName()), false, true, true);
-			}else {
-				deptSignLabel.addStyleName("check-sign");
-				shipper = e;
-			}
-		});
-		return field;
-	}
-
-	private AutocompleteField createConsigneeAutoCompleteComponent() {
-		AutocompleteField<RSAddName> field = new AutocompleteField<>();
-		field.setWidth(100, Unit.PERCENTAGE);
-		field.setQueryListener(new AutocompleteQueryListener<RSAddName>() {
-
-			@Override
-			public void handleUserQuery(AutocompleteField<RSAddName> arg0, String arg1) {
-				User user = ((Uluee_expressUI)UI.getCurrent()).getUser();
-				List<RSAddName> dbData = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getShipperFfwAlsoNotifyDeliveredToAddressByMatchService(arg1, user.getSessionId());
-				if(dbData.size() > 0) {
-					for (RSAddName rSAddName : dbData) {
-						String cityAdd = rSAddName.getCity();
-						String countryAdd = rSAddName.getCountry().toString();
-						String street = (", ").concat(rSAddName.getStreet());
-						if( cityAdd.length() >= 2)
-						{
-							cityAdd = ","+" "+cityAdd.toString();
-						}
-						if(countryAdd.length() >= 2){
-							countryAdd = ","+" "+countryAdd.toString();
-						}
-						arg0.addSuggestion(rSAddName,rSAddName.getCompanyName()+street+cityAdd+countryAdd);
-						if (arg0.getState().suggestions.size() == 9) {
-							break;
-						}						
-					}
-				}
-				else {
-					List<String> rsult = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getGoogleAutocomplete(arg1);
-
-					for(String s:rsult) {
-						RSAddName addName = new RSAddName();
-						addName.setCompanyName(s).setNotSaved(true);
-						arg0.addSuggestion(addName, s);
-					}
-
-				}
-			}
-		});
-		
-		field.setSuggestionPickedListener(e ->{
-			if(e.isNotSaved()) {
-				destSignLabel.addStyleName("warning-sign");
-				UIFactory.addWindow(new GoogleMapNewDestLayout(GoogleMapNewDestLayout.CONSIGNEE, MainPage.this, e.getCompanyName()), false, true, true);
-			}else {
-				destSignLabel.addStyleName("check-sign");
-				consignee = e;
-			}
-		});
-		return field;
-	}
-	private HorizontalLayout createDateLayout() {
-		HorizontalLayout parent = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, new MarginInfo(true, false, true, false), true);
-		parent.setHeight(null);
-		fromDate = new DateField();
-		toDate = new DateField();
-
-		fromDate.setWidth(100, Unit.PERCENTAGE);
-		toDate.setWidth(100, Unit.PERCENTAGE);
-
-		parent.addComponent(fromDate);
-		parent.addComponent(toDate);
-		return parent;
+		bookingComponent.setInsurance(insurance).
+		setStringCommodities(stringCommodities).
+		setTotalPieces(totalPieces).
+		setTotalVolume(totalVolume).
+		setTotalWeight(totalWeight).
+		setVolumeWeight(volumeWeight);
+		return bookingComponent;
 	}
 
 	private TabSheet createTab() {
-		HorizontalLayout topLayout = createCheckBoxAndBasketButtonLayout();
-		HorizontalLayout dateLayout = createDateLayout();
-		VerticalLayout deptDestLayout = createDeptDestLayout();
-		HorizontalLayout itemDescriptionLayout = createItemDescriptionLayout();
+		topLayout = new CheckboxAndBasketLayout();
+		topLayout.getBasketButton().addClickListener(e->{
+			UIFactory.addWindow(new CommodityTableLayout(MainPage.this, itemDescriptionLayout.getCommodities()), false, false, true);
+		});
+		dateLayout = new FromAndToDateLayout();
+		deptDestLayout = new DeptDestLayout();
+		itemDescriptionLayout = new ItemDescriptionLayout();
 		VerticalLayout buttonSubmitLayout = createButtonSubmitLayout();
+		deptDestLayout.getDeptField().setSuggestionPickedListener(e->{
+			if(e.isNotSaved()) {
+				deptDestLayout.getDeptSignLabel().addStyleName("warning-sign");
+				UIFactory.addWindow(new GoogleMapNewDestLayout(GoogleMapNewDestLayout.SHIPPER, MainPage.this, e.getCompanyName()), false, true, true);
+			}else {
+				deptDestLayout.getDeptSignLabel().addStyleName("check-sign");
+				deptDestLayout.setShipper(e);
+			}
+		});
+		
+		deptDestLayout.getDestField().setSuggestionPickedListener(e->{
+			if(e.isNotSaved()) {
+				deptDestLayout.getDestSignLabel().addStyleName("warning-sign");
+				UIFactory.addWindow(new GoogleMapNewDestLayout(GoogleMapNewDestLayout.CONSIGNEE, MainPage.this, e.getCompanyName()), false, true, true);
+			}else {
+				deptDestLayout.getDestSignLabel().addStyleName("check-sign");
+				deptDestLayout.setConsignee(e);
+			}
+		});
 
 		Label stripe1 = new Label("<hr>"); 
 		Label stripe2 = new Label("<hr>"); 
@@ -491,49 +337,7 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 		return tab;
 	}
 
-	private HorizontalLayout createCheckBoxAndBasketButtonLayout() {
-		HorizontalLayout parent = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.UNDEFINED, null, true);
-		bookingOption = new OptionGroup();
-		bookingOption.addItem("Deprature");
-		bookingOption.addItem("Arrival");
 
-		Button basketButton = new Button("");
-		basketButton.setStyleName(ValoTheme.BUTTON_FRIENDLY);
-		basketButton.addStyleName(ValoTheme.BUTTON_SMALL);
-		basketButton.setIcon(FontAwesome.SHOPPING_CART);
-		basketButton.addClickListener( e->{
-			UIFactory.addWindow(new CommodityTableLayout(MainPage.this, commodities), false, false, true);
-		});
-
-		parent.setWidth(100, Unit.PERCENTAGE);
-		parent.setHeight(40, Unit.PIXELS);
-		parent.addComponent(bookingOption);
-		parent.addComponent(basketButton);
-
-		parent.setExpandRatio(bookingOption, 1.0f);
-		parent.setExpandRatio(basketButton, 0.0f);
-
-		parent.setComponentAlignment(bookingOption, Alignment.MIDDLE_LEFT);
-		parent.setComponentAlignment(basketButton, Alignment.MIDDLE_RIGHT);
-
-		return parent;
-	}
-
-	public RSAddName getShipper() {
-		return shipper;
-	}
-
-	public void setShipper(RSAddName shipper) {
-		this.shipper = shipper;
-	}
-
-	public RSAddName getConsignee() {
-		return consignee;
-	}
-
-	public void setConsignee(RSAddName consignee) {
-		this.consignee = consignee;
-	}
 
 	@Override
 	public void react(Object... result) {
@@ -543,27 +347,20 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 			tempAdd = (RSAddName) o;
 			if(result.length > 1 && result[1] instanceof Integer){
 				if(Integer.parseInt(String.valueOf(result[1])) == GoogleMapNewDestLayout.CONSIGNEE){
-					consignee = tempAdd;
-					destSignLabel.addStyleName("check-sign");
+					deptDestLayout.setConsignee(tempAdd);
+					deptDestLayout.getDestSignLabel().addStyleName("check-sign");
 				}else{
-					shipper = tempAdd;
-					deptSignLabel.addStyleName("check-sign");
+					deptDestLayout.setShipper(tempAdd);
+					deptDestLayout.getDeptSignLabel().addStyleName("check-sign");
 				}
 			}
 		}
 		else if(o instanceof List){
-			this.commodities = (List<CommodityWrapper>) o;
+			this.itemDescriptionLayout.setCommodities((List<CommodityWrapper>) o);
 		}
 		
 	}
 
-	public List<CommodityWrapper> getCommodities() {
-		return commodities;
-	}
-
-	public void setCommodities(List<CommodityWrapper> commodities) {
-		this.commodities = commodities;
-	}
 
 
 }

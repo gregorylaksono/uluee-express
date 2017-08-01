@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.ksoap2.serialization.SoapObject;
 import org.uluee.web.cloud.model.Commodity;
+import org.uluee.web.cloud.model.FlightSchedule;
 import org.uluee.web.cloud.model.RSAddName;
 import org.uluee.web.cloud.model.User;
 import org.uluee.web.util.CallSOAPAction;
@@ -112,11 +113,11 @@ public class WebServiceCaller implements IWebService {
 				jsonResults.append(buff, 0, read);
 			}
 		} catch (MalformedURLException e) {
-			System.out.println("Error processing Places API URL");
+//			System.out.println("Error processing Places API URL");
 			e.printStackTrace();
 
 		} catch (IOException e) {
-			System.out.println("Error processing Places API URL");
+//			System.out.println("Error processing Places API URL");
 			e.printStackTrace();
 
 		} finally {
@@ -307,7 +308,7 @@ public class WebServiceCaller implements IWebService {
 					}
 					if(type.equals("administrative_area_level_1") ){
 						city = addComObject.getString("long_name").toString();
-						System.out.println(city);
+//						System.out.println(city);
 					}
 					if(address.equals("")){
 						String[] formatAddress = res.getString("formatted_address").split(",");;
@@ -323,7 +324,7 @@ public class WebServiceCaller implements IWebService {
 			}
 	
 		} catch (JSONException e) {
-			System.out.println("Error processing Placses API URL");
+//			System.out.println("Error processing Placses API URL");
 			e.printStackTrace();
 		}
 		
@@ -365,6 +366,28 @@ public class WebServiceCaller implements IWebService {
 		
 		new CallSOAPAction(map, "addUserDummy", callBack);
 		return Long.parseLong(sBuilder.toString());
+	}
+
+	@Override
+	public List<FlightSchedule> getSchedules(LinkedHashMap<String, Object> param) {
+		List<FlightSchedule> flightScheduleList = new ArrayList<FlightSchedule>();
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack(){
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				
+				
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		};
+		new CallSOAPAction(param, "getSchedulesDoorToDoor", callBack);
+		return flightScheduleList;
 	}
 
 

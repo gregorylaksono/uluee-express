@@ -1,5 +1,12 @@
 package org.uluee.web.component;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import org.uluee.web.Uluee_expressUI;
+import org.uluee.web.cloud.model.FlightSchedule;
+import org.uluee.web.util.Util;
+
 import com.vaadin.data.Item;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -8,6 +15,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -31,19 +39,36 @@ public class BookingPage extends VerticalLayout implements View{
 
 	@Override
 	public void enter(ViewChangeEvent event) {
-		
-		
+		 if(event.getParameters() != null){
+			 LinkedHashMap<String, Object> param = new LinkedHashMap<>();
+ 			String[] msgs = event.getParameters().split("/");
+ 			String[] stringCommodities = msgs[0].split("&&");
+
+ 			param.put("sessionId",((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
+ 			param.put("shipperName", msgs[1] );
+ 			param.put("consigneeName", msgs[2]);	
+ 			param.put("minDep", Util.NORMAL_DATE_FORMAT.format(msgs[3]));
+ 			param.put("maxArr", Util.NORMAL_DATE_FORMAT.format(msgs[4]));
+ 			param.put("commodities",stringCommodities);
+ 			param.put("shipperAddId", msgs[5]);	
+ 			param.put("latitudeShipper", msgs[6]);	
+ 			param.put("longitudeShipper", msgs[7]);	
+ 			param.put("consigneeAddId", msgs[8]);
+ 			param.put("latitudeConsignee", msgs[9]);	
+ 			param.put("longitudeConsignee", msgs[10]);
+ 			
+ 			List<FlightSchedule> result = ((Uluee_expressUI) UI.getCurrent()).getWebServiceCaller().getSchedules(param);
+		 }
 	}
 	
 	public BookingPage() {
 		setMargin(true);
 		setSpacing(true);
 		setHeight(100, Unit.PERCENTAGE);
-		createContents();
 	}
 
-	private void createContents() {
-		Table table = createTable();
+	public void createContents(List<FlightSchedule> result) {
+		Table table = createTable(result);
 		FormLayout summary = createSummaryLayout();
 		Button backButton = createBackButton();
 		
@@ -93,7 +118,7 @@ public class BookingPage extends VerticalLayout implements View{
 		return parent;
 	}
 
-	private Table createTable() {
+	private Table createTable(List<FlightSchedule> result) {
 		Table table = new Table();
 		table.addStyleName("uluee-table");
 		table.addContainerProperty(FROM, String.class, null);

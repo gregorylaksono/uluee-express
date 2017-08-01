@@ -81,7 +81,7 @@ public class BookingTab extends VerticalLayout{
 			
 			@Override
 			public void handleUserQuery(AutocompleteField<String> arg0, String arg1) {
-				System.out.println(arg1);
+//				System.out.println(arg1);
 				
 			}
 		});

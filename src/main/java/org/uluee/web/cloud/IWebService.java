@@ -1,11 +1,14 @@
 package org.uluee.web.cloud;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.uluee.web.cloud.model.Commodity;
+import org.uluee.web.cloud.model.FlightSchedule;
 import org.uluee.web.cloud.model.RSAddName;
 import org.uluee.web.cloud.model.User;
+
 
 public interface IWebService {
 	public static final String ADDRESS = "address";
@@ -20,4 +23,5 @@ public interface IWebService {
 	public List<Commodity> getCommodity(String commodity,String sessionId);
 	public RSAddName getLatitudeLongitude(String select);
 	public Long saveAddUser(RSAddName result, String sessionId, String email);
+	public List<FlightSchedule> getSchedules(LinkedHashMap<String, Object> param);
 }

@@ -9,11 +9,11 @@ public class CommodityWrapper implements Serializable{
 	 */
 	private static final long serialVersionUID = -2766091213494811882L;
 	private String Commodity;
-	private Double pieces;
+	private Integer pieces;
 	private Double weight;
-	private Double length;
-	private Double width;
-	private Double height;
+	private Integer length;
+	private Integer width;
+	private Integer height;
 	private Double volume;
 	private String com_id;
 	private Long ann_id;
@@ -27,10 +27,10 @@ public class CommodityWrapper implements Serializable{
 		Commodity = commodity;
 		return this;
 	}
-	public Double getPieces() {
+	public Integer getPieces() {
 		return pieces;
 	}
-	public CommodityWrapper setPieces(Double pieces) {
+	public CommodityWrapper setPieces(Integer pieces) {
 		this.pieces = pieces;
 		return this;
 	}
@@ -69,24 +69,24 @@ public class CommodityWrapper implements Serializable{
 		this.scc = scc;
 		return this;
 	}
-	public Double getLength() {
+	public Integer getLength() {
 		return length;
 	}
-	public CommodityWrapper setLength(Double length) {
+	public CommodityWrapper setLength(Integer length) {
 		this.length = length;
 		return this;
 	}
-	public Double getWidth() {
+	public Integer getWidth() {
 		return width;
 	}
-	public CommodityWrapper setWidth(Double width) {
+	public CommodityWrapper setWidth(Integer width) {
 		this.width = width;
 		return this;
 	}
-	public Double getHeight() {
+	public Integer getHeight() {
 		return height;
 	}
-	public CommodityWrapper setHeight(Double height) {
+	public CommodityWrapper setHeight(Integer height) {
 		this.height = height;
 		return this;
 	}

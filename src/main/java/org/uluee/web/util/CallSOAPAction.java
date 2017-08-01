@@ -35,8 +35,15 @@ public class CallSOAPAction {
 			Object o = m.getValue();
 			if(o instanceof String[]){
 				String[] arr = (String[]) o;
-				for(String s : arr){
-					repaymentReq.addProperty(m.getKey(), s);	
+				for(Object s : arr){
+					if(s instanceof String) {
+						repaymentReq.addProperty(m.getKey(), s);							
+					}
+					else if(s instanceof String[]) {
+						String[] array =  (String[]) s;
+						for(String t : array)
+						repaymentReq.addProperty(m.getKey(), t);
+					}
 				}
 			}else{
 				repaymentReq.addProperty(m.getKey(), o);				
