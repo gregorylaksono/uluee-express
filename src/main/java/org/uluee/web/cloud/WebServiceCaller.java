@@ -6,7 +6,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -14,6 +17,7 @@ import java.util.Map;
 
 import org.ksoap2.serialization.SoapObject;
 import org.uluee.web.cloud.model.Commodity;
+import org.uluee.web.cloud.model.Flight;
 import org.uluee.web.cloud.model.FlightSchedule;
 import org.uluee.web.cloud.model.RSAddName;
 import org.uluee.web.cloud.model.User;
@@ -30,7 +34,9 @@ import com.google.gwt.thirdparty.json.JSONObject;
 
 public class WebServiceCaller implements IWebService {
 
-
+	private SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+	private DecimalFormat df = new DecimalFormat("#.00"); 
+	
 	@Override
 	public User login(String username, String password) {
 		final List<User> container = new ArrayList();
@@ -375,13 +381,71 @@ public class WebServiceCaller implements IWebService {
 
 			@Override
 			public void handleResult(SoapObject data, String statusCode) {
-				
-				
+				try {
+					
+					for (int i = 0; i < data.getPropertyCount(); i++) {
+						SoapObject flightScheduleObj = (SoapObject) data.getProperty(i);						
+						
+						List<Flight> flightList = new ArrayList<Flight>();
+						SoapObject flightListObj = (SoapObject) flightScheduleObj.getProperty("flight");
+						
+						for (int j = 0; j < flightListObj.getPropertyCount(); j++) {
+							SoapObject flightObj = (SoapObject) flightListObj.getProperty(j);
+							
+							Flight flight = new Flight();
+							Date departureString = sdf.parse(flightObj.getProperty("departure").toString());
+							Date arrivalString = sdf.parse(flightObj.getProperty("arrival").toString());
+							
+							flight.setDepartureTime(departureString);
+							flight.setArrivalTime(arrivalString);							
+							flight.setCaId(flightObj.getProperty("caId").toString());
+							flight.setTempCa3dg(flightObj.getProperty("ca3dg").toString());
+							flight.setFltId(Long.parseLong(flightObj.getProperty("fltId").toString()));
+							flight.setMode(Integer.parseInt(flightObj.getProperty("mode").toString()));
+							flight.setTotalRates(flightScheduleObj.getProperty("total_fee_to").toString().split(" ")[0]);
+							flight.setCurrency(flightScheduleObj.getProperty("total_fee_to").toString().split(" ")[1]);
+							flightList.add(flight);
+						}
+						
+						FlightSchedule flightSchedule = new FlightSchedule();
+						flightSchedule.setFlightList(flightList);
+						flightSchedule.setDurationConsignee(Double.parseDouble(flightScheduleObj.getProperty("consignee_duration").toString()));
+						flightSchedule.setDurationShipper(Double.parseDouble(flightScheduleObj.getProperty("shipper_duration").toString()));
+						
+						String[] totalFeeFrom = flightScheduleObj.getProperty("total_fee_from").toString().split(" ");
+						String[] totalFeeTo = flightScheduleObj.getProperty("total_fee_to").toString().split(" ");
+						
+						Number tranposortRateFrom  = df.parse(totalFeeFrom[0]);
+						String sTransportRateFrom = df.format(tranposortRateFrom);
+						flightSchedule.setTransportRateFrom(sTransportRateFrom);
+						flightSchedule.setCurrFrom(totalFeeFrom[1]);
+						
+						Number transportRateTo = df.parse(totalFeeTo[0]);
+						String sTransportRateTo = df.format(transportRateTo);
+						flightSchedule.setTransportRateTo(sTransportRateTo);
+						flightSchedule.setCurrTo(totalFeeTo[1]);
+						
+						Double totalChargesTo = Double.parseDouble(flightSchedule.getTransportRateTo()) + Double.parseDouble(flightScheduleObj.getProperty("total_insurance_to").toString());
+						Double totalChargesFrom = Double.parseDouble(flightSchedule.getTransportRateFrom()) + Double.parseDouble(flightScheduleObj.getProperty("total_insurance_from").toString());
+						
+						flightSchedule.setTotalChargesTo(df.format(totalChargesTo));
+						flightSchedule.setTotalChargesFrom(df.format(totalChargesFrom));
+						
+						String commodities = flightScheduleObj.getProperty("commodities").toString();
+						flightSchedule.setCommodities(commodities);
+						
+						String value = flightSchedule.getTransportRateFrom();
+						
+						flightScheduleList.add(flightSchedule);						
+					}
+				}catch(Exception e) {
+					e.printStackTrace();
+				}
 			}
 
 			@Override
 			public void handleError(String statusCode) {
-				// TODO Auto-generated method stub
+				System.out.println(statusCode);
 				
 			}
 			

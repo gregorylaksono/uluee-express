@@ -2,12 +2,14 @@ package org.uluee.web.component.window;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.uluee.web.Uluee_expressUI;
 import org.uluee.web.cloud.model.BookingComponent;
 import org.uluee.web.cloud.model.FlightSchedule;
 import org.uluee.web.util.NavigatorConstant;
+import org.uluee.web.util.UIFactory;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
@@ -46,15 +48,14 @@ public class DisclaimerLayout extends CustomLayout{
 		agreeCheckBox.setValue(initValue);
 		submitButton.setEnabled(initValue);
 		submitButton.addClickListener(e ->{
-			((Uluee_expressUI)UI.getCurrent()).getNavigator().navigateTo(NavigatorConstant.BOOKING_PAGE);
-			Collection<Window> windows = UI.getCurrent().getWindows();
-			for(Window w: windows) {
-				List<FlightSchedule> result = ((Uluee_expressUI) UI.getCurrent()).getWebServiceCaller().getSchedules(bookingComponent.getParam());
-				((Uluee_expressUI)UI.getCurrent()).getNavigator().navigateTo(NavigatorConstant.BOOKING_PAGE);
-				
-				UI.getCurrent().removeWindow(w);
-				
-			}
+			LinkedHashMap m = bookingComponent.getParam();
+			((Uluee_expressUI)UI.getCurrent()).getNavigator().navigateTo(NavigatorConstant.BOOKING_PAGE+
+					"/"+bookingComponent.getStringCommodities()+"/"+m.get("shipperName")+
+					"/"+m.get("consigneeName")+"/"+m.get("minDep")+"/"+m.get("maxArr")+"/"+m.get("shipperAddId")+
+					"/"+m.get("latitudeShipper")+"/"+m.get("longitudeShipper")+"/"+m.get("consigneeAddId")+
+					"/"+m.get("latitudeConsignee")+"/"+m.get("longitudeConsignee"));
+			UIFactory.closeAllWindow();
+			
 			
 		});
 	}

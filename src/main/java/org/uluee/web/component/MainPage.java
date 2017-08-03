@@ -62,9 +62,7 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 	 * 
 	 */
 	private static final long serialVersionUID = -2045062985535367445L;
-	private OptionGroup bookingOption;
-	private DateField fromDate ;
-	private DateField toDate;
+
 
 	private ItemDescriptionLayout itemDescriptionLayout;
 	private CheckboxAndBasketLayout topLayout;
@@ -83,7 +81,7 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 
 	private void initFieldValue() {
 
-		bookingOption.select("Deprature");
+		topLayout.getBookingOption().select("Deprature");
 	}
 
 	private void createContents() {
@@ -120,10 +118,10 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 	}
 
 	private BookingComponent validateAllFields() {
-		if(fromDate.getValue() == null) {
+		if(dateLayout.getFromDate().getValue() == null) {
 			Notification.show("Please insert from date", Type.ERROR_MESSAGE);return null;
 		}
-		if(toDate.getValue() == null) {
+		if(dateLayout.getToDate().getValue() == null) {
 			Notification.show("Please insert to date", Type.ERROR_MESSAGE);return null;
 		}
 		if(deptDestLayout.getShipper() == null) {
@@ -148,16 +146,18 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 		List<CommodityWrapper> comm = new ArrayList();
 		if(itemDescriptionLayout.getCommodities().size() < 1) {
 			CommodityWrapper c = new CommodityWrapper();
-			
-			c.setHeight(new Double(itemDescriptionLayout.getItemHeightField().getDoubleValueDoNotThrow()).intValue()).
-			setLength(new Double(itemDescriptionLayout.getItemLongField().getDoubleValueDoNotThrow()).intValue()).
-			setPieces(new Double(itemDescriptionLayout.getItemPieceField().getDoubleValueDoNotThrow()).intValue()).
-			setWeight(itemDescriptionLayout.getItemWeightField().getDoubleValueDoNotThrow()).
-			setWidth(new Double(itemDescriptionLayout.getItemWidthField().getDoubleValueDoNotThrow()).intValue()).
+			Commodity commodity = itemDescriptionLayout.getCommodity();
+			c.setHeight(new Double(itemDescriptionLayout.getItemHeightField().getValue()).intValue()).
+			setLength(new Double(itemDescriptionLayout.getItemLongField().getValue()).intValue()).
+			setPieces(new Double(itemDescriptionLayout.getItemPieceField().getValue()).intValue()).
+			setWeight(new Double(itemDescriptionLayout.getItemWeightField().getValue())).
+			setWidth(new Double(itemDescriptionLayout.getItemWidthField().getValue()).intValue()).
 
-			setVolume(itemDescriptionLayout.getItemHeightField().getDoubleValueDoNotThrow()* 
-					  itemDescriptionLayout.getItemLongField().getDoubleValueDoNotThrow() *
-					  itemDescriptionLayout.getItemWidthField().getDoubleValueDoNotThrow());
+			setVolume(new Double(itemDescriptionLayout.getItemHeightField().getValue())* 
+					new Double(itemDescriptionLayout.getItemLongField().getValue()) *
+					new Double(itemDescriptionLayout.getItemWidthField().getValue())).
+			setAnn_id(commodity.getAnnId()).setCom_id(String.valueOf(commodity.getCommId())).
+			setCommodity(commodity.getCommName()).setScc(commodity.getSccCode());
 			comm.add(c);
 			
 			itemDescriptionLayout.setCommodities(comm);

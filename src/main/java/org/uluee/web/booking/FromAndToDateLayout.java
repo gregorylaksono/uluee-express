@@ -1,6 +1,9 @@
 package org.uluee.web.booking;
 
+import java.util.Locale;
+
 import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
 
@@ -18,6 +21,7 @@ public class FromAndToDateLayout extends HorizontalLayout{
 	}
 
 	private void createContents() {
+		setWidth(100, Unit.PERCENTAGE);
 		setMargin(new MarginInfo(true, false, true, false));
 		setSpacing(true);
 		setHeight(null);
@@ -26,7 +30,13 @@ public class FromAndToDateLayout extends HorizontalLayout{
 
 		fromDate.setWidth(100, Unit.PERCENTAGE);
 		toDate.setWidth(100, Unit.PERCENTAGE);
+		
+		fromDate.setResolution(Resolution.MINUTE);
+		toDate.setResolution(Resolution.MINUTE);
 
+		fromDate.setLocale(new Locale("fi", "FI")); 
+		toDate.setLocale(new Locale("fi", "FI")); 
+		
 		addComponent(fromDate);
 		addComponent(toDate);		
 	}

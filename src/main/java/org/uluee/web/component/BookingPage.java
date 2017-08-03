@@ -1,5 +1,6 @@
 package org.uluee.web.component;
 
+import java.text.ParseException;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -42,22 +43,31 @@ public class BookingPage extends VerticalLayout implements View{
 		 if(event.getParameters() != null){
 			 LinkedHashMap<String, Object> param = new LinkedHashMap<>();
  			String[] msgs = event.getParameters().split("/");
- 			String[] stringCommodities = msgs[0].split("&&");
-
- 			param.put("sessionId",((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
- 			param.put("shipperName", msgs[1] );
- 			param.put("consigneeName", msgs[2]);	
- 			param.put("minDep", Util.NORMAL_DATE_FORMAT.format(msgs[3]));
- 			param.put("maxArr", Util.NORMAL_DATE_FORMAT.format(msgs[4]));
- 			param.put("commodities",stringCommodities);
- 			param.put("shipperAddId", msgs[5]);	
- 			param.put("latitudeShipper", msgs[6]);	
- 			param.put("longitudeShipper", msgs[7]);	
- 			param.put("consigneeAddId", msgs[8]);
- 			param.put("latitudeConsignee", msgs[9]);	
- 			param.put("longitudeConsignee", msgs[10]);
  			
- 			List<FlightSchedule> result = ((Uluee_expressUI) UI.getCurrent()).getWebServiceCaller().getSchedules(param);
+ 			try {
+				String dep = Util.CONVERT_DATE_FORMAT.format(Util.NORMAL_DATE_FORMAT.parse(msgs[4]));
+				String arr = Util.CONVERT_DATE_FORMAT.format(Util.NORMAL_DATE_FORMAT.parse(msgs[5]));
+				
+				param.put("sessionId",((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
+	 			param.put("shipperName", msgs[1] );
+	 			param.put("consigneeName", msgs[2]);	
+	 			param.put("minDep", dep);
+	 			param.put("maxArr", arr);
+	 			param.put("commodities",msgs[0]);
+	 			param.put("shipperAddId", msgs[5]);	
+	 			param.put("latitudeShipper", msgs[6]);	
+	 			param.put("longitudeShipper", msgs[7]);	
+	 			param.put("consigneeAddId", msgs[8]);
+	 			param.put("latitudeConsignee", msgs[9]);	
+	 			param.put("longitudeConsignee", msgs[10]);
+	 			List<FlightSchedule> result = ((Uluee_expressUI) UI.getCurrent()).getWebServiceCaller().getSchedules(param);
+				
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+ 			
+ 			
+ 			
 		 }
 	}
 	

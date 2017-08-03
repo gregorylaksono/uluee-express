@@ -45,6 +45,7 @@ public class ItemDescriptionLayout extends HorizontalLayout {
 		setMargin(new MarginInfo(true, false, false, false));
 		setSpacing(true);
 		setHeight(null);
+		setWidth(100, Unit.PERCENTAGE);
 
 		VerticalLayout leftLayout = (VerticalLayout) UIFactory.createLayout(LayoutType.VERTICAL, SizeType.FULL, null, true);
 		VerticalLayout rightLayout = (VerticalLayout) UIFactory.createLayout(LayoutType.VERTICAL, SizeType.FULL, null, true);

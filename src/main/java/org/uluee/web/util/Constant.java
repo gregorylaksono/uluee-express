@@ -1,10 +1,10 @@
 package org.uluee.web.util;
-
+	
 public class Constant {
 
-	public static final String USERNAME = "spice";
-	public static final String PASSWORD = "spice";
-	public static final String URL = "http://acternity.net";
+	public static final String USERNAME = "act001";
+	public static final String PASSWORD = "ffw";
+	public static final String URL = "http://localhost:8888";
 	public static final String WS_PATH = URL+"/WEBSERVICE/services/MobileService?wsdl";
 	
 	
