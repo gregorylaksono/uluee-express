@@ -106,6 +106,7 @@ public class GoogleMapNewDestLayout extends VerticalLayout{
 					Notification.show("Please input your email", Type.ERROR_MESSAGE);
 				}else{					
 					Long code = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().saveAddUser(result, user.getSessionId(), email);
+					result.setCompanyID(String.valueOf(code));
 					UIFactory.closeAllWindow();
 					parentWindow.react(result,type);
 					

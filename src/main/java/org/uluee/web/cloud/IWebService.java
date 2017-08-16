@@ -5,9 +5,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.uluee.web.cloud.model.Commodity;
+import org.uluee.web.cloud.model.Flight;
 import org.uluee.web.cloud.model.FlightSchedule;
+import org.uluee.web.cloud.model.PaypalData;
 import org.uluee.web.cloud.model.RSAddName;
 import org.uluee.web.cloud.model.User;
+
 
 
 public interface IWebService {
@@ -24,4 +27,10 @@ public interface IWebService {
 	public RSAddName getLatitudeLongitude(String select);
 	public Long saveAddUser(RSAddName result, String sessionId, String email);
 	public List<FlightSchedule> getSchedules(LinkedHashMap<String, Object> param);
+	public List<RSAddName> getFfwAddressByMatch(String match, String sessionId);
+	public PaypalData generateRedirectUrlPaypal(double dTotdalRates, String currency);
+	
+	public String saveDataPaymentTemp(List<Flight> flightList, String paymentID, String tokenID, 
+									  String totalAmount,String curr3lc, String[] commodities, 
+									  String shipperId, String consigneeId);
 }

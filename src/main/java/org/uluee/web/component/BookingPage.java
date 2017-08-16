@@ -1,11 +1,15 @@
 package org.uluee.web.component;
 
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.uluee.web.Uluee_expressUI;
+import org.uluee.web.cloud.model.Flight;
 import org.uluee.web.cloud.model.FlightSchedule;
+import org.uluee.web.cloud.model.PaypalData;
 import org.uluee.web.util.Util;
 
 import com.vaadin.data.Item;
@@ -16,6 +20,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.TreeTable;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
@@ -33,10 +38,13 @@ public class BookingPage extends VerticalLayout implements View{
 	private static final String DEP_TIME = "depTime";
 	private static final String TO = "to";
 	private static final String FROM = "from";
+	private DateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 	private Label tVolWeightL;
 	private Label tvolumeL;
 	private Label tweightL;
 	private Label tPiecesL;
+	private List<FlightSchedule> result;
+	private TreeTable table;
 
 	@Override
 	public void enter(ViewChangeEvent event) {
@@ -45,8 +53,8 @@ public class BookingPage extends VerticalLayout implements View{
  			String[] msgs = event.getParameters().split("/");
  			
  			try {
-				String dep = Util.CONVERT_DATE_FORMAT.format(Util.NORMAL_DATE_FORMAT.parse(msgs[4]));
-				String arr = Util.CONVERT_DATE_FORMAT.format(Util.NORMAL_DATE_FORMAT.parse(msgs[5]));
+				String dep = Util.CONVERT_DATE_FORMAT.format(Util.NORMAL_DATE_FORMAT.parse(msgs[3]));
+				String arr = Util.CONVERT_DATE_FORMAT.format(Util.NORMAL_DATE_FORMAT.parse(msgs[4]));
 				
 				param.put("sessionId",((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
 	 			param.put("shipperName", msgs[1] );
@@ -60,8 +68,8 @@ public class BookingPage extends VerticalLayout implements View{
 	 			param.put("consigneeAddId", msgs[8]);
 	 			param.put("latitudeConsignee", msgs[9]);	
 	 			param.put("longitudeConsignee", msgs[10]);
-	 			List<FlightSchedule> result = ((Uluee_expressUI) UI.getCurrent()).getWebServiceCaller().getSchedules(param);
-				
+	 			result = ((Uluee_expressUI) UI.getCurrent()).getWebServiceCaller().getSchedules(param);
+	 			insertItems();
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
@@ -72,13 +80,15 @@ public class BookingPage extends VerticalLayout implements View{
 	}
 	
 	public BookingPage() {
+		UI.getCurrent().getPage().setTitle("Schedule list");
 		setMargin(true);
 		setSpacing(true);
 		setHeight(100, Unit.PERCENTAGE);
+		createContents();
 	}
 
-	public void createContents(List<FlightSchedule> result) {
-		Table table = createTable(result);
+	private void createContents() {
+		table = createTable();
 		FormLayout summary = createSummaryLayout();
 		Button backButton = createBackButton();
 		
@@ -92,7 +102,10 @@ public class BookingPage extends VerticalLayout implements View{
 		
 		setComponentAlignment(summary, Alignment.MIDDLE_LEFT);
 		setComponentAlignment(backButton, Alignment.MIDDLE_LEFT);
+		
 	}
+
+
 
 	private Button createBackButton() {
 		Button button = new Button("Back");
@@ -128,11 +141,9 @@ public class BookingPage extends VerticalLayout implements View{
 		return parent;
 	}
 
-	private Table createTable(List<FlightSchedule> result) {
-		Table table = new Table();
+	private TreeTable createTable() {
+		TreeTable table = new TreeTable();
 		table.addStyleName("uluee-table");
-		table.addContainerProperty(FROM, String.class, null);
-		table.addContainerProperty(TO, String.class, null);
 		table.addContainerProperty(DEP_TIME, String.class, null);
 		table.addContainerProperty(ARR_TIME, String.class, null);
 		table.addContainerProperty(RATE, String.class, null);
@@ -141,25 +152,54 @@ public class BookingPage extends VerticalLayout implements View{
 		table.setWidth(100, Unit.PERCENTAGE);
 		table.setHeight(100, Unit.PERCENTAGE);
 		
-		table.setColumnHeader(FROM, "From");
-		table.setColumnHeader(TO, "To");
 		table.setColumnHeader(DEP_TIME, "Deprature time");
 		table.setColumnHeader(ARR_TIME, "Arrival time");
 		table.setColumnHeader(RATE, "Rate");
 		table.setColumnHeader(SELECT, "");
 		
-		Item i = table.addItem("test");
-		Button b = new Button("Select");
-		b.setStyleName(ValoTheme.BUTTON_SMALL);
-		b.addStyleName(ValoTheme.BUTTON_QUIET);
+//		Item i = table.addItem("test");
 		
-		i.getItemProperty(FROM).setValue("London");
-		i.getItemProperty(TO).setValue("Berlin");
-		i.getItemProperty(DEP_TIME).setValue("21/07/17 17:00");
-		i.getItemProperty(ARR_TIME).setValue("21/07/17 19:00");
-		i.getItemProperty(RATE).setValue("200 EUR");
-		i.getItemProperty(SELECT).setValue(b);
+		
+//		i.getItemProperty(DEP_TIME).setValue("21/07/17 17:00");
+//		i.getItemProperty(ARR_TIME).setValue("21/07/17 19:00");
+//		i.getItemProperty(RATE).setValue("200 EUR");
+//		i.getItemProperty(SELECT).setValue(b);
 		return table;
+	}
+	private void insertItems() {
+		int index = 1;
+		for(FlightSchedule schedule: result) {
+			Button b = new Button("Select");
+			
+			
+			b.setStyleName(ValoTheme.BUTTON_SMALL);
+			b.addStyleName(ValoTheme.BUTTON_PRIMARY);
+			
+			Double rate = new Double(0);
+			Item parent = table.addItem(schedule);
+			parent.getItemProperty(DEP_TIME).setValue("Flight "+index);
+			for(Flight f :schedule.getFlightList()) {
+				rate = Double.parseDouble(f.getTotalRates()) + rate;				
+				Item child = table.addItem(f);
+				child.getItemProperty(DEP_TIME).setValue(format.format(f.getDepartureTime()));
+				child.getItemProperty(ARR_TIME).setValue(format.format(f.getArrivalTime()));
+				child.getItemProperty(RATE).setValue(f.getTotalRates() + " "+ f.getCurrency());
+				child.getItemProperty(SELECT).setValue(null);
+				table.setParent(f, schedule);
+			}
+//			parent.getItemProperty(FROM).setValue("");
+//			parent.getItemProperty(TO).setValue("");
+//			parent.getItemProperty(DEP_TIME).setValue("");
+			parent.getItemProperty(ARR_TIME).setValue("");
+			parent.getItemProperty(RATE).setValue(rate.toString()+" " + schedule.getCurrFrom());
+			parent.getItemProperty(SELECT).setValue(b);
+			final Double rateFinal = rate;
+			b.addClickListener(e->{
+				PaypalData paypal = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().generateRedirectUrlPaypal(rateFinal.doubleValue(), schedule.getCurrFrom());
+				getUI().getPage().setLocation(paypal.getRedirectUrl());
+			});
+		}
+		
 	}
 
 }
