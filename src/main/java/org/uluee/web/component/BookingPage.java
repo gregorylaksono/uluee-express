@@ -45,40 +45,46 @@ public class BookingPage extends VerticalLayout implements View{
 	private Label tPiecesL;
 	private List<FlightSchedule> result;
 	private TreeTable table;
+	private String[] commodities;
+	private String shipperId;
+	private String consigneeId;
 
 	@Override
 	public void enter(ViewChangeEvent event) {
-		 if(event.getParameters() != null){
-			 LinkedHashMap<String, Object> param = new LinkedHashMap<>();
- 			String[] msgs = event.getParameters().split("/");
- 			
- 			try {
+		if(event.getParameters() != null){
+			LinkedHashMap<String, Object> param = new LinkedHashMap<>();
+			String[] msgs = event.getParameters().split("/");
+
+			try {
 				String dep = Util.CONVERT_DATE_FORMAT.format(Util.NORMAL_DATE_FORMAT.parse(msgs[3]));
 				String arr = Util.CONVERT_DATE_FORMAT.format(Util.NORMAL_DATE_FORMAT.parse(msgs[4]));
+				this.commodities  = msgs[0].split("&&");
+				this.shipperId = msgs[5];
+				this.consigneeId = msgs[8];
 				
 				param.put("sessionId",((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
-	 			param.put("shipperName", msgs[1] );
-	 			param.put("consigneeName", msgs[2]);	
-	 			param.put("minDep", dep);
-	 			param.put("maxArr", arr);
-	 			param.put("commodities",msgs[0]);
-	 			param.put("shipperAddId", msgs[5]);	
-	 			param.put("latitudeShipper", msgs[6]);	
-	 			param.put("longitudeShipper", msgs[7]);	
-	 			param.put("consigneeAddId", msgs[8]);
-	 			param.put("latitudeConsignee", msgs[9]);	
-	 			param.put("longitudeConsignee", msgs[10]);
-	 			result = ((Uluee_expressUI) UI.getCurrent()).getWebServiceCaller().getSchedules(param);
-	 			insertItems();
+				param.put("shipperName", msgs[1] );
+				param.put("consigneeName", msgs[2]);	
+				param.put("minDep", dep);
+				param.put("maxArr", arr);
+				param.put("commodities",msgs[0]);
+				param.put("shipperAddId", msgs[5]);	
+				param.put("latitudeShipper", msgs[6]);	
+				param.put("longitudeShipper", msgs[7]);	
+				param.put("consigneeAddId", msgs[8]);
+				param.put("latitudeConsignee", msgs[9]);	
+				param.put("longitudeConsignee", msgs[10]);
+				result = ((Uluee_expressUI) UI.getCurrent()).getWebServiceCaller().getSchedules(param);
+				insertItems();
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
- 			
- 			
- 			
-		 }
+
+
+
+		}
 	}
-	
+
 	public BookingPage() {
 		UI.getCurrent().getPage().setTitle("Schedule list");
 		setMargin(true);
@@ -91,18 +97,18 @@ public class BookingPage extends VerticalLayout implements View{
 		table = createTable();
 		FormLayout summary = createSummaryLayout();
 		Button backButton = createBackButton();
-		
+
 		addComponent(table);
 		addComponent(summary);
 		addComponent(backButton);
-		
+
 		setExpandRatio(table, 1.0f);
 		setExpandRatio(summary, 0.0f);
 		setExpandRatio(backButton, 0.0f);
-		
+
 		setComponentAlignment(summary, Alignment.MIDDLE_LEFT);
 		setComponentAlignment(backButton, Alignment.MIDDLE_LEFT);
-		
+
 	}
 
 
@@ -118,22 +124,22 @@ public class BookingPage extends VerticalLayout implements View{
 		FormLayout parent = new FormLayout();
 		parent.setWidth(100, Unit.PERCENTAGE);
 		parent.addStyleName("summary-form-layout");
-		
+
 		tPiecesL = new Label("");
 		tweightL = new Label("");
 		tvolumeL = new Label("");
 		tVolWeightL = new Label("");
-		
+
 		tPiecesL.setCaption("Total pieces");
 		tweightL.setCaption("Total Weight");
 		tvolumeL.setCaption("Total Volume");
 		tVolWeightL.setCaption("Volume/Weight");
-		
+
 		tPiecesL.setValue("1 pieces");
 		tweightL.setValue("1.0 kg");
 		tvolumeL.setValue("1 m3");
 		tVolWeightL.setValue("0.17 kg");
-		
+
 		parent.addComponent(tPiecesL);
 		parent.addComponent(tweightL);
 		parent.addComponent(tvolumeL);
@@ -148,33 +154,33 @@ public class BookingPage extends VerticalLayout implements View{
 		table.addContainerProperty(ARR_TIME, String.class, null);
 		table.addContainerProperty(RATE, String.class, null);
 		table.addContainerProperty(SELECT, Button.class, null);
-		
+
 		table.setWidth(100, Unit.PERCENTAGE);
 		table.setHeight(100, Unit.PERCENTAGE);
-		
+
 		table.setColumnHeader(DEP_TIME, "Deprature time");
 		table.setColumnHeader(ARR_TIME, "Arrival time");
 		table.setColumnHeader(RATE, "Rate");
 		table.setColumnHeader(SELECT, "");
-		
-//		Item i = table.addItem("test");
-		
-		
-//		i.getItemProperty(DEP_TIME).setValue("21/07/17 17:00");
-//		i.getItemProperty(ARR_TIME).setValue("21/07/17 19:00");
-//		i.getItemProperty(RATE).setValue("200 EUR");
-//		i.getItemProperty(SELECT).setValue(b);
+
+		//		Item i = table.addItem("test");
+
+
+		//		i.getItemProperty(DEP_TIME).setValue("21/07/17 17:00");
+		//		i.getItemProperty(ARR_TIME).setValue("21/07/17 19:00");
+		//		i.getItemProperty(RATE).setValue("200 EUR");
+		//		i.getItemProperty(SELECT).setValue(b);
 		return table;
 	}
 	private void insertItems() {
 		int index = 1;
 		for(FlightSchedule schedule: result) {
 			Button b = new Button("Select");
-			
-			
+
+
 			b.setStyleName(ValoTheme.BUTTON_SMALL);
 			b.addStyleName(ValoTheme.BUTTON_PRIMARY);
-			
+
 			Double rate = new Double(0);
 			Item parent = table.addItem(schedule);
 			parent.getItemProperty(DEP_TIME).setValue("Flight "+index);
@@ -187,9 +193,6 @@ public class BookingPage extends VerticalLayout implements View{
 				child.getItemProperty(SELECT).setValue(null);
 				table.setParent(f, schedule);
 			}
-//			parent.getItemProperty(FROM).setValue("");
-//			parent.getItemProperty(TO).setValue("");
-//			parent.getItemProperty(DEP_TIME).setValue("");
 			parent.getItemProperty(ARR_TIME).setValue("");
 			parent.getItemProperty(RATE).setValue(rate.toString()+" " + schedule.getCurrFrom());
 			parent.getItemProperty(SELECT).setValue(b);
@@ -197,9 +200,13 @@ public class BookingPage extends VerticalLayout implements View{
 			b.addClickListener(e->{
 				PaypalData paypal = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().generateRedirectUrlPaypal(rateFinal.doubleValue(), schedule.getCurrFrom());
 				getUI().getPage().setLocation(paypal.getRedirectUrl());
+
+				((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().saveDataPaymentTemp(schedule.getFlightList(), paypal.getPaymentId(), paypal.getToken(),
+						String.valueOf(rateFinal.doubleValue()), schedule.getCurrFrom(), commodities, shipperId, consigneeId);
+
 			});
 		}
-		
+
 	}
 
 }

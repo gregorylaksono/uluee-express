@@ -626,12 +626,12 @@ public class WebServiceCaller implements IWebService {
 				createBookingRequest.put("paymentId", paymentID);
 				createBookingRequest.put("amount", totalAmount);
 				createBookingRequest.put("cur3lc", curr3lc);
-				
+				StringBuffer result = new StringBuffer();
 				ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
 					
 					@Override
 					public void handleResult(SoapObject data, String statusCode) {
-						data.getProperty("code").toString(); 
+						result.append(data.getProperty("code").toString()); 
 					}
 					
 					@Override
@@ -640,7 +640,7 @@ public class WebServiceCaller implements IWebService {
 					}
 				};
 				new CallSOAPAction(createBookingRequest, "getSchedulesDoorToDoor", callBack);
-				return null;
+				return result.toString();
 	}
 
 
