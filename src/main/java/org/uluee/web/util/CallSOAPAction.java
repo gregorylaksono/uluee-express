@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
@@ -16,7 +17,7 @@ import org.xmlpull.v1.XmlPullParserException;
 public class CallSOAPAction {
 	private String method_name;
 	private LinkedHashMap<String, Object> param;
-	
+	private final static Logger LOG = Logger.getLogger(CallSOAPAction.class.getName());
 	private ISOAPResultCallBack callBack;
 	public static final String NAMESPACE = "http://service.act.de";
 	public static final String SUCCESS_CODE = "00:success";
@@ -31,23 +32,26 @@ public class CallSOAPAction {
 	private void doCall() {
 		SoapObject repaymentReq = new SoapObject(NAMESPACE,
 				method_name);
+		LOG.info("Call service "+method_name);
 		for(Map.Entry<String, Object> m : param.entrySet()){
 			Object o = m.getValue();
 			if(o instanceof String[]){
 				String[] arr = (String[]) o;
 				for(Object s : arr){
 					if(s instanceof String) {
-						repaymentReq.addProperty(m.getKey(), s);							
+						repaymentReq.addProperty(m.getKey(), s);
 					}
 					else if(s instanceof String[]) {
 						String[] array =  (String[]) s;
-						for(String t : array)
-						repaymentReq.addProperty(m.getKey(), t);
+						for(String t : array) {
+							repaymentReq.addProperty(m.getKey(), t);
+						}
 					}
 				}
 			}else{
 				repaymentReq.addProperty(m.getKey(), o);				
 			}
+			LOG.info(m.getKey()+" -- "+o);
 		}
 		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
 

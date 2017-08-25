@@ -10,6 +10,7 @@ import org.uluee.web.Uluee_expressUI;
 import org.uluee.web.cloud.model.Flight;
 import org.uluee.web.cloud.model.FlightSchedule;
 import org.uluee.web.cloud.model.PaypalData;
+import org.uluee.web.cloud.model.ScheduleDoorToDoor;
 import org.uluee.web.util.Util;
 
 import com.vaadin.data.Item;
@@ -43,7 +44,7 @@ public class BookingPage extends VerticalLayout implements View{
 	private Label tvolumeL;
 	private Label tweightL;
 	private Label tPiecesL;
-	private List<FlightSchedule> result;
+	private List<ScheduleDoorToDoor> result;
 	private TreeTable table;
 	private String[] commodities;
 	private String shipperId;
@@ -174,36 +175,35 @@ public class BookingPage extends VerticalLayout implements View{
 	}
 	private void insertItems() {
 		int index = 1;
-		for(FlightSchedule schedule: result) {
+		for(ScheduleDoorToDoor schedule: result) {
 			Button b = new Button("Select");
 
 
 			b.setStyleName(ValoTheme.BUTTON_SMALL);
 			b.addStyleName(ValoTheme.BUTTON_PRIMARY);
 
-			Double rate = new Double(0);
+			String[] args = schedule.getTotal_fee_from().split(" ");
+			final Double rateFinal = new Double(args[0]);
 			Item parent = table.addItem(schedule);
 			parent.getItemProperty(DEP_TIME).setValue("Flight "+index);
-			for(Flight f :schedule.getFlightList()) {
-				rate = Double.parseDouble(f.getTotalRates()) + rate;				
+			for(Flight f :schedule.getFlight()) {
 				Item child = table.addItem(f);
 				child.getItemProperty(DEP_TIME).setValue(format.format(f.getDepartureTime()));
 				child.getItemProperty(ARR_TIME).setValue(format.format(f.getArrivalTime()));
-				child.getItemProperty(RATE).setValue(f.getTotalRates() + " "+ f.getCurrency());
+				child.getItemProperty(RATE).setValue("");
 				child.getItemProperty(SELECT).setValue(null);
 				table.setParent(f, schedule);
 			}
 			parent.getItemProperty(ARR_TIME).setValue("");
-			parent.getItemProperty(RATE).setValue(rate.toString()+" " + schedule.getCurrFrom());
+			parent.getItemProperty(RATE).setValue(schedule.getTotal_fee_from());
 			parent.getItemProperty(SELECT).setValue(b);
-			final Double rateFinal = rate;
+			index++;
 			b.addClickListener(e->{
 				PaypalData paypal = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().generateRedirectUrlPaypal(rateFinal.doubleValue(), schedule.getCurrFrom());
 				getUI().getPage().setLocation(paypal.getRedirectUrl());
 
-				((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().saveDataPaymentTemp(schedule.getFlightList(), paypal.getPaymentId(), paypal.getToken(),
-						String.valueOf(rateFinal.doubleValue()), schedule.getCurrFrom(), commodities, shipperId, consigneeId);
-
+				((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().saveDataPaymentTemp(paypal.getToken(), paypal.getPaymentId(), schedule.getSessionKey(), schedule.getRateId());
+				((Uluee_expressUI)UI.getCurrent()).setSessionKey(schedule.getSessionKey());
 			});
 		}
 

@@ -19,11 +19,14 @@ import java.util.Map;
 
 import org.ksoap2.serialization.SoapObject;
 import org.uluee.web.Uluee_expressUI;
+import org.uluee.web.cloud.model.BookingConfirmation;
 import org.uluee.web.cloud.model.Commodity;
+import org.uluee.web.cloud.model.DataPaymentTempDTD;
 import org.uluee.web.cloud.model.Flight;
 import org.uluee.web.cloud.model.FlightSchedule;
 import org.uluee.web.cloud.model.PaypalData;
 import org.uluee.web.cloud.model.RSAddName;
+import org.uluee.web.cloud.model.ScheduleDoorToDoor;
 import org.uluee.web.cloud.model.User;
 import org.uluee.web.util.CallSOAPAction;
 import org.uluee.web.util.CallSOAPAction.ISOAPResultCallBack;
@@ -450,8 +453,8 @@ public class WebServiceCaller implements IWebService {
 	}
 
 	@Override
-	public List<FlightSchedule> getSchedules(LinkedHashMap<String, Object> param) {
-		List<FlightSchedule> flightScheduleList = new ArrayList<FlightSchedule>();
+	public List<ScheduleDoorToDoor> getSchedules(LinkedHashMap<String, Object> param) {
+		List<ScheduleDoorToDoor> flightScheduleList = new ArrayList<ScheduleDoorToDoor>();
 		ISOAPResultCallBack callBack = new ISOAPResultCallBack(){
 
 			@Override
@@ -459,59 +462,38 @@ public class WebServiceCaller implements IWebService {
 				try {
 					
 					for (int i = 0; i < data.getPropertyCount(); i++) {
-						SoapObject flightScheduleObj = (SoapObject) data.getProperty(i);						
+						SoapObject flightScheduleObj = (SoapObject) data.getProperty(i);
+						SoapObject flightObj = (SoapObject) flightScheduleObj.getProperty("flight");
+						SoapObject list = (SoapObject) flightObj.getProperty("list");
+						List<Flight> flightList = new ArrayList();
 						
-						List<Flight> flightList = new ArrayList<Flight>();
-						SoapObject flightListObj = (SoapObject) flightScheduleObj.getProperty("flight");
-						
-						for (int j = 0; j < flightListObj.getPropertyCount(); j++) {
-							SoapObject flightObj = (SoapObject) flightListObj.getProperty(j);
-							
+//						for (int j = 0; j < list.getPropertyCount(); j++) {
 							Flight flight = new Flight();
-							Date departureString = sdf.parse(flightObj.getProperty("departure").toString());
-							Date arrivalString = sdf.parse(flightObj.getProperty("arrival").toString());
-							
-							flight.setDepartureTime(departureString);
-							flight.setArrivalTime(arrivalString);							
-							flight.setCaId(flightObj.getProperty("caId").toString());
-							flight.setTempCa3dg(flightObj.getProperty("ca3dg").toString());
-							flight.setFltId(Long.parseLong(flightObj.getProperty("fltId").toString()));
-							flight.setMode(Integer.parseInt(flightObj.getProperty("mode").toString()));
-							flight.setTotalRates(flightScheduleObj.getProperty("total_fee_to").toString().split(" ")[0]);
-							flight.setCurrency(flightScheduleObj.getProperty("total_fee_to").toString().split(" ")[1]);
+							flight.setArrivalTime(sdf.parse(list.getProperty("arrival").toString()));
+							flight.setTempCa3dg(list.getProperty("ca3dg").toString());
+							flight.setCaId(list.getProperty("caId").toString());
+							flight.setDepartureTime(sdf.parse(list.getProperty("departure").toString()));
+							flight.setFltId(Long.parseLong(list.getProperty("fltId").toString()));
+							flight.setMode(Integer.parseInt(list.getProperty("mode").toString()));	
 							flightList.add(flight);
-						}
+//						}
 						
-						FlightSchedule flightSchedule = new FlightSchedule();
-						flightSchedule.setFlightList(flightList);
-						flightSchedule.setDurationConsignee(Double.parseDouble(flightScheduleObj.getProperty("consignee_duration").toString()));
-						flightSchedule.setDurationShipper(Double.parseDouble(flightScheduleObj.getProperty("shipper_duration").toString()));
 						
-						String[] totalFeeFrom = flightScheduleObj.getProperty("total_fee_from").toString().split(" ");
-						String[] totalFeeTo = flightScheduleObj.getProperty("total_fee_to").toString().split(" ");
+						ScheduleDoorToDoor d = new ScheduleDoorToDoor();
+						d.setCommodities(flightScheduleObj.getProperty("commodities") == null ?"" :flightScheduleObj.getProperty("commodities").toString()).
+						setConsignee_add_id(flightScheduleObj.getProperty("consignee_add_id").toString()).
+						setConsignee_distance(flightScheduleObj.getProperty("consignee_distance").toString()).setConsignee_duration(flightScheduleObj.getProperty("consignee_duration").toString()).
+						setConsignee_rate_from(flightScheduleObj.getProperty("consignee_rate_from").toString()).setConsignee_rate_to(flightScheduleObj.getProperty("consignee_rate_to").toString()).
+						setFuel_charges_airlane_from(flightScheduleObj.getProperty("fuel_charges_airlane_from").toString()).setFuel_charges_airlane_to(flightScheduleObj.getProperty("fuel_charges_airlane_to").toString()).
+						setRate_airlane_per_kg_from(flightScheduleObj.getProperty("rate_airlane_per_kg_from").toString()).setRate_airlane_per_kg_to(flightScheduleObj.getProperty("fuel_charges_airlane_to").toString()).
+						setRateId(flightScheduleObj.getProperty("rateId").toString()).setSecurity_charges_airlane_from(flightScheduleObj.getProperty("security_charges_airlane_from").toString()).setSecurity_charges_airlane_to(flightScheduleObj.getProperty("security_charges_airlane_to").toString()).
+						setSessionKey(flightScheduleObj.getProperty("sessionKey").toString()).setShipper_add_id(flightScheduleObj.getProperty("shipper_add_id").toString()).setShipper_rate_to(flightScheduleObj.getProperty("shipper_rate_to").toString()).
+						setTotal_airlane_from(flightScheduleObj.getProperty("total_airlane_from").toString()).setTotal_airlane_to(flightScheduleObj.getProperty("total_airlane_to").toString()).
+						setTotal_fee_from(flightScheduleObj.getProperty("total_fee_from").toString()).setTotal_fee_to(flightScheduleObj.getProperty("total_fee_to").toString()).setTotal_insurance_from(flightScheduleObj.getProperty("total_insurance_from").toString()).
+						setTotal_insurance_to(flightScheduleObj.getProperty("total_insurance_to").toString()).setFlight(flightList).setStandalone(Boolean.parseBoolean(flightScheduleObj.getProperty("standalone").toString())).
+						setCurrFrom(flightScheduleObj.getProperty("currFrom").toString()).setCurrTo(flightScheduleObj.getProperty("currTo").toString()); 
 						
-						Number tranposortRateFrom  = df.parse(totalFeeFrom[0]);
-						String sTransportRateFrom = df.format(tranposortRateFrom);
-						flightSchedule.setTransportRateFrom(sTransportRateFrom);
-						flightSchedule.setCurrFrom(totalFeeFrom[1]);
-						
-						Number transportRateTo = df.parse(totalFeeTo[0]);
-						String sTransportRateTo = df.format(transportRateTo);
-						flightSchedule.setTransportRateTo(sTransportRateTo);
-						flightSchedule.setCurrTo(totalFeeTo[1]);
-						
-						Double totalChargesTo = Double.parseDouble(flightSchedule.getTransportRateTo()) + Double.parseDouble(flightScheduleObj.getProperty("total_insurance_to").toString());
-						Double totalChargesFrom = Double.parseDouble(flightSchedule.getTransportRateFrom()) + Double.parseDouble(flightScheduleObj.getProperty("total_insurance_from").toString());
-						
-						flightSchedule.setTotalChargesTo(df.format(totalChargesTo));
-						flightSchedule.setTotalChargesFrom(df.format(totalChargesFrom));
-						
-						String commodities = flightScheduleObj.getProperty("commodities").toString();
-						flightSchedule.setCommodities(commodities);
-						
-						String value = flightSchedule.getTransportRateFrom();
-						
-						flightScheduleList.add(flightSchedule);						
+						flightScheduleList.add(d);
 					}
 				}catch(Exception e) {
 					e.printStackTrace();
@@ -525,7 +507,7 @@ public class WebServiceCaller implements IWebService {
 			}
 			
 		};
-		new CallSOAPAction(param, "getSchedulesDoorToDoor", callBack);
+		new CallSOAPAction(param, "getSchedulesDoorToDoorNew", callBack);
 		return flightScheduleList;
 	}
 
@@ -538,7 +520,7 @@ public class WebServiceCaller implements IWebService {
 		PaypalData data = new PaypalData();
 		try {
 			System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2");
-			InputStream is = WebServiceCaller.class.getResourceAsStream("sdk_config.properties");
+			InputStream is = WebServiceCaller.class.getResourceAsStream("/sdk_config.properties");
 			OAuthTokenCredential credential = Payment.initConfig(is);
 			accessToken  = credential.getAccessToken();
 		} catch (Exception e) {
@@ -590,48 +572,22 @@ public class WebServiceCaller implements IWebService {
 	}
 
 	@Override
-	public String saveDataPaymentTemp(List<Flight> flightList, String paymentID, String tokenID, String totalAmount,
-			String curr3lc, String[] commodities, String shipperId, String consigneeId) {
+	public String saveDataPaymentTemp(String tokenId, String paymentId, String sessionKey, 
+			String rateId) {
 				
 				LinkedHashMap<String, Object> createBookingRequest = new LinkedHashMap<>();
 				createBookingRequest.put("sessionId",((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
-				createBookingRequest.put("airline_ca_id", flightList.get(0).getCaId());
-				createBookingRequest.put("airline_ca_3dg", flightList.get(0).getTempCa3dg());
-
-				for (Flight flight : flightList) {
-					//example parameter: flights=XOM|123450000110|11/12/2013%2008:00|11/12/2013%2012:00|0&
-					String tempFlight = flight.getCaId()+"|"+flight.getFltId()+"|"+sdf.format(flight.getDepartureTime())+
-							"|"+sdf.format(flight.getArrivalTime())+"|"+flight.getMode()+"|"+flight.getTempCa3dg();
-					createBookingRequest.put("flights",tempFlight);
-				}
-
-				for (int i = 0; i < commodities.length; i++) {
-					createBookingRequest.put("commodities",commodities[i]);
-				}
-
-				createBookingRequest.put("shipperId",shipperId);
-//				createBookingRequest.addProperty("shipperId",shipperName);
-
-//				String tempConsignee = consigneeId+"|"+consigneeParentId+"|"+consigneeType+"|"+"false";
-//				String tempConsignee = consigneeId+"|"+consigneeName+"|"+""+"|"+"false";
-
-				createBookingRequest.put("consignee",/*tempConsignee*/consigneeId);
-				createBookingRequest.put("insurance", "");
-				createBookingRequest.put("alsoNotifyId","");
-				createBookingRequest.put("deliveredToId","");
-				createBookingRequest.put("depDate",sdf.format(flightList.get(0).getDepartureTime()));
-				createBookingRequest.put("accInfo", "");
-				createBookingRequest.put("handlInfo", "");
-				createBookingRequest.put("tokenId", tokenID);
-				createBookingRequest.put("paymentId", paymentID);
-				createBookingRequest.put("amount", totalAmount);
-				createBookingRequest.put("cur3lc", curr3lc);
+				createBookingRequest.put("tokenId", tokenId);
+				createBookingRequest.put("paymentId", paymentId);
+				createBookingRequest.put("sessionKey",sessionKey);
+				createBookingRequest.put("rateId", rateId);
+				
 				StringBuffer result = new StringBuffer();
 				ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
 					
 					@Override
 					public void handleResult(SoapObject data, String statusCode) {
-						result.append(data.getProperty("code").toString()); 
+//						result.append(data.getProperty("code").toString()); 
 					}
 					
 					@Override
@@ -639,8 +595,61 @@ public class WebServiceCaller implements IWebService {
 						
 					}
 				};
-				new CallSOAPAction(createBookingRequest, "getSchedulesDoorToDoor", callBack);
+				new CallSOAPAction(createBookingRequest, "saveBookingTempDoorToDoor", callBack);
 				return result.toString();
+	}
+	
+	public DataPaymentTempDTD getTempData(String tokenId, String paymentId) {
+		LinkedHashMap<String, Object> createBookingRequest = new LinkedHashMap<>();
+		createBookingRequest.put("tokenId", tokenId);
+		createBookingRequest.put("paymentId", paymentId);
+		final DataPaymentTempDTD temp = new DataPaymentTempDTD();
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+			
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				temp.setAmount_from(data.getProperty("amount_from").toString());
+				temp.setAmount_to(data.getProperty("amount_to").toString());
+				temp.setCurrency_from(data.getProperty("currency_from").toString());
+				temp.setCurrency_to(data.getProperty("currency_to").toString());
+				temp.setRateId(data.getProperty("rateId").toString());
+				
+			}
+			
+			@Override
+			public void handleError(String statusCode) {
+				
+			}
+		};
+		new CallSOAPAction(createBookingRequest, "getBookingTempDoorToDoor", callBack);
+		
+		return temp;
+	}
+
+	@Override
+	public BookingConfirmation createBookingDoorToDoorNew( String sessionKey, String rateId) {
+		LinkedHashMap<String, Object> createBookingRequest = new LinkedHashMap<>();
+		
+		createBookingRequest.put("sessionId", ((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
+		createBookingRequest.put("sessionKey", sessionKey);
+		createBookingRequest.put("rateId", rateId);
+		createBookingRequest.put("force", true);
+		final BookingConfirmation temp = new BookingConfirmation();
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+			
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				
+			}
+			
+			@Override
+			public void handleError(String statusCode) {
+				
+			}
+		};
+		new CallSOAPAction(createBookingRequest, "createBookingDoorToDoor", callBack);
+		
+		return temp;
 	}
 
 

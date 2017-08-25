@@ -11,21 +11,21 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 
 public class Sample {
-	public static void main(String args[]) throws Exception {
-        // Create SOAP Connection
-        SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
-        SOAPConnection soapConnection = soapConnectionFactory.createConnection();
-
-        // Send SOAP Message to SOAP Server
-        String url = "http://ws.cdyne.com/emailverify/Emailvernotestemail.asmx";
-        SOAPMessage soapResponse = soapConnection.call(createSOAPRequest(), url);
-
-        // print SOAP Response
-        System.out.print("Response SOAP Message:");
-        soapResponse.writeTo(System.out);
-
-        soapConnection.close();
-    }
+//	public static void main(String args[]) throws Exception {
+//        // Create SOAP Connection
+//        SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
+//        SOAPConnection soapConnection = soapConnectionFactory.createConnection();
+//
+//        // Send SOAP Message to SOAP Server
+//        String url = "http://ws.cdyne.com/emailverify/Emailvernotestemail.asmx";
+//        SOAPMessage soapResponse = soapConnection.call(createSOAPRequest(), url);
+//
+//        // print SOAP Response
+//        System.out.print("Response SOAP Message:");
+//        soapResponse.writeTo(System.out);
+//
+//        soapConnection.close();
+//    }
 
     private static SOAPMessage createSOAPRequest() throws Exception {
         MessageFactory messageFactory = MessageFactory.newInstance();
@@ -59,4 +59,5 @@ public class Sample {
         return soapMessage;
     }
 
+    
 }
