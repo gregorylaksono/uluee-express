@@ -27,6 +27,8 @@ import org.uluee.web.cloud.model.FlightSchedule;
 import org.uluee.web.cloud.model.PaypalData;
 import org.uluee.web.cloud.model.RSAddName;
 import org.uluee.web.cloud.model.ScheduleDoorToDoor;
+import org.uluee.web.cloud.model.Status;
+import org.uluee.web.cloud.model.StatusInfoWrapper;
 import org.uluee.web.cloud.model.User;
 import org.uluee.web.util.CallSOAPAction;
 import org.uluee.web.util.CallSOAPAction.ISOAPResultCallBack;
@@ -490,8 +492,14 @@ public class WebServiceCaller implements IWebService {
 						setSessionKey(flightScheduleObj.getProperty("sessionKey").toString()).setShipper_add_id(flightScheduleObj.getProperty("shipper_add_id").toString()).setShipper_rate_to(flightScheduleObj.getProperty("shipper_rate_to").toString()).
 						setTotal_airlane_from(flightScheduleObj.getProperty("total_airlane_from").toString()).setTotal_airlane_to(flightScheduleObj.getProperty("total_airlane_to").toString()).
 						setTotal_fee_from(flightScheduleObj.getProperty("total_fee_from").toString()).setTotal_fee_to(flightScheduleObj.getProperty("total_fee_to").toString()).setTotal_insurance_from(flightScheduleObj.getProperty("total_insurance_from").toString()).
-						setTotal_insurance_to(flightScheduleObj.getProperty("total_insurance_to").toString()).setFlight(flightList).setStandalone(Boolean.parseBoolean(flightScheduleObj.getProperty("standalone").toString())).
-						setCurrFrom(flightScheduleObj.getProperty("currFrom").toString()).setCurrTo(flightScheduleObj.getProperty("currTo").toString()); 
+						setTotal_insurance_to(flightScheduleObj.getProperty("total_insurance_to").toString()).setFlight(flightList).setStandalone(Boolean.parseBoolean(flightScheduleObj.getProperty("standalone").toString()));
+						
+						String feeFrom = flightScheduleObj.getProperty("total_fee_from").toString();
+						String feeTo = flightScheduleObj.getProperty("total_fee_to").toString();
+						if(feeFrom!=null && feeTo!=null)
+						{
+							d.setCurrFrom(feeFrom.split(" ")[1]).setCurrTo(feeTo.split(" ")[1]); 
+						}						
 						
 						flightScheduleList.add(d);
 					}
@@ -507,7 +515,7 @@ public class WebServiceCaller implements IWebService {
 			}
 			
 		};
-		new CallSOAPAction(param, "getSchedulesDoorToDoorNew", callBack);
+		new CallSOAPAction(param, "getSchedulesDoorToDoor", callBack);
 		return flightScheduleList;
 	}
 
@@ -635,11 +643,27 @@ public class WebServiceCaller implements IWebService {
 		createBookingRequest.put("rateId", rateId);
 		createBookingRequest.put("force", true);
 		final BookingConfirmation temp = new BookingConfirmation();
+		final StatusInfoWrapper bookingInfo = new StatusInfoWrapper();
 		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
 			
 			@Override
 			public void handleResult(SoapObject data, String statusCode) {
-				
+				String awb = data.getProperty("awb").toString();
+				List<Status> statusContainer = new ArrayList();
+				SoapObject statusInformation = (SoapObject) data.getProperty("statusInformation");
+				for(int i=0; i<statusInformation.getPropertyCount();i++) {
+					SoapObject statusIndex = (SoapObject) statusInformation.getAttribute(i);
+					Status s = new Status();
+					s.setDate(statusIndex.getAttribute("date").toString());
+					s.setRemark(statusIndex.getAttribute("remark").toString());
+					s.setStatus(statusIndex.getAttribute("status").toString());
+					statusContainer.add(s);
+				}
+				String[] awbs = awb.split("-");
+				temp.setCa3dg(awbs[0]);
+				temp.setAwbStock(awbs[1]);
+				temp.setAwbNo(awbs[2]);
+				temp.setStatusInformation(statusContainer);
 			}
 			
 			@Override
