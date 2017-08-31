@@ -1,6 +1,7 @@
 package org.uluee.web.component;
 
 import org.uluee.web.Uluee_expressUI;
+import org.uluee.web.cloud.model.BookingConfirmation;
 import org.uluee.web.cloud.model.DataPaymentTempDTD;
 import org.uluee.web.util.NavigatorConstant;
 import org.uluee.web.util.UIFactory;
@@ -85,7 +86,10 @@ public class ConfirmPage extends VerticalLayout implements View{
 		b.addClickListener(e ->{
 			String sessionKey = ((Uluee_expressUI)UI.getCurrent()).getSessionKey();
 			
-			((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().createBookingDoorToDoorNew(sessionKey, tempData.getRateId());
+			BookingConfirmation confirmation = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().createBookingDoorToDoorNew(sessionKey, tempData.getRateId());
+			if(confirmation != null) {
+				
+			}
 		});
 		
 		layout.addComponent(text);

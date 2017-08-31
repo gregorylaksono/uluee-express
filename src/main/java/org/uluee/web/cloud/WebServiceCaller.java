@@ -13,12 +13,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import org.ksoap2.serialization.SoapObject;
 import org.uluee.web.Uluee_expressUI;
+import org.uluee.web.cloud.model.Address;
 import org.uluee.web.cloud.model.BookingConfirmation;
 import org.uluee.web.cloud.model.Commodity;
 import org.uluee.web.cloud.model.DataPaymentTempDTD;
@@ -643,27 +645,45 @@ public class WebServiceCaller implements IWebService {
 		createBookingRequest.put("rateId", rateId);
 		createBookingRequest.put("force", true);
 		final BookingConfirmation temp = new BookingConfirmation();
-		final StatusInfoWrapper bookingInfo = new StatusInfoWrapper();
 		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
 			
 			@Override
 			public void handleResult(SoapObject data, String statusCode) {
+				SoapObject master = (SoapObject) data.getProperty("address");
+				SoapObject consigneeSoap = (SoapObject) master.getProperty("consignee");
+				SoapObject shipperSoap = (SoapObject) master.getProperty("shipper");
+				SoapObject bookingStatusInfo = (SoapObject) data.getProperty("statusInformation");
 				String awb = data.getProperty("awb").toString();
-				List<Status> statusContainer = new ArrayList();
-				SoapObject statusInformation = (SoapObject) data.getProperty("statusInformation");
-				for(int i=0; i<statusInformation.getPropertyCount();i++) {
-					SoapObject statusIndex = (SoapObject) statusInformation.getAttribute(i);
-					Status s = new Status();
-					s.setDate(statusIndex.getAttribute("date").toString());
-					s.setRemark(statusIndex.getAttribute("remark").toString());
-					s.setStatus(statusIndex.getAttribute("status").toString());
-					statusContainer.add(s);
+				String[] awbDataPart = awb.split("-");
+				
+				Address consAddress = new Address();
+				consAddress.setCity(consigneeSoap.getProperty("city").toString()).setCountry(consigneeSoap.getProperty("country").toString()).
+				setEmail(consigneeSoap.getProperty("email").toString()).setName(consigneeSoap.getProperty("name").toString());
+
+				Address shipperAddress = new Address();
+				shipperAddress.setCity(shipperSoap.getProperty("city").toString()).setCountry(shipperSoap.getProperty("country").toString()).
+				setEmail(shipperSoap.getProperty("email").toString()).setName(shipperSoap.getProperty("name").toString());
+				temp.setShipper(shipperAddress);
+				temp.setConsignee(consAddress);
+				temp.setCa3dg(awbDataPart[0]);
+				temp.setAwbStock(awbDataPart[1]);
+				temp.setAwbNo(awbDataPart[2]);
+				LinkedList<Status> statusList = new LinkedList<Status>();
+				for(int i=0; i<bookingStatusInfo.getPropertyCount(); i++) {
+					Status status = new Status();
+					SoapObject flight = (SoapObject) bookingStatusInfo.getProperty(i);
+					String date =flight.getProperty("date").toString();
+					String remark = flight.getProperty("remark").toString();
+					String stats = flight.getProperty("status").toString();
+					
+					status.setDate(date);
+					status.setRemark(remark);
+					status.setStatus(stats);
+					statusList.add(status);
 				}
-				String[] awbs = awb.split("-");
-				temp.setCa3dg(awbs[0]);
-				temp.setAwbStock(awbs[1]);
-				temp.setAwbNo(awbs[2]);
-				temp.setStatusInformation(statusContainer);
+				
+				temp.setStatusInformation(statusList);
+				
 			}
 			
 			@Override

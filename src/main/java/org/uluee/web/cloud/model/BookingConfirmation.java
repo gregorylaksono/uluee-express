@@ -1,6 +1,7 @@
 package org.uluee.web.cloud.model;
 
 import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
 
 public class BookingConfirmation implements Serializable {
@@ -12,7 +13,10 @@ public class BookingConfirmation implements Serializable {
 	private String ca3dg;
 	private String awbStock;
 	private String awbNo;
-	private List<Status> statusInformation;
+	private Address consignee;
+	private Address shipper;
+	private LinkedList<Status> statusInformation;
+	private CommodityItem itemDetails;
 	public String getCa3dg() {
 		return ca3dg;
 	}
@@ -31,11 +35,30 @@ public class BookingConfirmation implements Serializable {
 	public void setAwbNo(String awbNo) {
 		this.awbNo = awbNo;
 	}
-	public List<Status> getStatusInformation() {
+
+	public LinkedList<Status> getStatusInformation() {
 		return statusInformation;
 	}
-	public void setStatusInformation(List<Status> statusInformation) {
+	public void setStatusInformation(LinkedList<Status> statusInformation) {
 		this.statusInformation = statusInformation;
+	}
+	public Address getConsignee() {
+		return consignee;
+	}
+	public void setConsignee(Address consignee) {
+		this.consignee = consignee;
+	}
+	public Address getShipper() {
+		return shipper;
+	}
+	public void setShipper(Address shipper) {
+		this.shipper = shipper;
+	}
+	public CommodityItem getItemDetails() {
+		return itemDetails;
+	}
+	public void setItemDetails(CommodityItem itemDetails) {
+		this.itemDetails = itemDetails;
 	}
 	
 	
