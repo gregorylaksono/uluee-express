@@ -22,62 +22,72 @@ public class CommodityItem implements Serializable {
 	public String getComId() {
 		return comId;
 	}
-	public void setComId(String comId) {
+	public CommodityItem setComId(String comId) {
 		this.comId = comId;
+		return this;
 	}
 	public String getName() {
 		return name;
 	}
-	public void setName(String name) {
+	public CommodityItem setName(String name) {
 		this.name = name;
+		return this;
 	}
 	public String getPieces() {
 		return pieces;
 	}
-	public void setPieces(String pieces) {
+	public CommodityItem setPieces(String pieces) {
 		this.pieces = pieces;
+		return this;
 	}
 	public String getWeight() {
 		return weight;
 	}
-	public void setWeight(String weight) {
+	public CommodityItem setWeight(String weight) {
 		this.weight = weight;
+		return this;
 	}
 	public String getLength() {
 		return length;
 	}
-	public void setLength(String length) {
+	public CommodityItem setLength(String length) {
 		this.length = length;
+		return this;
 	}
 	public String getWidth() {
 		return width;
 	}
-	public void setWidth(String width) {
+	public CommodityItem setWidth(String width) {
 		this.width = width;
+		return this;
 	}
 	public String getHeight() {
 		return height;
 	}
-	public void setHeight(String height) {
+	public CommodityItem setHeight(String height) {
 		this.height = height;
+		return this;
 	}
 	public String getPrice() {
 		return price;
 	}
-	public void setPrice(String price) {
+	public CommodityItem setPrice(String price) {
 		this.price = price;
+		return this;
 	}
 	public String getInsurance() {
 		return insurance;
 	}
-	public void setInsurance(String insurance) {
+	public CommodityItem setInsurance(String insurance) {
 		this.insurance = insurance;
+		return this;
 	}
 	public String getAnnotation() {
 		return annotation;
 	}
-	public void setAnnotation(String annotation) {
+	public CommodityItem setAnnotation(String annotation) {
 		this.annotation = annotation;
+		return this;
 	}
 	
 	

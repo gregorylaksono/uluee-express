@@ -16,7 +16,7 @@ public class BookingConfirmation implements Serializable {
 	private Address consignee;
 	private Address shipper;
 	private LinkedList<Status> statusInformation;
-	private CommodityItem itemDetails;
+	private List<CommodityItem> itemDetails;
 	public String getCa3dg() {
 		return ca3dg;
 	}
@@ -54,10 +54,10 @@ public class BookingConfirmation implements Serializable {
 	public void setShipper(Address shipper) {
 		this.shipper = shipper;
 	}
-	public CommodityItem getItemDetails() {
+	public List<CommodityItem> getItemDetails() {
 		return itemDetails;
 	}
-	public void setItemDetails(CommodityItem itemDetails) {
+	public void setItemDetails(List<CommodityItem> itemDetails) {
 		this.itemDetails = itemDetails;
 	}
 	

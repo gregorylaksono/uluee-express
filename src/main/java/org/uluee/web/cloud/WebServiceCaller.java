@@ -23,6 +23,7 @@ import org.uluee.web.Uluee_expressUI;
 import org.uluee.web.cloud.model.Address;
 import org.uluee.web.cloud.model.BookingConfirmation;
 import org.uluee.web.cloud.model.Commodity;
+import org.uluee.web.cloud.model.CommodityItem;
 import org.uluee.web.cloud.model.DataPaymentTempDTD;
 import org.uluee.web.cloud.model.Flight;
 import org.uluee.web.cloud.model.FlightSchedule;
@@ -653,9 +654,26 @@ public class WebServiceCaller implements IWebService {
 				SoapObject consigneeSoap = (SoapObject) master.getProperty("consignee");
 				SoapObject shipperSoap = (SoapObject) master.getProperty("shipper");
 				SoapObject bookingStatusInfo = (SoapObject) data.getProperty("statusInformation");
+				SoapObject commidityStatusInfo = (SoapObject) data.getProperty("shipmentInformation");
 				String awb = data.getProperty("awb").toString();
 				String[] awbDataPart = awb.split("-");
+				List<CommodityItem> items = new ArrayList();
+				for(int i=0; i<commidityStatusInfo.getAttributeCount(); i++) {
+					CommodityItem item = new CommodityItem();
+					String height = commidityStatusInfo.getProperty("height").toString();
+					String length = commidityStatusInfo.getProperty("length").toString();
+					String name = commidityStatusInfo.getProperty("name").toString();
+					String pcs = commidityStatusInfo.getProperty("pcs").toString();
+					String total = commidityStatusInfo.getProperty("total").toString();
+					String wgt = commidityStatusInfo.getProperty("wgt").toString();
+					String vol = commidityStatusInfo.getProperty("vol").toString();
+					String width = commidityStatusInfo.getProperty("width").toString();
+					
+					item.setHeight(height).setLength(length).setName(name).setPieces(pcs).setWeight(wgt).setWidth(width);
+					items.add(item);
+				}
 				
+				temp.setItemDetails(items);
 				Address consAddress = new Address();
 				consAddress.setCity(consigneeSoap.getProperty("city").toString()).setCountry(consigneeSoap.getProperty("country").toString()).
 				setEmail(consigneeSoap.getProperty("email").toString()).setName(consigneeSoap.getProperty("name").toString());
