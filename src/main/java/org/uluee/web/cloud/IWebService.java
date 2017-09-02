@@ -1,6 +1,7 @@
 package org.uluee.web.cloud;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.uluee.web.cloud.model.BookingConfirmation;
@@ -9,6 +10,7 @@ import org.uluee.web.cloud.model.DataPaymentTempDTD;
 import org.uluee.web.cloud.model.PaypalData;
 import org.uluee.web.cloud.model.RSAddName;
 import org.uluee.web.cloud.model.ScheduleDoorToDoor;
+import org.uluee.web.cloud.model.Status;
 import org.uluee.web.cloud.model.User;
 
 
@@ -34,4 +36,5 @@ public interface IWebService {
 	public DataPaymentTempDTD getTempData(String tokenId, String paymentId);
 	
 	public BookingConfirmation createBookingDoorToDoorNew(String sessionKey, String rateId);
+	public BookingConfirmation getTracingShipmentInfo(String ca3dg, String awbStock, String awbNo) ;
 }

@@ -1,11 +1,19 @@
 package org.uluee.web.booking;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import org.uluee.web.Uluee_expressUI;
+import org.uluee.web.cloud.model.BookingConfirmation;
+import org.uluee.web.cloud.model.CommodityItem;
+import org.uluee.web.cloud.model.Status;
 import org.uluee.web.util.UIFactory;
 import org.uluee.web.util.UIFactory.ButtonSize;
 import org.uluee.web.util.UIFactory.ButtonStyle;
 import org.uluee.web.util.UIFactory.LayoutType;
 import org.uluee.web.util.UIFactory.SizeType;
 
+import com.vaadin.data.Item;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Sizeable.Unit;
@@ -15,9 +23,14 @@ import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.ValoTheme;
 
 public class TracingTab extends VerticalLayout {
@@ -33,6 +46,10 @@ public class TracingTab extends VerticalLayout {
 	private Label tweightL;
 	private Label shipperL;
 	private Label consigneeL;
+	private Table statusTable;
+	private TextField awb1;
+	private TextField awb2;
+	private TextField awb3;
 
 	public TracingTab(String caption) {
 		setCaption(caption);
@@ -65,9 +82,9 @@ public class TracingTab extends VerticalLayout {
 		parent.setHeight(100, Unit.PERCENTAGE);
 		parent.setWidth(50, Unit.PERCENTAGE);
 		
-		Button button1 = UIFactory.createButton(ButtonSize.SMALL, ButtonStyle.BORDERLESS,"Action 1");
-		Button button2 = UIFactory.createButton(ButtonSize.SMALL, ButtonStyle.BORDERLESS,"Action 2");
-		Button button3 = UIFactory.createButton(ButtonSize.SMALL, ButtonStyle.BORDERLESS,"Action 3");
+		Button button1 = UIFactory.createButton(ButtonSize.SMALL, ButtonStyle.BORDERLESS,"Send FWB");
+		Button button2 = UIFactory.createButton(ButtonSize.SMALL, ButtonStyle.BORDERLESS,"Print");
+		Button button3 = UIFactory.createButton(ButtonSize.SMALL, ButtonStyle.BORDERLESS,"CUC & MUC");
 		
 		parent.addComponent(button1);
 		parent.addComponent(button2);
@@ -81,21 +98,21 @@ public class TracingTab extends VerticalLayout {
 	}
 
 	private Table createTableLastStatus() {
-		Table t = new Table("Status");
-		t.setId("booking-table");
+		statusTable = new Table("Status");
+		statusTable.setId("booking-table");
 		
-		t.addContainerProperty(STATUS, String.class, null);
-		t.addContainerProperty(DATE, String.class, null);
-		t.addContainerProperty(REMARK, String.class, null);
+		statusTable.addContainerProperty(STATUS, String.class, null);
+		statusTable.addContainerProperty(DATE, String.class, null);
+		statusTable.addContainerProperty(REMARK, String.class, null);
 				
-		t.setWidth(100, Unit.PERCENTAGE);
-		t.setHeight(100, Unit.PIXELS);
+		statusTable.setWidth(100, Unit.PERCENTAGE);
+		statusTable.setHeight(100, Unit.PIXELS);
 		
-		t.setColumnHeader(STATUS, "Status");
-		t.setColumnHeader(DATE, "Date");
-		t.setColumnHeader(REMARK, "Remark");
+		statusTable.setColumnHeader(STATUS, "Status");
+		statusTable.setColumnHeader(DATE, "Date");
+		statusTable.setColumnHeader(REMARK, "Remark");
 		
-		return t;
+		return statusTable;
 	}
 
 	private FormLayout createSummaryLayout() {
@@ -114,8 +131,8 @@ public class TracingTab extends VerticalLayout {
 		shipperL.setCaption("Shipper");
 		consigneeL.setCaption("Consignee");
 		
-		tPiecesL.setValue("1 pieces");
-		tweightL.setValue("1.0 kg");
+//		tPiecesL.setValue("1 pieces");
+//		tweightL.setValue("1.0 kg");
 		shipperL.setValue("");
 		consigneeL.setValue("");
 		
@@ -137,9 +154,9 @@ public class TracingTab extends VerticalLayout {
 		parent.setId("awb-search-section");
 		parent.addStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
 		
-		TextField awb1 = new TextField();
-		TextField awb2 = new TextField();
-		TextField awb3 = new TextField();
+		awb1 = new TextField();
+		awb2 = new TextField();
+		awb3 = new TextField();
 		
 		awb1.setWidth(56, Unit.PIXELS);
 		awb2.setWidth(63, Unit.PIXELS);
@@ -150,6 +167,22 @@ public class TracingTab extends VerticalLayout {
 		parent.addComponent(awb2);
 		parent.addComponent(awb3);
 		parent.addComponent(search);
+		search.addClickListener(new ClickListener() {
+			
+			@Override
+			public void buttonClick(ClickEvent event) {
+				String ca3dg = awb1.getValue();
+				String awbStock = awb2.getValue();
+				String awbNo = awb3.getValue();
+				if(!ca3dg.equals("") && !awbStock.equals("") && !awbNo.equals("") ){
+					BookingConfirmation result = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getTracingShipmentInfo(ca3dg, awbStock, awbNo);
+					initData(result);
+				}else{
+					Notification.show("Please input awb no", Type.ERROR_MESSAGE);
+					return;
+				}
+			}
+		});;
 		
 //		root.addComponent(awbNoLabel);
 		root.addComponent(parent);
@@ -158,6 +191,33 @@ public class TracingTab extends VerticalLayout {
 		root.setExpandRatio(parent, 1.0f);
 		
 		return root;
+	}
+
+	public void initData(BookingConfirmation bookingData) {
+		awb1.setValue(bookingData.getCa3dg());
+		awb2.setValue(bookingData.getAwbStock());
+		awb3.setValue(bookingData.getAwbNo());
+		LinkedList<Status> status = bookingData.getStatusInformation();
+		statusTable.removeAllItems();
+		for(Status s: status){
+			Item i = statusTable.addItem(s);
+			i.getItemProperty(STATUS).setValue(s.getStatus());
+			i.getItemProperty(DATE).setValue(s.getDate());
+			i.getItemProperty(REMARK).setValue(s.getRemark());
+		}
+		List<CommodityItem> commodities = bookingData.getItemDetails();
+		double pieces = 0;
+		double weight = 0;
+
+		for(CommodityItem item : commodities){
+			pieces = pieces + Double.parseDouble(item.getPieces());
+			weight = weight + Double.parseDouble(item.getWeight());
+		}
+		tPiecesL.setValue(String.valueOf(pieces));
+		tweightL.setValue(String.valueOf(weight));
+		shipperL.setValue(bookingData.getShipper().getName());
+		consigneeL.setValue(bookingData.getConsignee().getName());
+		
 	}
 
 

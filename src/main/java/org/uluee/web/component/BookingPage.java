@@ -11,6 +11,7 @@ import org.uluee.web.cloud.model.Flight;
 import org.uluee.web.cloud.model.FlightSchedule;
 import org.uluee.web.cloud.model.PaypalData;
 import org.uluee.web.cloud.model.ScheduleDoorToDoor;
+import org.uluee.web.util.UIFactory;
 import org.uluee.web.util.Util;
 
 import com.vaadin.data.Item;
@@ -62,7 +63,7 @@ public class BookingPage extends VerticalLayout implements View{
 				this.commodities  = msgs[0].split("&&");
 				this.shipperId = msgs[5];
 				this.consigneeId = msgs[8];
-				
+
 				param.put("sessionId",((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
 				param.put("shipperName", msgs[1] );
 				param.put("consigneeName", msgs[2]);	
@@ -85,13 +86,30 @@ public class BookingPage extends VerticalLayout implements View{
 
 		}
 	}
+	private LinkedHashMap<String, Object> param;
 
-	public BookingPage() {
+	public BookingPage(LinkedHashMap<String, Object> param) {
+		this.param = param;
 		UI.getCurrent().getPage().setTitle("Schedule list");
 		setMargin(true);
 		setSpacing(true);
 		setHeight(100, Unit.PERCENTAGE);
 		createContents();
+		extractParam();
+	}
+
+	private void extractParam() {
+		try {
+			String dep = Util.CONVERT_DATE_FORMAT.format(Util.NORMAL_DATE_FORMAT.parse((String)param.get("minDep")));
+			String arr = Util.CONVERT_DATE_FORMAT.format(Util.NORMAL_DATE_FORMAT.parse((String)param.get("maxArr")));
+			param.put("minDep",dep);
+			param.put("maxArr",arr);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		result = ((Uluee_expressUI) UI.getCurrent()).getWebServiceCaller().getSchedules(param);
+		UIFactory.closeAllWindow();
+		insertItems();		
 	}
 
 	private void createContents() {

@@ -7,6 +7,7 @@ import javax.servlet.annotation.WebServlet;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.uluee.web.cloud.IWebService;
 import org.uluee.web.cloud.WebServiceCaller;
+import org.uluee.web.cloud.model.BookingConfirmation;
 import org.uluee.web.cloud.model.User;
 import org.uluee.web.component.BookingPage;
 import org.uluee.web.component.ConfirmPage;
@@ -25,6 +26,7 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.server.Page.UriFragmentChangedEvent;
 import com.vaadin.server.Page.UriFragmentChangedListener;
+import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.UI;
@@ -49,41 +51,20 @@ public class Uluee_expressUI extends UI {
 	private Navigator navigator;
 	private IWebService webServiceCaller = new WebServiceCaller();
 	private User user = null;
-	private ViewChangeListener k = new ViewChangeListener() {
 
-		@Override
-		public boolean beforeViewChange(ViewChangeEvent event) {
-			if(event.getParameters().contains("paymentId") ||
-					event.getParameters().contains("token")) {
-				String param = event.getParameters();
-				navigator.navigateTo(NavigatorConstant.CONFIRM_PAGE+"/"+param.substring(1, param.length()));				
-				return false;
-			}
-			else {
-				return true;
-			}
-		}
-
-		@Override
-		public void afterViewChange(ViewChangeEvent event) {
-			
-			
-		}
-		
-	};
 	private String sessionKey;
+	private BookingConfirmation confirmation;
 	@Override
 	protected void init(VaadinRequest request) {
 		VerticalLayout parent_root = createParentRoot();
 		setContent(parent_root);
 		
 		navigator = new Navigator(this, content);
-		navigator.addView(NavigatorConstant.PAYPAL_PAGE, DummyPage.class);
+//		navigator.addView(NavigatorConstant.PAYPAL_PAGE, DummyPage.class);
+//		navigator.addView(NavigatorConstant.BOOKING_PAGE, BookingPage.class);
 		navigator.addView(NavigatorConstant.MAIN_PAGE, MainPage.class);
-		navigator.addView(NavigatorConstant.BOOKING_PAGE, BookingPage.class);
 		navigator.addView(NavigatorConstant.CONFIRM_PAGE, ConfirmPage.class);
 		
-//		navigator.addViewChangeListener(k);
 		user = webServiceCaller.login(Constant.USERNAME, Constant.PASSWORD);
 		
 		Map requestParam = request.getParameterMap();
@@ -91,8 +72,10 @@ public class Uluee_expressUI extends UI {
 		String param  = getParam(confirm);
 		if(param == null) {
 			navigator.navigateTo(NavigatorConstant.MAIN_PAGE);			
-		}else {
+		}else if(param.contains("paymentId") && param.contains("token")){
 			navigator.navigateTo(NavigatorConstant.CONFIRM_PAGE+"/"+param);
+		}else{
+			navigator.navigateTo(NavigatorConstant.MAIN_PAGE);
 		}
 	}
 
@@ -155,6 +138,20 @@ public class Uluee_expressUI extends UI {
 	
 	public String getSessionKey() {
 		return this.sessionKey;
+	}
+
+	public void resetLayer(AbstractOrderedLayout layer) {
+		content.removeAllComponents();
+		content.addComponent(layer);
+	}
+
+	public void setBookingData(BookingConfirmation confirmation) {
+		 this.confirmation = confirmation;
+		
+	}
+	
+	public BookingConfirmation getBookingData(){
+		return confirmation;
 	}
 	
 

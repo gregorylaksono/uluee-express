@@ -8,6 +8,7 @@ import java.util.List;
 import org.uluee.web.Uluee_expressUI;
 import org.uluee.web.cloud.model.BookingComponent;
 import org.uluee.web.cloud.model.FlightSchedule;
+import org.uluee.web.component.BookingPage;
 import org.uluee.web.util.NavigatorConstant;
 import org.uluee.web.util.UIFactory;
 
@@ -49,13 +50,13 @@ public class DisclaimerLayout extends CustomLayout{
 		submitButton.setEnabled(initValue);
 		submitButton.addClickListener(e ->{
 			LinkedHashMap m = bookingComponent.getParam();
-			((Uluee_expressUI)UI.getCurrent()).getNavigator().navigateTo(NavigatorConstant.BOOKING_PAGE+
-					"/"+bookingComponent.getStringCommodities()+"/"+m.get("shipperName")+
-					"/"+m.get("consigneeName")+"/"+m.get("minDep")+"/"+m.get("maxArr")+"/"+m.get("shipperAddId")+
-					"/"+m.get("latitudeShipper")+"/"+m.get("longitudeShipper")+"/"+m.get("consigneeAddId")+
-					"/"+m.get("latitudeConsignee")+"/"+m.get("longitudeConsignee"));
-			UIFactory.closeAllWindow();
-			
+//			((Uluee_expressUI)UI.getCurrent()).getNavigator().navigateTo(NavigatorConstant.BOOKING_PAGE+
+//					"/"+bookingComponent.getStringCommodities()+"/"+m.get("shipperName")+
+//					"/"+m.get("consigneeName")+"/"+m.get("minDep")+"/"+m.get("maxArr")+"/"+m.get("shipperAddId")+
+//					"/"+m.get("latitudeShipper")+"/"+m.get("longitudeShipper")+"/"+m.get("consigneeAddId")+
+//					"/"+m.get("latitudeConsignee")+"/"+m.get("longitudeConsignee"));
+//			UIFactory.closeAllWindow();
+			((Uluee_expressUI)UI.getCurrent()).resetLayer(new BookingPage(m));
 			
 		});
 	}

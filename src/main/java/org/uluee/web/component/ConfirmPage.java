@@ -79,7 +79,7 @@ public class ConfirmPage extends VerticalLayout implements View{
 				+ "\">Total cost: <b>"+tempData.getAmount_from()+" "+tempData.getCurrency_from()+"</b></span>");
 		text.setContentMode(ContentMode.HTML);
 		
-		Button b = new Button("Pay");
+		Button b = new Button("Complete Payment");
 		b.setWidth(null);
 		b.setStyleName(ValoTheme.BUTTON_SMALL);
 		b.addStyleName(ValoTheme.BUTTON_FRIENDLY);
@@ -88,6 +88,9 @@ public class ConfirmPage extends VerticalLayout implements View{
 			
 			BookingConfirmation confirmation = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().createBookingDoorToDoorNew(sessionKey, tempData.getRateId());
 			if(confirmation != null) {
+				
+				((Uluee_expressUI)UI.getCurrent()).setBookingData(confirmation);
+				((Uluee_expressUI)UI.getCurrent()).getNavigator().navigateTo(NavigatorConstant.MAIN_PAGE+"/"+"tracing");
 				
 			}
 		});

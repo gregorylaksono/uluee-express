@@ -68,6 +68,12 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 	private CheckboxAndBasketLayout topLayout;
 	private FromAndToDateLayout dateLayout;
 	private DeptDestLayout deptDestLayout;
+
+
+	private TracingTab tracing;
+
+
+	private TabSheet bookingTab;
 	
 	@Override
 	public void enter(ViewChangeEvent event) {
@@ -77,6 +83,11 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 		setMargin(true);
 		setSizeFull();
 		initFieldValue();
+		String params = event.getParameters();
+		if(params.contains("tracing")){
+			bookingTab.setSelectedTab(tracing);
+			tracing.initData(((Uluee_expressUI)UI.getCurrent()).getBookingData());
+		}
 	}
 
 	private void initFieldValue() {
@@ -85,7 +96,7 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 	}
 
 	private void createContents() {
-		TabSheet bookingTab = createTab();
+		bookingTab = createTab();
 		addComponent(bookingTab);
 	}
 
@@ -277,6 +288,7 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 	}
 
 	private TabSheet createTab() {
+		tracing = new TracingTab("Tracing");
 		topLayout = new CheckboxAndBasketLayout();
 		topLayout.getBasketButton().addClickListener(e->{
 			UIFactory.addWindow(new CommodityTableLayout(MainPage.this, itemDescriptionLayout.getCommodities()), false, false, true);
@@ -333,7 +345,7 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 		content.setExpandRatio(itemDescriptionLayout, 0.0f);
 		content.setExpandRatio(buttonSubmitLayout, 1.0f);
 		tab.addTab(content);
-		tab.addTab(new TracingTab("Tracing"));
+		tab.addTab(tracing);
 		return tab;
 	}
 

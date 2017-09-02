@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -658,16 +659,17 @@ public class WebServiceCaller implements IWebService {
 				String awb = data.getProperty("awb").toString();
 				String[] awbDataPart = awb.split("-");
 				List<CommodityItem> items = new ArrayList();
-				for(int i=0; i<commidityStatusInfo.getAttributeCount(); i++) {
+				for(int i=0; i<commidityStatusInfo.getPropertyCount(); i++) {
 					CommodityItem item = new CommodityItem();
-					String height = commidityStatusInfo.getProperty("height").toString();
-					String length = commidityStatusInfo.getProperty("length").toString();
-					String name = commidityStatusInfo.getProperty("name").toString();
-					String pcs = commidityStatusInfo.getProperty("pcs").toString();
-					String total = commidityStatusInfo.getProperty("total").toString();
-					String wgt = commidityStatusInfo.getProperty("wgt").toString();
-					String vol = commidityStatusInfo.getProperty("vol").toString();
-					String width = commidityStatusInfo.getProperty("width").toString();
+					SoapObject commodityStats = (SoapObject) commidityStatusInfo.getProperty(i);
+					String height = commodityStats.getProperty("height").toString();
+					String length = commodityStats.getProperty("length").toString();
+					String name = commodityStats.getProperty("name").toString();
+					String pcs = commodityStats.getProperty("pcs").toString();
+					String total = commodityStats.getProperty("total").toString();
+					String wgt = commodityStats.getProperty("wgt").toString();
+					String vol = commodityStats.getProperty("vol").toString();
+					String width = commodityStats.getProperty("width").toString();
 					
 					item.setHeight(height).setLength(length).setName(name).setPieces(pcs).setWeight(wgt).setWidth(width);
 					items.add(item);
@@ -711,6 +713,109 @@ public class WebServiceCaller implements IWebService {
 		};
 		new CallSOAPAction(createBookingRequest, "createBookingDoorToDoor", callBack);
 		
+		return temp;
+	}
+
+	
+	private LinkedList<Status> getStatusTracing(String ca3dg, String awbStock, String awbNo) {
+		LinkedHashMap<String, Object> statusRequest = new LinkedHashMap<>();
+		SimpleDateFormat sdf1 = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+		SimpleDateFormat sdf2 = new SimpleDateFormat("M/d/yyyy HH:mm");
+		statusRequest.put("sessionId", ((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
+		statusRequest.put("ca3dg",ca3dg);
+		statusRequest.put("awbStock", awbStock);
+		statusRequest.put("awbNo", awbNo);
+		
+		final LinkedList<Status> temp = new LinkedList();
+
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+			
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				for (int i = 0; i < data.getPropertyCount(); i++) {
+					SoapObject dataTrackingObj = (SoapObject) data.getProperty(i);													
+					try {
+						Status status = new Status();
+						Date date = sdf1.parse(dataTrackingObj.getProperty("date").toString());
+						status.setDate(sdf2.format(date));
+						status.setRemark(dataTrackingObj.getProperty("remark").toString());
+						status.setStatus(dataTrackingObj.getProperty("status").toString());
+						temp.add(status);
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			
+			@Override
+			public void handleError(String statusCode) {
+				
+			}
+		};
+		new CallSOAPAction(statusRequest, "getAWBStatusTrack", callBack );
+		return temp;
+	}
+	
+	public BookingConfirmation getTracingShipmentInfo(String ca3dg, String awbStock, String awbNo) {
+		LinkedList<Status> statusData = getStatusTracing(ca3dg, awbStock, awbNo);
+		
+		LinkedHashMap<String, Object> tracingInfoRequest = new LinkedHashMap<>();
+		tracingInfoRequest.put("sessionId", ((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
+		tracingInfoRequest.put("ca3dg",ca3dg);
+		tracingInfoRequest.put("awbStock", awbStock);
+		tracingInfoRequest.put("awbNo", awbNo);
+		final BookingConfirmation temp = new BookingConfirmation();
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+			
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				SoapObject address = (SoapObject) data.getProperty("address");
+				SoapObject shipper = (SoapObject) address.getProperty("shipper");
+				SoapObject consignee = (SoapObject) address.getProperty("consignee");
+				List<CommodityItem> comList = new ArrayList<>();
+				Address address1 = new Address();
+				address1.setName(shipper.getProperty("name").toString());
+				address1.setCountry(shipper.getProperty("country").toString());
+				address1.setEmail(shipper.getProperty("email").toString());
+				address1.setCity(shipper.getProperty("city").toString());
+				
+				Address address2 = new Address();
+				address2.setName(consignee.getProperty("name").toString());
+				address2.setCountry(consignee.getProperty("country").toString());
+				address2.setEmail(consignee.getProperty("email").toString());
+				address2.setCity(consignee.getProperty("city").toString());
+				
+				SoapObject shipmentInfo = (SoapObject) data.getProperty("shipmentInformation");
+				
+				for(int i=0; i<shipmentInfo.getPropertyCount(); i++){
+					SoapObject shipmentIndex = (SoapObject) shipmentInfo.getProperty(i);
+					String height = shipmentIndex.getProperty("height").toString();
+					String name = shipmentIndex.getProperty("name").toString();
+					String weight = shipmentIndex.getProperty("wgt").toString();
+					String width = shipmentIndex.getProperty("width").toString();
+					String pieces = shipmentIndex.getProperty("pcs").toString();
+					
+					CommodityItem item = new CommodityItem();
+					item.setHeight(height).setName(name).setWeight(weight).setWidth(width).setPieces(pieces);
+					comList.add(item);
+					
+				}
+				
+				temp.setShipper(address1);
+				temp.setConsignee(address2);
+				temp.setStatusInformation(statusData);
+				temp.setItemDetails(comList);
+				temp.setCa3dg(ca3dg);
+				temp.setAwbStock(awbStock);
+				temp.setAwbNo(awbNo);
+			}
+			
+			@Override
+			public void handleError(String statusCode) {
+				
+			}
+		};
+		new CallSOAPAction(tracingInfoRequest, "getShipmentSummary", callBack  );
 		return temp;
 	}
 
