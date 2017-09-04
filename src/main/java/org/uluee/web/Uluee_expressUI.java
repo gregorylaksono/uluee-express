@@ -42,12 +42,12 @@ public class Uluee_expressUI extends UI {
 	@WebServlet(value = "/*", asyncSupported = true)
 	@VaadinServletConfiguration(productionMode = false, ui = Uluee_expressUI.class)
 	public static class Servlet extends VaadinServlet {
-		
+
 	}
-	
-	 static {
-		    SLF4JBridgeHandler.install();
-		  }
+
+	static {
+		SLF4JBridgeHandler.install();
+	}
 
 	private CssLayout content;
 	private Navigator navigator;
@@ -60,30 +60,30 @@ public class Uluee_expressUI extends UI {
 	protected void init(VaadinRequest request) {
 		VerticalLayout parent_root = createParentRoot();
 		setContent(parent_root);
-		
+
 		navigator = new Navigator(this, content);
-//		navigator.addView(NavigatorConstant.PAYPAL_PAGE, DummyPage.class);
-//		navigator.addView(NavigatorConstant.BOOKING_PAGE, BookingPage.class);
+		//		navigator.addView(NavigatorConstant.PAYPAL_PAGE, DummyPage.class);
+		//		navigator.addView(NavigatorConstant.BOOKING_PAGE, BookingPage.class);
+		navigator.addView("", MainPage.class);
 		navigator.addView(NavigatorConstant.MAIN_PAGE, MainPage.class);
 		navigator.addView(NavigatorConstant.CONFIRM_PAGE, ConfirmPage.class);
 		navigator.addViewChangeListener(new ViewChangeListener() {
-			
+
 			@Override
 			public boolean beforeViewChange(ViewChangeEvent event) {
-				if(event.getParameters().equals("")){
-					navigator.navigateTo(NavigatorConstant.MAIN_PAGE);
+				if(event.getViewName().equals("")){
+					
 				}
 				return true;
 			}
-			
+
 			@Override
 			public void afterViewChange(ViewChangeEvent event) {
-				
 			}
 		});
-		
+
 		user = webServiceCaller.login(Constant.USERNAME, Constant.PASSWORD);
-		
+
 		Map requestParam = request.getParameterMap();
 		String[] confirm = (String[]) requestParam.get("v-loc");
 		String param  = getParam(confirm);
@@ -99,11 +99,11 @@ public class Uluee_expressUI extends UI {
 	private String getParam(String[] confirm) {
 		String param = null;
 		if((confirm != null) && 
-		   (confirm.length > 0) && 
-		   (confirm[0].contains("paymentId") && 
-				   confirm[0].contains("token") && 
-				   confirm[0].contains(NavigatorConstant.CONFIRM_PAGE))) {
-			
+				(confirm.length > 0) && 
+				(confirm[0].contains("paymentId") && 
+						confirm[0].contains("token") && 
+						confirm[0].contains(NavigatorConstant.CONFIRM_PAGE))) {
+
 			String text = confirm[0];			
 			int index = text.indexOf("paymentId");
 			param = text.substring(index, text.length());
@@ -116,7 +116,7 @@ public class Uluee_expressUI extends UI {
 		layout.setId(CSSStyle.ROOT_PARENT);
 		content = new CssLayout();
 		content.setId(CSSStyle.ROOT_LAYOUT);
-		
+
 		layout.setSizeFull();
 
 		layout.addComponent(content);
@@ -150,9 +150,9 @@ public class Uluee_expressUI extends UI {
 
 	public void setSessionKey(String sessionKey) {
 		this.sessionKey = sessionKey;
-		
+
 	}
-	
+
 	public String getSessionKey() {
 		return this.sessionKey;
 	}
@@ -163,14 +163,14 @@ public class Uluee_expressUI extends UI {
 	}
 
 	public void setBookingData(BookingConfirmation confirmation) {
-		 this.confirmation = confirmation;
-		
+		this.confirmation = confirmation;
+
 	}
-	
+
 	public BookingConfirmation getBookingData(){
 		return confirmation;
 	}
-	
+
 
 
 }

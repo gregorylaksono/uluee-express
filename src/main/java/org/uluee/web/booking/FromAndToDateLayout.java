@@ -34,8 +34,8 @@ public class FromAndToDateLayout extends HorizontalLayout{
 		fromDate.setResolution(Resolution.MINUTE);
 		toDate.setResolution(Resolution.MINUTE);
 
-		fromDate.setLocale(new Locale("fi", "FI")); 
-		toDate.setLocale(new Locale("fi", "FI")); 
+//		fromDate.setLocale(new Locale("en", "FI")); 
+//		toDate.setLocale(new Locale("en", "FI")); 
 		
 		addComponent(fromDate);
 		addComponent(toDate);		

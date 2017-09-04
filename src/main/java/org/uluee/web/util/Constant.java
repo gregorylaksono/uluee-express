@@ -4,7 +4,8 @@ public class Constant {
 
 	public static final String USERNAME = "act001";
 	public static final String PASSWORD = "ffw";
-	public static final String URL = "http://10.10.6.3";
+//	public static final String URL = "http://10.10.6.3";
+	public static final String URL = "http://acternity.net";
 	public static final String WS_PATH = URL+"/WEBSERVICE/services/MobileService?wsdl";
 	
 	
