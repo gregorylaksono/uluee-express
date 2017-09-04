@@ -11,6 +11,7 @@ import org.uluee.web.cloud.model.Flight;
 import org.uluee.web.cloud.model.FlightSchedule;
 import org.uluee.web.cloud.model.PaypalData;
 import org.uluee.web.cloud.model.ScheduleDoorToDoor;
+import org.uluee.web.util.NavigatorConstant;
 import org.uluee.web.util.UIFactory;
 import org.uluee.web.util.Util;
 
@@ -25,6 +26,8 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.TreeTable;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.ValoTheme;
 
 public class BookingPage extends VerticalLayout implements View{
@@ -136,6 +139,13 @@ public class BookingPage extends VerticalLayout implements View{
 		Button button = new Button("Back");
 		button.setStyleName(ValoTheme.BUTTON_SMALL);
 		button.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+		button.addClickListener(new ClickListener() {
+			
+			@Override
+			public void buttonClick(ClickEvent event) {
+				((Uluee_expressUI)UI.getCurrent()).getNavigator().navigateTo(NavigatorConstant.MAIN_PAGE);
+			}
+		});
 		return button;
 	}
 

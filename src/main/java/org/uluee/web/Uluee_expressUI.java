@@ -22,6 +22,7 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.server.Page.UriFragmentChangedEvent;
@@ -41,6 +42,7 @@ public class Uluee_expressUI extends UI {
 	@WebServlet(value = "/*", asyncSupported = true)
 	@VaadinServletConfiguration(productionMode = false, ui = Uluee_expressUI.class)
 	public static class Servlet extends VaadinServlet {
+		
 	}
 	
 	 static {
@@ -64,6 +66,21 @@ public class Uluee_expressUI extends UI {
 //		navigator.addView(NavigatorConstant.BOOKING_PAGE, BookingPage.class);
 		navigator.addView(NavigatorConstant.MAIN_PAGE, MainPage.class);
 		navigator.addView(NavigatorConstant.CONFIRM_PAGE, ConfirmPage.class);
+		navigator.addViewChangeListener(new ViewChangeListener() {
+			
+			@Override
+			public boolean beforeViewChange(ViewChangeEvent event) {
+				if(event.getParameters().equals("")){
+					navigator.navigateTo(NavigatorConstant.MAIN_PAGE);
+				}
+				return true;
+			}
+			
+			@Override
+			public void afterViewChange(ViewChangeEvent event) {
+				
+			}
+		});
 		
 		user = webServiceCaller.login(Constant.USERNAME, Constant.PASSWORD);
 		

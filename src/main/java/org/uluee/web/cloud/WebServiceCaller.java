@@ -59,7 +59,7 @@ public class WebServiceCaller implements IWebService {
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm");
 	private DecimalFormat df = new DecimalFormat("#.00"); 
-	
+
 	@Override
 	public User login(String username, String password) {
 		final List<User> container = new ArrayList();
@@ -73,7 +73,7 @@ public class WebServiceCaller implements IWebService {
 			public void handleResult(SoapObject data, String statusCode) {
 				String sessionId = data.getProperty("sessionId").toString();
 				String addId = data.getProperty("addId").toString();
-				
+
 				User user = new User().setAddId(addId).setSessionId(sessionId).setPassword(password).setUsername(username);
 				container.add(user);
 			}
@@ -88,7 +88,7 @@ public class WebServiceCaller implements IWebService {
 		new CallSOAPAction(map, "login", callBack);
 		return container.get(0);
 	}
-	
+
 	public List<String> getGoogleAutocomplete(String match) {
 		String jsonResults = getGoogleAutoComplete(match);
 
@@ -106,9 +106,9 @@ public class WebServiceCaller implements IWebService {
 						break;
 					}
 				}
-				
+
 			}
-			
+
 			JSONArray predsJsonArray = jsonObj.getJSONArray("predictions");
 
 			List googleList = new ArrayList<String>(predsJsonArray.length());
@@ -121,8 +121,8 @@ public class WebServiceCaller implements IWebService {
 			return null;
 		}			
 	}
-	
-	
+
+
 	public String getGoogleAutoComplete(String match) {
 		HttpURLConnection conn = null;
 		StringBuilder jsonResults = new StringBuilder();
@@ -142,11 +142,11 @@ public class WebServiceCaller implements IWebService {
 				jsonResults.append(buff, 0, read);
 			}
 		} catch (MalformedURLException e) {
-//			System.out.println("Error processing Places API URL");
+			//			System.out.println("Error processing Places API URL");
 			e.printStackTrace();
 
 		} catch (IOException e) {
-//			System.out.println("Error processing Places API URL");
+			//			System.out.println("Error processing Places API URL");
 			e.printStackTrace();
 
 		} finally {
@@ -156,24 +156,24 @@ public class WebServiceCaller implements IWebService {
 		}
 		return jsonResults.toString();
 	}
-	
-	
+
+
 	public static void main(String[] args) {
-//		LinkedHashMap<String, Object> param = new LinkedHashMap<>();
-//			param.put("sessionId","3F72F2D96D92B6D3EC58B6EEAEE636FE9");
-//			param.put("shipperName", "McDonald’s, Bahnhofplatz, Zürich, Switzerland" );
-//			param.put("consigneeName", "McDonald's, Am Borsigturm, Tegel, Berlin, Germany");	
-//			param.put("minDep", "08/11/2017 16:22");
-//			param.put("maxArr", "08/12/2017 16:22");
-//			param.put("commodities","1354:0:books |null|1|Each|1.0|1|1|1|1.0|| | | | | | ");
-//			param.put("shipperAddId", "123451397");	
-//			param.put("latitudeShipper", "47.3766969");	
-//			param.put("longitudeShipper", "8.540349299999999");	
-//			param.put("consigneeAddId", "123451398");
-//			param.put("latitudeConsignee", "50.1077812");	
-//			param.put("longitudeConsignee", "8.663020099999999");
-//		new WebServiceCaller().getSchedules(param);
-		
+		//		LinkedHashMap<String, Object> param = new LinkedHashMap<>();
+		//			param.put("sessionId","3F72F2D96D92B6D3EC58B6EEAEE636FE9");
+		//			param.put("shipperName", "McDonald’s, Bahnhofplatz, Zürich, Switzerland" );
+		//			param.put("consigneeName", "McDonald's, Am Borsigturm, Tegel, Berlin, Germany");	
+		//			param.put("minDep", "08/11/2017 16:22");
+		//			param.put("maxArr", "08/12/2017 16:22");
+		//			param.put("commodities","1354:0:books |null|1|Each|1.0|1|1|1|1.0|| | | | | | ");
+		//			param.put("shipperAddId", "123451397");	
+		//			param.put("latitudeShipper", "47.3766969");	
+		//			param.put("longitudeShipper", "8.540349299999999");	
+		//			param.put("consigneeAddId", "123451398");
+		//			param.put("latitudeConsignee", "50.1077812");	
+		//			param.put("longitudeConsignee", "8.663020099999999");
+		//		new WebServiceCaller().getSchedules(param);
+
 		PaypalData a = new WebServiceCaller().generateRedirectUrlPaypal(100d, "USD");
 		System.out.println(a.getRedirectUrl());
 	}
@@ -215,7 +215,7 @@ public class WebServiceCaller implements IWebService {
 		new CallSOAPAction(map, "getShipperAlsoNotifyDeliveredToAddressByMatch", callBack);
 		return shipperNames;
 	}
-	
+
 	@Override
 	public List<RSAddName> getFfwAddressByMatch(String match, String sessionId) {
 		List<RSAddName> consigneeNames = new ArrayList();
@@ -322,7 +322,7 @@ public class WebServiceCaller implements IWebService {
 
 		};
 		new CallSOAPAction(map, "getCommodityByMatch", callBack);
-		
+
 		return commodityList;
 	}
 
@@ -373,8 +373,8 @@ public class WebServiceCaller implements IWebService {
 			String countryId = "";
 			String city = "";
 			JSONArray addrresComArray = res.getJSONArray("address_components");
-			
-			
+
+
 			for (int i = 0; i < addrresComArray.length(); i++) {
 
 				JSONObject addComObject = (JSONObject) addrresComArray.get(i);
@@ -412,19 +412,19 @@ public class WebServiceCaller implements IWebService {
 			}
 			addResult.setCompanyName(select).setCity(city).setCountry(countryName).
 			setLatitude(latitude).setLongitude(longitude).setStreet(street).setType("s");
-	
+
 		} catch (JSONException e) {
-//			System.out.println("Error processing Placses API URL");
+			//			System.out.println("Error processing Placses API URL");
 			e.printStackTrace();
 		}
-		
+
 		return addResult;
 	}
 
 	@Override
 	public Long saveAddUser(RSAddName result, String sessionId, String email) {
 		LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-	    final StringBuilder sBuilder = new StringBuilder();
+		final StringBuilder sBuilder = new StringBuilder();
 
 		ISOAPResultCallBack callBack = new ISOAPResultCallBack(){
 
@@ -437,10 +437,10 @@ public class WebServiceCaller implements IWebService {
 			@Override
 			public void handleError(String statusCode) {
 
-				
+
 			}
 		};
-		
+
 		map.put("sessionId", sessionId);
 		map.put("addType", result.getType());
 		map.put("name", result.getCompanyName());
@@ -453,7 +453,7 @@ public class WebServiceCaller implements IWebService {
 		map.put("countryName",result.getCountry());
 		map.put("longitude", result.getLongitude());
 		map.put("latitude", result.getLatitude());
-		
+
 		new CallSOAPAction(map, "addUserDummy", callBack);
 		return Long.parseLong(sBuilder.toString());
 	}
@@ -466,25 +466,25 @@ public class WebServiceCaller implements IWebService {
 			@Override
 			public void handleResult(SoapObject data, String statusCode) {
 				try {
-					
+
 					for (int i = 0; i < data.getPropertyCount(); i++) {
 						SoapObject flightScheduleObj = (SoapObject) data.getProperty(i);
 						SoapObject flightObj = (SoapObject) flightScheduleObj.getProperty("flight");
 						SoapObject list = (SoapObject) flightObj.getProperty("list");
 						List<Flight> flightList = new ArrayList();
-						
-//						for (int j = 0; j < list.getPropertyCount(); j++) {
-							Flight flight = new Flight();
-							flight.setArrivalTime(sdf.parse(list.getProperty("arrival").toString()));
-							flight.setTempCa3dg(list.getProperty("ca3dg").toString());
-							flight.setCaId(list.getProperty("caId").toString());
-							flight.setDepartureTime(sdf.parse(list.getProperty("departure").toString()));
-							flight.setFltId(Long.parseLong(list.getProperty("fltId").toString()));
-							flight.setMode(Integer.parseInt(list.getProperty("mode").toString()));	
-							flightList.add(flight);
-//						}
-						
-						
+
+						//						for (int j = 0; j < list.getPropertyCount(); j++) {
+						Flight flight = new Flight();
+						flight.setArrivalTime(sdf.parse(list.getProperty("arrival").toString()));
+						flight.setTempCa3dg(list.getProperty("ca3dg").toString());
+						flight.setCaId(list.getProperty("caId").toString());
+						flight.setDepartureTime(sdf.parse(list.getProperty("departure").toString()));
+						flight.setFltId(Long.parseLong(list.getProperty("fltId").toString()));
+						flight.setMode(Integer.parseInt(list.getProperty("mode").toString()));	
+						flightList.add(flight);
+						//						}
+
+
 						ScheduleDoorToDoor d = new ScheduleDoorToDoor();
 						d.setCommodities(flightScheduleObj.getProperty("commodities") == null ?"" :flightScheduleObj.getProperty("commodities").toString()).
 						setConsignee_add_id(flightScheduleObj.getProperty("consignee_add_id").toString()).
@@ -497,14 +497,14 @@ public class WebServiceCaller implements IWebService {
 						setTotal_airlane_from(flightScheduleObj.getProperty("total_airlane_from").toString()).setTotal_airlane_to(flightScheduleObj.getProperty("total_airlane_to").toString()).
 						setTotal_fee_from(flightScheduleObj.getProperty("total_fee_from").toString()).setTotal_fee_to(flightScheduleObj.getProperty("total_fee_to").toString()).setTotal_insurance_from(flightScheduleObj.getProperty("total_insurance_from").toString()).
 						setTotal_insurance_to(flightScheduleObj.getProperty("total_insurance_to").toString()).setFlight(flightList).setStandalone(Boolean.parseBoolean(flightScheduleObj.getProperty("standalone").toString()));
-						
+
 						String feeFrom = flightScheduleObj.getProperty("total_fee_from").toString();
 						String feeTo = flightScheduleObj.getProperty("total_fee_to").toString();
 						if(feeFrom!=null && feeTo!=null)
 						{
 							d.setCurrFrom(feeFrom.split(" ")[1]).setCurrTo(feeTo.split(" ")[1]); 
 						}						
-						
+
 						flightScheduleList.add(d);
 					}
 				}catch(Exception e) {
@@ -515,9 +515,9 @@ public class WebServiceCaller implements IWebService {
 			@Override
 			public void handleError(String statusCode) {
 				System.out.println(statusCode);
-				
+
 			}
-			
+
 		};
 		new CallSOAPAction(param, "getSchedulesDoorToDoor", callBack);
 		return flightScheduleList;
@@ -547,24 +547,24 @@ public class WebServiceCaller implements IWebService {
 			Amount amount = new Amount();
 			amount.setTotal(newTotalRates);
 			amount.setCurrency(currency);
-			
+
 			Transaction transaction = new Transaction();
 			transaction.setAmount(amount);
-			
+
 			List<Transaction> transactions = new ArrayList<Transaction>();
 			transactions.add(transaction);			
-			
+
 			Payer payer = new Payer();
 			payer.setPaymentMethod("paypal");
-			
+
 			PayerInfo info = new PayerInfo();
 			payer.setPayerInfo(info);
-				
+
 			RedirectUrls redirectUrls = new RedirectUrls();
-			
+
 			redirectUrls.setCancelUrl(cancelURL);
 			redirectUrls.setReturnUrl(returnURL);
-			
+
 			Payment payment = new Payment();
 			payment.setIntent("sale");
 			payment.setPayer(payer);
@@ -579,45 +579,45 @@ public class WebServiceCaller implements IWebService {
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		
+
 		return data;
 	}
 
 	@Override
 	public String saveDataPaymentTemp(String tokenId, String paymentId, String sessionKey, 
 			String rateId) {
-				
-				LinkedHashMap<String, Object> createBookingRequest = new LinkedHashMap<>();
-				createBookingRequest.put("sessionId",((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
-				createBookingRequest.put("tokenId", tokenId);
-				createBookingRequest.put("paymentId", paymentId);
-				createBookingRequest.put("sessionKey",sessionKey);
-				createBookingRequest.put("rateId", rateId);
-				
-				StringBuffer result = new StringBuffer();
-				ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
-					
-					@Override
-					public void handleResult(SoapObject data, String statusCode) {
-//						result.append(data.getProperty("code").toString()); 
-					}
-					
-					@Override
-					public void handleError(String statusCode) {
-						
-					}
-				};
-				new CallSOAPAction(createBookingRequest, "saveBookingTempDoorToDoor", callBack);
-				return result.toString();
+
+		LinkedHashMap<String, Object> createBookingRequest = new LinkedHashMap<>();
+		createBookingRequest.put("sessionId",((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
+		createBookingRequest.put("tokenId", tokenId);
+		createBookingRequest.put("paymentId", paymentId);
+		createBookingRequest.put("sessionKey",sessionKey);
+		createBookingRequest.put("rateId", rateId);
+
+		StringBuffer result = new StringBuffer();
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				//						result.append(data.getProperty("code").toString()); 
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+
+			}
+		};
+		new CallSOAPAction(createBookingRequest, "saveBookingTempDoorToDoor", callBack);
+		return result.toString();
 	}
-	
+
 	public DataPaymentTempDTD getTempData(String tokenId, String paymentId) {
 		LinkedHashMap<String, Object> createBookingRequest = new LinkedHashMap<>();
 		createBookingRequest.put("tokenId", tokenId);
 		createBookingRequest.put("paymentId", paymentId);
 		final DataPaymentTempDTD temp = new DataPaymentTempDTD();
 		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
-			
+
 			@Override
 			public void handleResult(SoapObject data, String statusCode) {
 				temp.setAmount_from(data.getProperty("amount_from").toString());
@@ -625,30 +625,30 @@ public class WebServiceCaller implements IWebService {
 				temp.setCurrency_from(data.getProperty("currency_from").toString());
 				temp.setCurrency_to(data.getProperty("currency_to").toString());
 				temp.setRateId(data.getProperty("rateId").toString());
-				
+
 			}
-			
+
 			@Override
 			public void handleError(String statusCode) {
-				
+
 			}
 		};
 		new CallSOAPAction(createBookingRequest, "getBookingTempDoorToDoor", callBack);
-		
+
 		return temp;
 	}
 
 	@Override
 	public BookingConfirmation createBookingDoorToDoorNew( String sessionKey, String rateId) {
 		LinkedHashMap<String, Object> createBookingRequest = new LinkedHashMap<>();
-		
+
 		createBookingRequest.put("sessionId", ((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
 		createBookingRequest.put("sessionKey", sessionKey);
 		createBookingRequest.put("rateId", rateId);
 		createBookingRequest.put("force", true);
 		final BookingConfirmation temp = new BookingConfirmation();
 		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
-			
+
 			@Override
 			public void handleResult(SoapObject data, String statusCode) {
 				SoapObject master = (SoapObject) data.getProperty("address");
@@ -670,11 +670,11 @@ public class WebServiceCaller implements IWebService {
 					String wgt = commodityStats.getProperty("wgt").toString();
 					String vol = commodityStats.getProperty("vol").toString();
 					String width = commodityStats.getProperty("width").toString();
-					
+
 					item.setHeight(height).setLength(length).setName(name).setPieces(pcs).setWeight(wgt).setWidth(width);
 					items.add(item);
 				}
-				
+
 				temp.setItemDetails(items);
 				Address consAddress = new Address();
 				consAddress.setCity(consigneeSoap.getProperty("city").toString()).setCountry(consigneeSoap.getProperty("country").toString()).
@@ -695,28 +695,28 @@ public class WebServiceCaller implements IWebService {
 					String date =flight.getProperty("date").toString();
 					String remark = flight.getProperty("remark").toString();
 					String stats = flight.getProperty("status").toString();
-					
+
 					status.setDate(date);
 					status.setRemark(remark);
 					status.setStatus(stats);
 					statusList.add(status);
 				}
-				
+
 				temp.setStatusInformation(statusList);
-				
+
 			}
-			
+
 			@Override
 			public void handleError(String statusCode) {
-				
+
 			}
 		};
 		new CallSOAPAction(createBookingRequest, "createBookingDoorToDoor", callBack);
-		
+
 		return temp;
 	}
 
-	
+
 	private LinkedList<Status> getStatusTracing(String ca3dg, String awbStock, String awbNo) {
 		LinkedHashMap<String, Object> statusRequest = new LinkedHashMap<>();
 		SimpleDateFormat sdf1 = new SimpleDateFormat("MM/dd/yyyy HH:mm");
@@ -725,11 +725,11 @@ public class WebServiceCaller implements IWebService {
 		statusRequest.put("ca3dg",ca3dg);
 		statusRequest.put("awbStock", awbStock);
 		statusRequest.put("awbNo", awbNo);
-		
+
 		final LinkedList<Status> temp = new LinkedList();
 
 		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
-			
+
 			@Override
 			public void handleResult(SoapObject data, String statusCode) {
 				for (int i = 0; i < data.getPropertyCount(); i++) {
@@ -746,19 +746,19 @@ public class WebServiceCaller implements IWebService {
 					}
 				}
 			}
-			
+
 			@Override
 			public void handleError(String statusCode) {
-				
+
 			}
 		};
 		new CallSOAPAction(statusRequest, "getAWBStatusTrack", callBack );
 		return temp;
 	}
-	
+
 	public BookingConfirmation getTracingShipmentInfo(String ca3dg, String awbStock, String awbNo) {
 		LinkedList<Status> statusData = getStatusTracing(ca3dg, awbStock, awbNo);
-		
+
 		LinkedHashMap<String, Object> tracingInfoRequest = new LinkedHashMap<>();
 		tracingInfoRequest.put("sessionId", ((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
 		tracingInfoRequest.put("ca3dg",ca3dg);
@@ -766,7 +766,7 @@ public class WebServiceCaller implements IWebService {
 		tracingInfoRequest.put("awbNo", awbNo);
 		final BookingConfirmation temp = new BookingConfirmation();
 		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
-			
+
 			@Override
 			public void handleResult(SoapObject data, String statusCode) {
 				SoapObject address = (SoapObject) data.getProperty("address");
@@ -778,15 +778,15 @@ public class WebServiceCaller implements IWebService {
 				address1.setCountry(shipper.getProperty("country").toString());
 				address1.setEmail(shipper.getProperty("email").toString());
 				address1.setCity(shipper.getProperty("city").toString());
-				
+
 				Address address2 = new Address();
 				address2.setName(consignee.getProperty("name").toString());
 				address2.setCountry(consignee.getProperty("country").toString());
 				address2.setEmail(consignee.getProperty("email").toString());
 				address2.setCity(consignee.getProperty("city").toString());
-				
+
 				SoapObject shipmentInfo = (SoapObject) data.getProperty("shipmentInformation");
-				
+
 				for(int i=0; i<shipmentInfo.getPropertyCount(); i++){
 					SoapObject shipmentIndex = (SoapObject) shipmentInfo.getProperty(i);
 					String height = shipmentIndex.getProperty("height").toString();
@@ -794,13 +794,13 @@ public class WebServiceCaller implements IWebService {
 					String weight = shipmentIndex.getProperty("wgt").toString();
 					String width = shipmentIndex.getProperty("width").toString();
 					String pieces = shipmentIndex.getProperty("pcs").toString();
-					
+
 					CommodityItem item = new CommodityItem();
 					item.setHeight(height).setName(name).setWeight(weight).setWidth(width).setPieces(pieces);
 					comList.add(item);
-					
+
 				}
-				
+
 				temp.setShipper(address1);
 				temp.setConsignee(address2);
 				temp.setStatusInformation(statusData);
@@ -809,16 +809,127 @@ public class WebServiceCaller implements IWebService {
 				temp.setAwbStock(awbStock);
 				temp.setAwbNo(awbNo);
 			}
-			
+
 			@Override
 			public void handleError(String statusCode) {
-				
+
 			}
 		};
 		new CallSOAPAction(tracingInfoRequest, "getShipmentSummary", callBack  );
 		return temp;
 	}
 
+	@Override
+	public boolean sendFWB(String ca3dg, String awbStock, String awbNo) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId", ((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
+		params.put("ca3dg",ca3dg);
+		params.put("awbStock", awbStock);
+		params.put("awbNo", awbNo);
+		final StringBuffer r = new StringBuffer();
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				SoapObject ActernityResponse = (SoapObject) data.getProperty(0);
+
+				String code = ActernityResponse.getProperty("code").toString();
+				if(code.equals("00:success")){
+					r.append(true);
+				}
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+
+			}
+
+		};
+		new CallSOAPAction(params, "sendFWB", callBack  );
+		return Boolean.parseBoolean(r.toString());
+	}
+
+	@Override
+	public String printBarCode(String ca3dg, String awbStock, String awbNo) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId", ((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
+		params.put("ca3dg", ca3dg);
+		params.put("awbStock", awbStock);
+		params.put("awbNo", awbNo);
+		final StringBuffer r = new StringBuffer();
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				// Response Successful
+				if (statusCode.equalsIgnoreCase("00:success")) {
+					for (int i = 0; i < data.getPropertyCount(); i++) {
+						r.append(data.getProperty(i).toString());						
+					}
+				}			
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+
+			}
+		};
+		new CallSOAPAction(params, "printBarcode", callBack  );
+		return r.toString();
+	}
+
+	@Override
+	public String printInvoice(String ca3dg, String awbStock, String awbNo) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId", ((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
+		params.put("ca3dg", ca3dg);
+		params.put("awbStock", awbStock);
+		params.put("awbNo", awbNo);
+		final StringBuffer r = new StringBuffer();
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				// Response Successful
+				if (statusCode.equalsIgnoreCase("00:success")) {
+					for (int i = 0; i < data.getPropertyCount(); i++) {
+						r.append(data.getProperty(i).toString());						
+					}
+				}			
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+
+			}
+		};
+		new CallSOAPAction(params, "printInvoicePdf", callBack  );
+		return r.toString();
+	}
+
+	@Override
+	public String printAwb(String ca3dg, String awbStock, String awbNo) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId", ((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
+		params.put("ca3dg", ca3dg);
+		params.put("awbStock", awbStock);
+		params.put("awbNo", awbNo);
+		final StringBuffer r = new StringBuffer();
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				r.append(data.toString());						
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+
+			}
+		};
+		new CallSOAPAction(params, "printAWB", callBack  );
+		return r.toString();
 
 
+	}
 }

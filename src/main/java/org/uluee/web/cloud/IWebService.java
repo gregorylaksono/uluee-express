@@ -37,4 +37,10 @@ public interface IWebService {
 	
 	public BookingConfirmation createBookingDoorToDoorNew(String sessionKey, String rateId);
 	public BookingConfirmation getTracingShipmentInfo(String ca3dg, String awbStock, String awbNo) ;
+	public boolean sendFWB(String ca3dg, String awbStock, String awbNo );
+	
+	
+	public String printBarCode(String ca3dg, String awbStock, String awbNo );
+	public String printInvoice(String ca3dg, String awbStock, String awbNo );
+	public String printAwb(String ca3dg, String awbStock, String awbNo );
 }
