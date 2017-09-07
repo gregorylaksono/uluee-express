@@ -56,12 +56,13 @@ public class UIFactory {
 		return button;
 	}
 	
-	public static void addWindow(Component content, boolean isDragable, boolean isCloseable, boolean isModal) {
+	public static void addWindow(Component content,boolean isExpandable, boolean isDragable, boolean isCloseable, boolean isModal) {
 		Window w = new Window();
 		w.setContent(content);
 		w.setDraggable(isDragable);
 		w.setClosable(isCloseable);
 		w.setModal(isModal);
+		w.setResizable(false);
 		
 		((Uluee_expressUI)UI.getCurrent()).addWindow(w);
 	}

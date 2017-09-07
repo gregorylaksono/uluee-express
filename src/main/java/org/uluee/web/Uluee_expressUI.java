@@ -30,6 +30,7 @@ import com.vaadin.server.Page.UriFragmentChangedListener;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
@@ -53,7 +54,8 @@ public class Uluee_expressUI extends UI {
 	private Navigator navigator;
 	private IWebService webServiceCaller = new WebServiceCaller();
 	private User user = null;
-
+	private Label userLabel = new Label();
+	private boolean isUserLogged = false;
 	private String sessionKey;
 	private BookingConfirmation confirmation;
 	@Override
@@ -82,7 +84,7 @@ public class Uluee_expressUI extends UI {
 			}
 		});
 
-		user = webServiceCaller.login(Constant.USERNAME, Constant.PASSWORD);
+		login();
 
 		Map requestParam = request.getParameterMap();
 		String[] confirm = (String[]) requestParam.get("v-loc");
@@ -94,6 +96,10 @@ public class Uluee_expressUI extends UI {
 		}else{
 			navigator.navigateTo(NavigatorConstant.MAIN_PAGE);
 		}
+	}
+	
+	public void login() {
+		user = webServiceCaller.login(Constant.USERNAME, Constant.PASSWORD);
 	}
 
 	private String getParam(String[] confirm) {
@@ -112,15 +118,20 @@ public class Uluee_expressUI extends UI {
 	}
 
 	private VerticalLayout createParentRoot() {
+		userLabel.setWidth(null);
+		userLabel.setStyleName("user-label");
 		VerticalLayout layout = new VerticalLayout();
 		layout.setId(CSSStyle.ROOT_PARENT);
 		content = new CssLayout();
 		content.setId(CSSStyle.ROOT_LAYOUT);
 
 		layout.setSizeFull();
-
+		layout.addComponent(userLabel);
 		layout.addComponent(content);
+		layout.setComponentAlignment(userLabel, Alignment.TOP_RIGHT);
 		layout.setComponentAlignment(content, Alignment.MIDDLE_CENTER);
+		layout.setExpandRatio(userLabel, 0.0f);
+		layout.setExpandRatio(content, 1.0f);
 		return layout;
 	}
 
@@ -171,6 +182,16 @@ public class Uluee_expressUI extends UI {
 		return confirmation;
 	}
 
-
+	public void setUserLabel(String text) {
+		userLabel.setCaption(text);
+	}
+	
+	public void setUserLoggedFlaged(boolean flag) {
+		this.isUserLogged = flag;
+	}
+	
+	public boolean isUserFlaggedLoged() {
+		return isUserLogged;
+	}
 
 }

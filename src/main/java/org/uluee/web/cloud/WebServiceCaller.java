@@ -86,7 +86,10 @@ public class WebServiceCaller implements IWebService {
 
 		};
 		new CallSOAPAction(map, "login", callBack);
-		return container.get(0);
+		if(container.size()>0) {
+			user = container.get(0);
+		}
+		return user;
 	}
 
 	public List<String> getGoogleAutocomplete(String match) {

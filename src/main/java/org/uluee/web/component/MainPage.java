@@ -291,7 +291,7 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 		tracing = new TracingTab("Tracing");
 		topLayout = new CheckboxAndBasketLayout();
 		topLayout.getBasketButton().addClickListener(e->{
-			UIFactory.addWindow(new CommodityTableLayout(MainPage.this, itemDescriptionLayout.getCommodities()), false, false, true);
+			UIFactory.addWindow(new CommodityTableLayout(MainPage.this, itemDescriptionLayout.getCommodities()), false, false, false, true);
 		});
 		dateLayout = new FromAndToDateLayout();
 		deptDestLayout = new DeptDestLayout();
@@ -300,7 +300,7 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 		deptDestLayout.getDeptField().setSuggestionPickedListener(e->{
 			if(e.isNotSaved()) {
 				deptDestLayout.getDeptSignLabel().addStyleName("warning-sign");
-				UIFactory.addWindow(new GoogleMapNewDestLayout(GoogleMapNewDestLayout.SHIPPER, MainPage.this, e.getCompanyName()), false, true, true);
+				UIFactory.addWindow(new GoogleMapNewDestLayout(GoogleMapNewDestLayout.SHIPPER, MainPage.this, e.getCompanyName()),false, false, true, true);
 			}else {
 				deptDestLayout.getDeptSignLabel().addStyleName("check-sign");
 				deptDestLayout.setShipper(e);
@@ -310,7 +310,7 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 		deptDestLayout.getDestField().setSuggestionPickedListener(e->{
 			if(e.isNotSaved()) {
 				deptDestLayout.getDestSignLabel().addStyleName("warning-sign");
-				UIFactory.addWindow(new GoogleMapNewDestLayout(GoogleMapNewDestLayout.CONSIGNEE, MainPage.this, e.getCompanyName()), false, true, true);
+				UIFactory.addWindow(new GoogleMapNewDestLayout(GoogleMapNewDestLayout.CONSIGNEE, MainPage.this, e.getCompanyName()),false, false, true, true);
 			}else {
 				deptDestLayout.getDestSignLabel().addStyleName("check-sign");
 				deptDestLayout.setConsignee(e);
