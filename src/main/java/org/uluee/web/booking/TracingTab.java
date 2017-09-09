@@ -2,11 +2,13 @@ package org.uluee.web.booking;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.uluee.web.Uluee_expressUI;
 import org.uluee.web.cloud.model.BookingConfirmation;
 import org.uluee.web.cloud.model.CommodityItem;
 import org.uluee.web.cloud.model.Status;
+import org.uluee.web.util.CallSOAPAction;
 import org.uluee.web.util.UIFactory;
 import org.uluee.web.util.UIFactory.ButtonSize;
 import org.uluee.web.util.UIFactory.ButtonStyle;
@@ -50,6 +52,7 @@ public class TracingTab extends VerticalLayout {
 	private TextField awb1;
 	private TextField awb2;
 	private TextField awb3;
+	private final static Logger LOG = Logger.getLogger(TracingTab.class.getName());
 
 	public TracingTab(String caption) {
 		setCaption(caption);
@@ -176,6 +179,7 @@ public class TracingTab extends VerticalLayout {
 				String awbNo = awb3.getValue();
 				if(!ca3dg.equals("") && !awbStock.equals("") && !awbNo.equals("") ){
 					BookingConfirmation result = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getTracingShipmentInfo(ca3dg, awbStock, awbNo);
+					
 					initData(result);
 				}else{
 					Notification.show("Please input awb no", Type.ERROR_MESSAGE);

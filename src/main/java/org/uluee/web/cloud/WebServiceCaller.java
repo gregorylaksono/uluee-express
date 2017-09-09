@@ -476,7 +476,6 @@ public class WebServiceCaller implements IWebService {
 						SoapObject list = (SoapObject) flightObj.getProperty("list");
 						List<Flight> flightList = new ArrayList();
 
-						//						for (int j = 0; j < list.getPropertyCount(); j++) {
 						Flight flight = new Flight();
 						flight.setArrivalTime(sdf.parse(list.getProperty("arrival").toString()));
 						flight.setTempCa3dg(list.getProperty("ca3dg").toString());
@@ -485,18 +484,23 @@ public class WebServiceCaller implements IWebService {
 						flight.setFltId(Long.parseLong(list.getProperty("fltId").toString()));
 						flight.setMode(Integer.parseInt(list.getProperty("mode").toString()));	
 						flightList.add(flight);
-						//						}
 
 
 						ScheduleDoorToDoor d = new ScheduleDoorToDoor();
 						d.setCommodities(flightScheduleObj.getProperty("commodities") == null ?"" :flightScheduleObj.getProperty("commodities").toString()).
 						setConsignee_add_id(flightScheduleObj.getProperty("consignee_add_id").toString()).
 						setConsignee_distance(flightScheduleObj.getProperty("consignee_distance").toString()).setConsignee_duration(flightScheduleObj.getProperty("consignee_duration").toString()).
-						setConsignee_rate_from(flightScheduleObj.getProperty("consignee_rate_from").toString()).setConsignee_rate_to(flightScheduleObj.getProperty("consignee_rate_to").toString()).
-						setFuel_charges_airlane_from(flightScheduleObj.getProperty("fuel_charges_airlane_from").toString()).setFuel_charges_airlane_to(flightScheduleObj.getProperty("fuel_charges_airlane_to").toString()).
-						setRate_airlane_per_kg_from(flightScheduleObj.getProperty("rate_airlane_per_kg_from").toString()).setRate_airlane_per_kg_to(flightScheduleObj.getProperty("fuel_charges_airlane_to").toString()).
-						setRateId(flightScheduleObj.getProperty("rateId").toString()).setSecurity_charges_airlane_from(flightScheduleObj.getProperty("security_charges_airlane_from").toString()).setSecurity_charges_airlane_to(flightScheduleObj.getProperty("security_charges_airlane_to").toString()).
-						setSessionKey(flightScheduleObj.getProperty("sessionKey").toString()).setShipper_add_id(flightScheduleObj.getProperty("shipper_add_id").toString()).setShipper_rate_to(flightScheduleObj.getProperty("shipper_rate_to").toString()).
+						setConsignee_rate_from(flightScheduleObj.getProperty("consignee_rate_from")==null ? "0" : flightScheduleObj.getProperty("consignee_rate_from").toString()).
+						setConsignee_rate_to(flightScheduleObj.getProperty("consignee_rate_to")==null ? "0" :flightScheduleObj.getProperty("consignee_rate_to").toString()).
+						setFuel_charges_airlane_from(flightScheduleObj.getProperty("fuel_charges_airlane_from") == null ? "0" : flightScheduleObj.getProperty("fuel_charges_airlane_from").toString()).
+						setFuel_charges_airlane_to(flightScheduleObj.getProperty("fuel_charges_airlane_to") == null ? "0" : flightScheduleObj.getProperty("fuel_charges_airlane_to").toString()).
+						setRate_airlane_per_kg_from(flightScheduleObj.getProperty("rate_airlane_per_kg_from") == null ? "0" : flightScheduleObj.getProperty("rate_airlane_per_kg_from").toString()).
+						setRate_airlane_per_kg_to(flightScheduleObj.getProperty("fuel_charges_airlane_to") == null ? "0" : flightScheduleObj.getProperty("fuel_charges_airlane_to").toString()).
+						setRateId(flightScheduleObj.getProperty("rateId").toString()).
+						setSecurity_charges_airlane_from(flightScheduleObj.getProperty("security_charges_airlane_from") == null ? "0" : flightScheduleObj.getProperty("security_charges_airlane_from").toString()).
+						setSecurity_charges_airlane_to(flightScheduleObj.getProperty("security_charges_airlane_to") == null ? "0" : flightScheduleObj.getProperty("security_charges_airlane_to").toString()).
+						setSessionKey(flightScheduleObj.getProperty("sessionKey").toString()).setShipper_add_id(flightScheduleObj.getProperty("shipper_add_id").toString()).
+						setShipper_rate_to(flightScheduleObj.getProperty("shipper_rate_to") == null ? "0" : flightScheduleObj.getProperty("shipper_rate_to").toString()).
 						setTotal_airlane_from(flightScheduleObj.getProperty("total_airlane_from").toString()).setTotal_airlane_to(flightScheduleObj.getProperty("total_airlane_to").toString()).
 						setTotal_fee_from(flightScheduleObj.getProperty("total_fee_from").toString()).setTotal_fee_to(flightScheduleObj.getProperty("total_fee_to").toString()).setTotal_insurance_from(flightScheduleObj.getProperty("total_insurance_from").toString()).
 						setTotal_insurance_to(flightScheduleObj.getProperty("total_insurance_to").toString()).setFlight(flightList).setStandalone(Boolean.parseBoolean(flightScheduleObj.getProperty("standalone").toString()));
