@@ -49,6 +49,7 @@ public class DisclaimerLayout extends CustomLayout{
 		agreeCheckBox.setValue(initValue);
 		submitButton.setEnabled(initValue);
 		submitButton.addClickListener(e ->{
+			submitButton.setEnabled(false);
 			LinkedHashMap m = bookingComponent.getParam();
 //			((Uluee_expressUI)UI.getCurrent()).getNavigator().navigateTo(NavigatorConstant.BOOKING_PAGE+
 //					"/"+bookingComponent.getStringCommodities()+"/"+m.get("shipperName")+

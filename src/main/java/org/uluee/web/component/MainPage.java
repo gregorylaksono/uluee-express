@@ -168,7 +168,7 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 					new Double(itemDescriptionLayout.getItemLongField().getValue()) *
 					new Double(itemDescriptionLayout.getItemWidthField().getValue())).
 			setAnn_id(commodity.getAnnId()).setCom_id(String.valueOf(commodity.getCommId())).
-			setCommodity(commodity.getCommName()).setScc(commodity.getSccCode());
+			setCommodity(commodity.getCommName()).setScc(commodity.getSccCode()==null?"N/A":commodity.getSccCode());
 			comm.add(c);
 			
 			itemDescriptionLayout.setCommodities(comm);
@@ -195,8 +195,9 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 		for (int i = 0; i < stringCommodities.length; i++) {
 			param.put("commodities",stringCommodities[i]);
 		}
-
+//		123451265
 		param.put("shipperAddId", deptDestLayout.getShipper().getCompanyID());	
+//		param.put("shipperAddId", "123451265");
 		param.put("latitudeShipper", deptDestLayout.getShipper().getLatitude());	
 		param.put("longitudeShipper", deptDestLayout.getShipper().getLongitude());	
 		param.put("consigneeAddId", deptDestLayout.getConsignee().getCompanyID());
@@ -252,8 +253,8 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 			}
 			if(tempList.get(i).getCom_id() == null){
 				stringCommodities = stringCommodities + "&&"
-						+ tempList.get(i).getCommodity() + ":"
-						+ "0" +":"+tempList.get(i).getCommodity()+ "|"
+						+ String.valueOf(tempList.get(i).getCommodity() + ":"
+						+ "0" +":"+tempList.get(i).getCommodity()).trim()+ "|"
 						+ tempList.get(i).getScc() + "|"
 						+ tempList.get(i).getPieces() + "|" + "Each"
 						+ "|" + tempList.get(i).getWeight() + "|"
@@ -264,9 +265,9 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 			}					
 			else{
 				stringCommodities = stringCommodities + "&&"
-						+ tempList.get(i).getCom_id()+ ":"
+						+ String.valueOf(tempList.get(i).getCom_id()+ ":"
 						+ tempList.get(i).getAnn_id()
-						+ ":"+tempList.get(i).getCommodity() + "|"
+						+ ":"+tempList.get(i).getCommodity()).trim() + "|"
 						+ tempList.get(i).getScc() + "|"
 						+ tempList.get(i).getPieces() + "|" + "Each"
 						+ "|" + tempList.get(i).getWeight() + "|"

@@ -206,11 +206,11 @@ public class BookingPage extends VerticalLayout implements View{
 		for(ScheduleDoorToDoor schedule: result) {
 			Button b = new Button("Select");
 
-
 			b.setStyleName(ValoTheme.BUTTON_SMALL);
 			b.addStyleName(ValoTheme.BUTTON_PRIMARY);
 
-			String[] args = schedule.getTotal_fee_from().split(" ");
+//			String[] args = schedule.getTotal_fee_from().split(" ");
+			String[] args = schedule.getTotal_fee_to().split(" ");
 			final Double rateFinal = new Double(args[0]);
 			Item parent = table.addItem(schedule);
 			parent.getItemProperty(DEP_TIME).setValue("Flight "+index);
@@ -227,7 +227,7 @@ public class BookingPage extends VerticalLayout implements View{
 			parent.getItemProperty(SELECT).setValue(b);
 			index++;
 			b.addClickListener(e->{
-				PaypalData paypal = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().generateRedirectUrlPaypal(rateFinal.doubleValue(), schedule.getCurrFrom());
+				PaypalData paypal = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().generateRedirectUrlPaypal(rateFinal.doubleValue(), schedule.getCurrTo());
 				getUI().getPage().setLocation(paypal.getRedirectUrl());
 
 				((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().saveDataPaymentTemp(paypal.getToken(), paypal.getPaymentId(), schedule.getSessionKey(), schedule.getRateId());
