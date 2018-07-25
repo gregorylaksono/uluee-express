@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.uluee.web.Uluee_expressUI;
 import org.uluee.web.cloud.model.Flight;
@@ -164,10 +165,10 @@ public class BookingPage extends VerticalLayout implements View{
 		tvolumeL.setCaption("Total Volume");
 		tVolWeightL.setCaption("Volume/Weight");
 
-		tPiecesL.setValue("1 pieces");
-		tweightL.setValue("1.0 kg");
-		tvolumeL.setValue("1 m3");
-		tVolWeightL.setValue("0.17 kg");
+//		tPiecesL.setValue("1 pieces");
+//		tweightL.setValue("1.0 kg");
+//		tvolumeL.setValue("1 m3");
+//		tVolWeightL.setValue("0.17 kg");
 
 		parent.addComponent(tPiecesL);
 		parent.addComponent(tweightL);
@@ -203,9 +204,13 @@ public class BookingPage extends VerticalLayout implements View{
 	}
 	private void insertItems() {
 		int index = 1;
+		boolean isItemProcessed = false;
 		for(ScheduleDoorToDoor schedule: result) {
 			Button b = new Button("Select");
-
+			if(!isItemProcessed) {
+				describe(schedule);
+				isItemProcessed = true;
+			}
 			b.setStyleName(ValoTheme.BUTTON_SMALL);
 			b.addStyleName(ValoTheme.BUTTON_PRIMARY);
 
@@ -235,6 +240,31 @@ public class BookingPage extends VerticalLayout implements View{
 			});
 		}
 
+	}
+
+	private void describe(ScheduleDoorToDoor schedule) {
+//		private Label tVolWeightL;
+//		private Label tvolumeL;
+//		private Label tweightL;
+//		private Label tPiecesL;
+		double weight = 0;
+		double vol = 0;
+		int pieces = 0;
+		double height = 0;
+		String args[] = schedule.getCommodities().split("&&");
+		for(String s: args) {
+			String t[] = s.split(Pattern.quote("|"));
+			weight = Double.parseDouble(t[2]) + weight;
+			height = Double.parseDouble(t[7]) + height;
+			vol = Double.parseDouble(t[8]) + vol;
+			pieces = Integer.parseInt(t[2]) + pieces; 
+		}
+		tvolumeL.setValue(String.valueOf(vol));
+		tweightL.setValue(String.valueOf(weight));
+		tPiecesL.setValue(String.valueOf(pieces));
+		tVolWeightL.setValue(String.valueOf(height));
+		
+		//commodities,scc,pieces,each,weight,length,width,heigh,volume
 	}
 
 }
