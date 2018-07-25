@@ -34,6 +34,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
+
 @SuppressWarnings("serial")
 @Theme("uluee_express")
 @StyleSheet("https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css")
@@ -41,7 +42,7 @@ import com.vaadin.ui.VerticalLayout;
 public class Uluee_expressUI extends UI {
 
 	@WebServlet(value = "/*", asyncSupported = true)
-	@VaadinServletConfiguration(productionMode = false, ui = Uluee_expressUI.class)
+	@VaadinServletConfiguration(productionMode = false, ui = Uluee_expressUI.class, widgetset="org.uluee.web.AppWidgetset")
 	public static class Servlet extends VaadinServlet {
 
 	}
