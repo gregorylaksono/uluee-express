@@ -13,6 +13,7 @@ import org.uluee.web.component.BookingPage;
 import org.uluee.web.component.ConfirmPage;
 import org.uluee.web.component.DummyPage;
 import org.uluee.web.component.MainPage;
+import org.uluee.web.component.window.LoginComponent;
 import org.uluee.web.util.Constant;
 import org.uluee.web.util.NavigatorConstant;
 
@@ -23,6 +24,7 @@ import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.navigator.ViewProvider;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.server.Page.UriFragmentChangedEvent;
@@ -33,6 +35,7 @@ import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 
 
 @SuppressWarnings("serial")
@@ -59,6 +62,7 @@ public class Uluee_expressUI extends UI {
 	private boolean isUserLogged = false;
 	private String sessionKey;
 	private BookingConfirmation confirmation;
+	private ViewProvider ViewProvider ;
 	@Override
 	protected void init(VaadinRequest request) {
 		VerticalLayout parent_root = createParentRoot();
@@ -74,6 +78,15 @@ public class Uluee_expressUI extends UI {
 
 			@Override
 			public boolean beforeViewChange(ViewChangeEvent event) {
+				if(user == null) {
+					Window w = new Window();
+					w.setContent(new LoginComponent());
+					w.setModal(true);
+					w.setClosable(false);
+					w.setDraggable(false);
+					w.setResizable(false);
+					addWindow(w);
+				}
 				if(event.getViewName().equals("")){
 					
 				}
@@ -85,7 +98,7 @@ public class Uluee_expressUI extends UI {
 			}
 		});
 
-		login();
+//		login();
 
 		Map requestParam = request.getParameterMap();
 		String[] confirm = (String[]) requestParam.get("v-loc");

@@ -3,52 +3,55 @@ package org.uluee.web.cloud.model;
 import java.util.Date;
 
 public class Flight implements java.io.Serializable{
-	
+
 	String caId;
 	String status;
 	String remark;
 	String getStatus;
 	String getRemark;
-	String tempCa3dg;
+	String rate;
 	String currency;
-	String totalRates;
 	Date date;
 	Date getDate;
 	Long fltId;
 	Date departureTime;
 	Date arrivalTime;
 	Integer mode;
+	String depart;
+	String destin;
 	
-	public String getCaId() {
-		return caId;
+	public String getDepart() {
+		return depart;
 	}
-	
-	public String getTempCa3dg() {
-		return tempCa3dg;
+	public void setDepart(String depart) {
+		this.depart = depart;
 	}
-	public void setTempCa3dg(String tempCa3dg) {
-		this.tempCa3dg = tempCa3dg;
+	public String getDestin() {
+		return destin;
 	}
-	
-	public void setCaId(String caId) {
-		this.caId = caId;
+	public void setDestin(String destin) {
+		this.destin = destin;
 	}
 	public String getCurrency() {
 		return currency;
 	}
-
 	public void setCurrency(String currency) {
 		this.currency = currency;
 	}
-
-	public String getTotalRates() {
-		return totalRates;
+	
+	public String getRate() {
+		return rate;
 	}
-
-	public void setTotalRates(String totalRates) {
-		this.totalRates = totalRates;
+	public void setRate(String rate) {
+		this.rate = rate;
 	}
-
+	
+	public String getCaId() {
+		return caId;
+	}
+	public void setCaId(String caId) {
+		this.caId = caId;
+	}
 	public Long getFltId() {
 		return fltId;
 	}
@@ -97,5 +100,6 @@ public class Flight implements java.io.Serializable{
 	public String getRemark() {
 		return remark;
 	}
+
 
 }	

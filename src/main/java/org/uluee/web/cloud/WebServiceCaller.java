@@ -11,6 +11,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -461,74 +462,6 @@ public class WebServiceCaller implements IWebService {
 		return Long.parseLong(sBuilder.toString());
 	}
 
-	@Override
-	public List<ScheduleDoorToDoor> getSchedules(LinkedHashMap<String, Object> param) {
-		List<ScheduleDoorToDoor> flightScheduleList = new ArrayList<ScheduleDoorToDoor>();
-		ISOAPResultCallBack callBack = new ISOAPResultCallBack(){
-
-			@Override
-			public void handleResult(SoapObject data, String statusCode) {
-				try {
-
-					for (int i = 0; i < data.getPropertyCount(); i++) {
-						SoapObject flightScheduleObj = (SoapObject) data.getProperty(i);
-						SoapObject flightObj = (SoapObject) flightScheduleObj.getProperty("flight");
-						SoapObject list = (SoapObject) flightObj.getProperty("list");
-						List<Flight> flightList = new ArrayList();
-
-						Flight flight = new Flight();
-						flight.setArrivalTime(sdf.parse(list.getProperty("arrival").toString()));
-						flight.setTempCa3dg(list.getProperty("ca3dg").toString());
-						flight.setCaId(list.getProperty("caId").toString());
-						flight.setDepartureTime(sdf.parse(list.getProperty("departure").toString()));
-						flight.setFltId(Long.parseLong(list.getProperty("fltId").toString()));
-						flight.setMode(Integer.parseInt(list.getProperty("mode").toString()));	
-						flightList.add(flight);
-
-
-						ScheduleDoorToDoor d = new ScheduleDoorToDoor();
-						d.setCommodities(flightScheduleObj.getProperty("commodities") == null ?"" :flightScheduleObj.getProperty("commodities").toString()).
-						setConsignee_add_id(flightScheduleObj.getProperty("consignee_add_id").toString()).
-						setConsignee_distance(flightScheduleObj.getProperty("consignee_distance").toString()).setConsignee_duration(flightScheduleObj.getProperty("consignee_duration").toString()).
-						setConsignee_rate_from(flightScheduleObj.getProperty("consignee_rate_from")==null ? "0" : flightScheduleObj.getProperty("consignee_rate_from").toString()).
-						setConsignee_rate_to(flightScheduleObj.getProperty("consignee_rate_to")==null ? "0" :flightScheduleObj.getProperty("consignee_rate_to").toString()).
-						setFuel_charges_airlane_from(flightScheduleObj.getProperty("fuel_charges_airlane_from") == null ? "0" : flightScheduleObj.getProperty("fuel_charges_airlane_from").toString()).
-						setFuel_charges_airlane_to(flightScheduleObj.getProperty("fuel_charges_airlane_to") == null ? "0" : flightScheduleObj.getProperty("fuel_charges_airlane_to").toString()).
-						setRate_airlane_per_kg_from(flightScheduleObj.getProperty("rate_airlane_per_kg_from") == null ? "0" : flightScheduleObj.getProperty("rate_airlane_per_kg_from").toString()).
-						setRate_airlane_per_kg_to(flightScheduleObj.getProperty("fuel_charges_airlane_to") == null ? "0" : flightScheduleObj.getProperty("fuel_charges_airlane_to").toString()).
-						setRateId(flightScheduleObj.getProperty("rateId").toString()).
-						setSecurity_charges_airlane_from(flightScheduleObj.getProperty("security_charges_airlane_from") == null ? "0" : flightScheduleObj.getProperty("security_charges_airlane_from").toString()).
-						setSecurity_charges_airlane_to(flightScheduleObj.getProperty("security_charges_airlane_to") == null ? "0" : flightScheduleObj.getProperty("security_charges_airlane_to").toString()).
-						setSessionKey(flightScheduleObj.getProperty("sessionKey").toString()).setShipper_add_id(flightScheduleObj.getProperty("shipper_add_id").toString()).
-						setShipper_rate_to(flightScheduleObj.getProperty("shipper_rate_to") == null ? "0" : flightScheduleObj.getProperty("shipper_rate_to").toString()).
-						setTotal_airlane_from(flightScheduleObj.getProperty("total_airlane_from").toString()).setTotal_airlane_to(flightScheduleObj.getProperty("total_airlane_to").toString()).
-						setTotal_fee_from(flightScheduleObj.getProperty("total_fee_from").toString()).setTotal_fee_to(flightScheduleObj.getProperty("total_fee_to").toString()).setTotal_insurance_from(flightScheduleObj.getProperty("total_insurance_from").toString()).
-						setTotal_insurance_to(flightScheduleObj.getProperty("total_insurance_to").toString()).setFlight(flightList).setStandalone(Boolean.parseBoolean(flightScheduleObj.getProperty("standalone").toString()));
-
-						String feeFrom = flightScheduleObj.getProperty("total_fee_from").toString();
-						String feeTo = flightScheduleObj.getProperty("total_fee_to").toString();
-						if(feeFrom!=null && feeTo!=null)
-						{
-							d.setCurrFrom(feeFrom.split(" ")[1]).setCurrTo(feeTo.split(" ")[1]); 
-						}						
-
-						flightScheduleList.add(d);
-					}
-				}catch(Exception e) {
-					e.printStackTrace();
-				}
-			}
-
-			@Override
-			public void handleError(String statusCode) {
-				System.out.println(statusCode);
-
-			}
-
-		};
-		new CallSOAPAction(param, "getSchedulesDoorToDoor", callBack);
-		return flightScheduleList;
-	}
 
 	@Override
 	public PaypalData generateRedirectUrlPaypal(double dTotdalRates, String currency) {
@@ -939,4 +872,132 @@ public class WebServiceCaller implements IWebService {
 
 
 	}
+
+	@Override
+	public Map<String, List<String>> getAirportList(String caId, String sessionId, String match) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId", sessionId);
+		params.put("request", "departure");
+		params.put("airport", match);
+		params.put("caId", caId);
+		List<String> airlineList = new ArrayList<>();
+		List<String> airlineListTo = new ArrayList<>();
+		Map<String, List<String>> result = new HashMap<>();
+		result.put("from", airlineList);
+		result.put("to", airlineListTo);
+
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				SoapObject airportFromObj = (SoapObject) data.getProperty(1);
+				SoapObject airportToObj = (SoapObject) data.getProperty(2);
+				if (airportFromObj != null) {
+					airlineList.clear();
+					for (int i = 0; i < airportFromObj.getPropertyCount(); i++) {
+						String FormatAirline = airportFromObj.getProperty(i).toString();
+						String airlineArrayOfString[]	= FormatAirline.split(",");
+						String airlineCode = airlineArrayOfString[0];
+						String airlineCity = airlineArrayOfString[1];
+						String airlineCountry = airlineArrayOfString[2];
+						airlineCountry = airlineCountry.substring(0, airlineCountry.length() - 1);
+						String ailrlineFull = airlineCountry+","+airlineCity+" "+"("+airlineCode +")"+";";
+						airlineList.add(ailrlineFull);
+					}
+				}
+				for (int i = 0; i < airportToObj.getPropertyCount(); i++) {
+					String FormatAirline = airportToObj.getProperty(i).toString();	
+					String airlineArrayOfString[]	= FormatAirline.split(",");
+					String airlineCode = airlineArrayOfString[0];
+					String airlineCity = airlineArrayOfString[1];
+					String airlineCountry = airlineArrayOfString[2];
+					airlineCountry = airlineCountry.substring(0, airlineCountry.length() - 1);
+					String ailrlineFull = airlineCountry+","+airlineCity+" "+"("+airlineCode +")"+";";
+					airlineListTo.add(ailrlineFull);
+				}
+				Collections.sort(airlineList);
+				Collections.sort(airlineListTo);
+
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+
+			}
+
+		};
+		new CallSOAPAction(params, "getAirportListBySchedule", callBack);
+		return result;
+
+
+	}
+
+	@Override
+	public List<FlightSchedule> getSchedules(String sessionId, String caId, String c3dg, String deprature,
+			String destination, String deptDate, String destDate, String commodities) {
+		List<FlightSchedule> result =  new ArrayList<FlightSchedule>();
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId",sessionId);
+
+		params.put("airline_ca_id", caId);
+		params.put("airline_ca_3dg", c3dg);
+
+		params.put("departure",deprature);
+		params.put("destination",destination);
+		params.put("minDeparture",deptDate);
+		params.put("maxArrival",destDate);
+		params.put("commodities",commodities);
+		
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				for (int i = 0; i < data.getPropertyCount(); i++) {
+					SoapObject flightScheduleObj = (SoapObject) data.getProperty(i);						
+
+					List<Flight> flightList = new ArrayList<Flight>();
+					SoapObject flightListObj = (SoapObject) flightScheduleObj.getProperty("flight");
+
+					for (int j = 0; j < flightListObj.getPropertyCount(); j++) {
+						SoapObject flightObj = (SoapObject) flightListObj.getProperty(j);
+
+						Flight flight = new Flight();
+						Date departureString = null;
+						Date arrivalString = null;
+						try {
+							departureString = sdf.parse(flightObj.getProperty("departure").toString());
+							arrivalString = sdf.parse(flightObj.getProperty("arrival").toString());
+						} catch (ParseException e) {
+							e.printStackTrace();
+						}
+
+						flight.setDepartureTime(departureString);
+						flight.setArrivalTime(arrivalString);
+						flight.setCaId(flightObj.getProperty("caId").toString());
+						flight.setFltId(Long.parseLong(flightObj.getProperty("fltId").toString()));
+						flight.setMode(Integer.parseInt(flightObj.getProperty("mode").toString()));
+						flight.setRate(flightScheduleObj.getProperty("rateFrom").toString());
+						flight.setCurrency(flightScheduleObj.getProperty("rateFromCurr").toString());
+						flight.setDepart(flightObj.getProperty("dept").toString());
+						flight.setDestin(flightObj.getProperty("dest").toString());
+						flightList.add(flight);
+					}
+
+					FlightSchedule flightSchedule = new FlightSchedule();
+					flightSchedule.setFlightList(flightList);
+					result.add(flightSchedule);						
+				}				
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+				
+			}
+			
+		};
+		new CallSOAPAction(params, "getSchedules", callBack);
+		return result;
+	}
+
+
 }

@@ -2,6 +2,8 @@ package org.uluee.web.component;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +24,7 @@ import org.uluee.web.cloud.model.User;
 import org.uluee.web.component.window.CommodityTableLayout;
 import org.uluee.web.component.window.DisclaimerLayout;
 import org.uluee.web.component.window.GoogleMapNewDestLayout;
+import org.uluee.web.component.window.LoginComponent;
 import org.uluee.web.util.UIFactory;
 import org.uluee.web.util.UIFactory.LayoutType;
 import org.uluee.web.util.UIFactory.SizeType;
@@ -69,9 +72,7 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 	private FromAndToDateLayout dateLayout;
 	private DeptDestLayout deptDestLayout;
 
-
 	private TracingTab tracing;
-
 
 	private TabSheet bookingTab;
 	
@@ -88,6 +89,20 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 			bookingTab.setSelectedTab(tracing);
 			tracing.initData(((Uluee_expressUI)UI.getCurrent()).getBookingData());
 		}
+		checkAuthentication();
+	}
+
+	private void checkAuthentication() {
+		if(((Uluee_expressUI)UI.getCurrent()).getUser() == null) {
+			Window w = new Window();
+			w.setContent(new LoginComponent());
+			w.setModal(true);
+			w.setClosable(false);
+			w.setDraggable(false);
+			w.setResizable(false);
+			((Uluee_expressUI)UI.getCurrent()).addWindow(w);
+		}
+		
 	}
 
 	private void initFieldValue() {
@@ -131,9 +146,6 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 	private BookingComponent validateAllFields() {
 		if(dateLayout.getFromDate().getValue() == null) {
 			Notification.show("Please insert from date", Type.ERROR_MESSAGE);return null;
-		}
-		if(dateLayout.getToDate().getValue() == null) {
-			Notification.show("Please insert to date", Type.ERROR_MESSAGE);return null;
 		}
 		if(deptDestLayout.getShipper() == null) {
 			Notification.show("Please input the shipper from", Type.ERROR_MESSAGE);return null;
@@ -185,12 +197,20 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 	private LinkedHashMap<String, Object> buildRequestParam(BookingComponent c) {
 		LinkedHashMap<String, Object> param = new LinkedHashMap<>();
 		String[] stringCommodities =c.getStringCommodities().split("&&");
+		
+		Date toDate = dateLayout.getToDate().getValue();
+		if(toDate == null) {
+			Calendar cal  = Calendar.getInstance();
+			cal.setTime(dateLayout.getFromDate().getValue());
+			cal.add(Calendar.DATE, 1);
+			toDate = cal.getTime();
+		}
 
 		param.put("sessionId",((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
 		param.put("shipperName", deptDestLayout.getShipper().getCompanyName() );
 		param.put("consigneeName", deptDestLayout.getConsignee().getCompanyName());	
 		param.put("minDep", Util.NORMAL_DATE_FORMAT.format(dateLayout.getFromDate().getValue()));
-		param.put("maxArr", Util.NORMAL_DATE_FORMAT.format(dateLayout.getToDate().getValue()));
+		param.put("maxArr", Util.NORMAL_DATE_FORMAT.format(toDate));
 
 		for (int i = 0; i < stringCommodities.length; i++) {
 			param.put("commodities",stringCommodities[i]);

@@ -8,10 +8,12 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.uluee.web.Uluee_expressUI;
+import org.uluee.web.cloud.model.CommodityItem;
 import org.uluee.web.cloud.model.Flight;
 import org.uluee.web.cloud.model.FlightSchedule;
 import org.uluee.web.cloud.model.PaypalData;
 import org.uluee.web.cloud.model.ScheduleDoorToDoor;
+import org.uluee.web.util.Constant;
 import org.uluee.web.util.NavigatorConstant;
 import org.uluee.web.util.UIFactory;
 import org.uluee.web.util.Util;
@@ -49,38 +51,30 @@ public class BookingPage extends VerticalLayout implements View{
 	private Label tvolumeL;
 	private Label tweightL;
 	private Label tPiecesL;
-	private List<ScheduleDoorToDoor> result;
+	private List<FlightSchedule> result;
 	private TreeTable table;
-	private String[] commodities;
-	private String shipperId;
-	private String consigneeId;
+	private String commodities;
+	private String deprature;
+	private String destination;
+
 
 	@Override
 	public void enter(ViewChangeEvent event) {
 		if(event.getParameters() != null){
 			LinkedHashMap<String, Object> param = new LinkedHashMap<>();
 			String[] msgs = event.getParameters().split("/");
-
+			
 			try {
 				String dep = Util.CONVERT_DATE_FORMAT.format(Util.NORMAL_DATE_FORMAT.parse(msgs[3]));
 				String arr = Util.CONVERT_DATE_FORMAT.format(Util.NORMAL_DATE_FORMAT.parse(msgs[4]));
-				this.commodities  = msgs[0].split("&&");
-				this.shipperId = msgs[5];
-				this.consigneeId = msgs[8];
-
-				param.put("sessionId",((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
-				param.put("shipperName", msgs[1] );
-				param.put("consigneeName", msgs[2]);	
-				param.put("minDep", dep);
-				param.put("maxArr", arr);
-				param.put("commodities",msgs[0]);
-				param.put("shipperAddId", msgs[5]);	
-				param.put("latitudeShipper", msgs[6]);	
-				param.put("longitudeShipper", msgs[7]);	
-				param.put("consigneeAddId", msgs[8]);
-				param.put("latitudeConsignee", msgs[9]);	
-				param.put("longitudeConsignee", msgs[10]);
-				result = ((Uluee_expressUI) UI.getCurrent()).getWebServiceCaller().getSchedules(param);
+				this.commodities  = msgs[0];
+				this.deprature = msgs[1];
+				this.destination = msgs[2];
+				
+				String sessionId = (String)((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId();
+				result = ((Uluee_expressUI) UI.getCurrent()).getWebServiceCaller().getSchedules(
+						sessionId, Constant.caIdTemp, Constant.ca3dgTemp, deprature, destination,
+						dep, arr, commodities);
 				insertItems();
 			} catch (ParseException e) {
 				e.printStackTrace();
@@ -205,7 +199,7 @@ public class BookingPage extends VerticalLayout implements View{
 	private void insertItems() {
 		int index = 1;
 		boolean isItemProcessed = false;
-		for(ScheduleDoorToDoor schedule: result) {
+		for(FlightSchedule schedule: result) {
 			Button b = new Button("Select");
 			if(!isItemProcessed) {
 				describe(schedule);
@@ -242,22 +236,17 @@ public class BookingPage extends VerticalLayout implements View{
 
 	}
 
-	private void describe(ScheduleDoorToDoor schedule) {
-//		private Label tVolWeightL;
-//		private Label tvolumeL;
-//		private Label tweightL;
-//		private Label tPiecesL;
+	private void describe(FlightSchedule schedule) {
+
 		double weight = 0;
 		double vol = 0;
 		int pieces = 0;
 		double height = 0;
-		String args[] = schedule.getCommodities().split("&&");
-		for(String s: args) {
-			String t[] = s.split(Pattern.quote("|"));
-			weight = Double.parseDouble(t[2]) + weight;
-			height = Double.parseDouble(t[7]) + height;
-			vol = Double.parseDouble(t[8]) + vol;
-			pieces = Integer.parseInt(t[2]) + pieces; 
+		for(CommodityItem s: schedule.getCommodities()) {
+			weight = Double.parseDouble(s.getWeight()) + weight;
+			height = Double.parseDouble(s.getHeight()) + height;
+			vol = (Double.parseDouble(s.getWidth()) * Double.parseDouble(s.getLength()) * Double.parseDouble(s.getHeight())) + vol;
+			pieces = Integer.parseInt(s.getPieces()) + pieces; 
 		}
 		tvolumeL.setValue(String.valueOf(vol));
 		tweightL.setValue(String.valueOf(weight));
