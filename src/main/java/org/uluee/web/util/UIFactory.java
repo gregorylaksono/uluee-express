@@ -96,13 +96,13 @@ public class UIFactory {
 		return layout;
 	}
 
-	public static void closeAllWindow() {
-		Collection<Window> windows = UI.getCurrent().getWindows();
-		for(Window w: windows) {
-			UI.getCurrent().removeWindow(w);
-		}
-		
-	}
+//	public static void closeAllWindow() {
+//		Collection<Window> windows = UI.getCurrent().getWindows();
+//		for(Window w: windows) {
+//			UI.getCurrent().removeWindow(w);
+//		}
+//		
+//	}
 	
 	
 }

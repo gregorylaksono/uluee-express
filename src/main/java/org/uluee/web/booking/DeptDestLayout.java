@@ -1,17 +1,22 @@
 package org.uluee.web.booking;
 
 import java.util.List;
+import java.util.Map;
 
 import org.uluee.web.Uluee_expressUI;
 import org.uluee.web.cloud.model.RSAddName;
 import org.uluee.web.cloud.model.User;
 import org.uluee.web.component.MainPage;
 import org.uluee.web.component.window.GoogleMapNewDestLayout;
+import org.uluee.web.util.Constant;
 import org.uluee.web.util.UIFactory;
 import org.uluee.web.util.UIFactory.LayoutType;
 import org.uluee.web.util.UIFactory.SizeType;
 
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
@@ -20,13 +25,31 @@ import com.zybnet.autocomplete.server.AutocompleteField;
 import com.zybnet.autocomplete.server.AutocompleteQueryListener;
 
 public class DeptDestLayout extends VerticalLayout{
-
+	
+	private ComboBox deptCb ;
+	private ComboBox destCb ;
 	private AutocompleteField deptField;
 	private AutocompleteField destField;
 	private Label deptSignLabel;
 	private Label destSignLabel;
 	private RSAddName shipper;
 	private RSAddName consignee;
+	private ValueChangeListener deptChangeListener = new ValueChangeListener() {
+		
+		@Override
+		public void valueChange(ValueChangeEvent event) {
+			String sessionId = ((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId();
+			String value = (String) event.getProperty().getValue();
+			int lgth = value.length();
+			value = new String(value.substring(lgth - 5, lgth - 2));
+			Map<String, List<String>> airports = ((Uluee_expressUI) UI.getCurrent()).getWebServiceCaller().getAirportList(Constant.caIdForAirport, sessionId, value);
+			List<String> to = airports.get("to");
+			destCb.removeAllItems();
+			for(String s: to){
+				destCb.addItem(s);
+			}
+		}
+	};
 
 	public DeptDestLayout() {
 		createContents();
@@ -35,7 +58,16 @@ public class DeptDestLayout extends VerticalLayout{
 	private void createContents() {
 		setSpacing(true);
 		setHeight(70, Unit.PIXELS);
+		deptCb = new ComboBox();
+		destCb = new ComboBox();
 		
+		deptCb.setNullSelectionAllowed(false);
+		destCb.setNullSelectionAllowed(false);
+		
+		deptCb.addValueChangeListener(deptChangeListener);
+		deptCb.setImmediate(true);
+		
+		HorizontalLayout tempLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, false);
 		HorizontalLayout deptLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, false);
 		HorizontalLayout destLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, false);
 		
@@ -47,6 +79,9 @@ public class DeptDestLayout extends VerticalLayout{
 		
 		deptSignLabel.setWidth(null);
 		destSignLabel.setWidth(null);
+		
+		tempLayout.addComponent(deptCb);
+		tempLayout.addComponent(destCb);
 		
 		deptLayout.addComponent(deptField);
 		deptLayout.addComponent(deptSignLabel);
@@ -62,6 +97,7 @@ public class DeptDestLayout extends VerticalLayout{
 
 		deptField.setWidth(100, Unit.PERCENTAGE);
 		destField.setWidth(100, Unit.PERCENTAGE);
+		addComponent(tempLayout);
 		addComponent(deptLayout);
 		addComponent(destLayout);
 		
@@ -201,6 +237,33 @@ public class DeptDestLayout extends VerticalLayout{
 	public void setConsignee(RSAddName consignee) {
 		this.consignee = consignee;
 	}
+
+	public String getDept() {
+		String objDept = String.valueOf(deptCb.getValue());
+		String splitFrom = objDept.toString();
+		int lgthFrom = splitFrom.length();
+		splitFrom = new String(splitFrom.substring(lgthFrom - 5, lgthFrom - 2));
+		return splitFrom;
+	}
+
+
+	public String getDest() {
+		String objDept = String.valueOf(destCb.getValue());
+		String splitFrom = objDept.toString();
+		int lgthFrom = splitFrom.length();
+		splitFrom = new String(splitFrom.substring(lgthFrom - 5, lgthFrom - 2));
+		return splitFrom;
+	}
+
+	public ComboBox getDeptCb() {
+		return deptCb;
+	}
+
+	public ComboBox getDestCb() {
+		return destCb;
+	}
+
+
 	
 	
 

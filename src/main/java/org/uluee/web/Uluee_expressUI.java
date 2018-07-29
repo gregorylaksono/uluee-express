@@ -1,6 +1,10 @@
 package org.uluee.web;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.annotation.WebServlet;
 
@@ -12,12 +16,13 @@ import org.uluee.web.cloud.model.User;
 import org.uluee.web.component.BookingPage;
 import org.uluee.web.component.ConfirmPage;
 import org.uluee.web.component.DummyPage;
+import org.uluee.web.component.LoginPage;
 import org.uluee.web.component.MainPage;
-import org.uluee.web.component.window.LoginComponent;
 import org.uluee.web.util.Constant;
 import org.uluee.web.util.NavigatorConstant;
 
 import com.vaadin.annotations.PreserveOnRefresh;
+import com.vaadin.annotations.Push;
 import com.vaadin.annotations.StyleSheet;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
@@ -42,6 +47,7 @@ import com.vaadin.ui.Window;
 @Theme("uluee_express")
 @StyleSheet("https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css")
 @PreserveOnRefresh
+@Push
 public class Uluee_expressUI extends UI {
 
 	@WebServlet(value = "/*", asyncSupported = true)
@@ -63,6 +69,7 @@ public class Uluee_expressUI extends UI {
 	private String sessionKey;
 	private BookingConfirmation confirmation;
 	private ViewProvider ViewProvider ;
+	private String ffwId;
 	@Override
 	protected void init(VaadinRequest request) {
 		VerticalLayout parent_root = createParentRoot();
@@ -70,25 +77,19 @@ public class Uluee_expressUI extends UI {
 
 		navigator = new Navigator(this, content);
 		//		navigator.addView(NavigatorConstant.PAYPAL_PAGE, DummyPage.class);
-		//		navigator.addView(NavigatorConstant.BOOKING_PAGE, BookingPage.class);
-		navigator.addView("", MainPage.class);
+		navigator.addView(NavigatorConstant.BOOKING_PAGE, BookingPage.class);
+		navigator.addView(NavigatorConstant.LOGIN_PAGE, LoginPage.class);
 		navigator.addView(NavigatorConstant.MAIN_PAGE, MainPage.class);
 		navigator.addView(NavigatorConstant.CONFIRM_PAGE, ConfirmPage.class);
 		navigator.addViewChangeListener(new ViewChangeListener() {
 
 			@Override
 			public boolean beforeViewChange(ViewChangeEvent event) {
-				if(user == null) {
-					Window w = new Window();
-					w.setContent(new LoginComponent());
-					w.setModal(true);
-					w.setClosable(false);
-					w.setDraggable(false);
-					w.setResizable(false);
-					addWindow(w);
+				if(user == null && !event.getViewName().equals(NavigatorConstant.LOGIN_PAGE)) {
+					navigator.navigateTo(NavigatorConstant.LOGIN_PAGE);
 				}
 				if(event.getViewName().equals("")){
-					
+
 				}
 				return true;
 			}
@@ -98,7 +99,7 @@ public class Uluee_expressUI extends UI {
 			}
 		});
 
-//		login();
+		//		login();
 
 		Map requestParam = request.getParameterMap();
 		String[] confirm = (String[]) requestParam.get("v-loc");
@@ -111,7 +112,7 @@ public class Uluee_expressUI extends UI {
 			navigator.navigateTo(NavigatorConstant.MAIN_PAGE);
 		}
 	}
-	
+
 	public void login() {
 		user = webServiceCaller.login(Constant.USERNAME, Constant.PASSWORD);
 	}
@@ -199,13 +200,32 @@ public class Uluee_expressUI extends UI {
 	public void setUserLabel(String text) {
 		userLabel.setCaption(text);
 	}
-	
+
 	public void setUserLoggedFlaged(boolean flag) {
 		this.isUserLogged = flag;
 	}
-	
+
 	public boolean isUserFlaggedLoged() {
 		return isUserLogged;
 	}
+
+	public void setFFwId(String ffwId) {
+		this.ffwId = ffwId;
+
+	}
+
+	public String getFfwId() {
+		return ffwId;
+	}
+
+	public void removeAllWindows() {
+		Collection<Window> s = new ArrayList<>();
+		s.addAll(UI.getCurrent().getWindows());
+		for(Window w: s){
+			w.close();
+		}
+
+	}
+
 
 }

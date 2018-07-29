@@ -1,9 +1,9 @@
 package org.uluee.web.booking;
 
 import org.uluee.web.Uluee_expressUI;
+import org.uluee.web.component.LoginPage;
 import org.uluee.web.component.MainPage;
 import org.uluee.web.component.window.CommodityTableLayout;
-import org.uluee.web.component.window.LoginComponent;
 import org.uluee.web.util.NavigatorConstant;
 import org.uluee.web.util.UIFactory;
 import org.uluee.web.util.UIFactory.LayoutType;
@@ -35,7 +35,7 @@ public class CheckboxAndBasketLayout extends HorizontalLayout {
 		@Override
 		public void buttonClick(ClickEvent event) {
 			loginButton.removeClickListener(logoutListener);
-			UIFactory.addWindow(new LoginComponent(), false, false, true, true);
+			UIFactory.addWindow(new LoginPage(), false, false, true, true);
 		}
 	};
 	

@@ -3,6 +3,7 @@ package org.uluee.web.util;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -48,7 +49,13 @@ public class CallSOAPAction {
 						}
 					}
 				}
-			}else{
+			}else if(o instanceof List){
+				List<String> list = (List<String>) o;
+				for(String s: list){
+					repaymentReq.addProperty(m.getKey(), s);
+				}
+			}	
+			else{
 				repaymentReq.addProperty(m.getKey(), o);				
 			}
 			LOG.info(m.getKey()+" -- "+o);

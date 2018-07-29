@@ -934,7 +934,7 @@ public class WebServiceCaller implements IWebService {
 
 	@Override
 	public List<FlightSchedule> getSchedules(String sessionId, String caId, String c3dg, String deprature,
-			String destination, String deptDate, String destDate, String commodities) {
+			String destination, String deptDate, String destDate, String[] commodities) {
 		List<FlightSchedule> result =  new ArrayList<FlightSchedule>();
 		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
 		params.put("sessionId",sessionId);
@@ -946,6 +946,7 @@ public class WebServiceCaller implements IWebService {
 		params.put("destination",destination);
 		params.put("minDeparture",deptDate);
 		params.put("maxArrival",destDate);
+		
 		params.put("commodities",commodities);
 		
 		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
@@ -991,12 +992,72 @@ public class WebServiceCaller implements IWebService {
 
 			@Override
 			public void handleError(String statusCode) {
-				
+				System.out.println(statusCode);
 			}
 			
 		};
 		new CallSOAPAction(params, "getSchedules", callBack);
 		return result;
+	}
+
+	@Override
+	public BookingConfirmation book(String sessionId, String caidtemp, String ca3dgtemp, String[] flights,
+			String[] commodities, String shipperId, String consignee, String agentId, String depDate) {
+		
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId",sessionId);
+		params.put("airline_ca_id",caidtemp );
+		params.put("airline_ca_3dg", ca3dgtemp);
+		params.put("flights", flights);
+		params.put("commodities", commodities);
+		params.put("shipperId", shipperId);
+		params.put("consignee", consignee);
+		params.put("agentId", agentId);
+		params.put("depDate", depDate);
+		
+		
+		BookingConfirmation result = new BookingConfirmation();
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack(){
+
+			@Override
+			public void handleResult(SoapObject soap, String statusCode) {
+				SoapObject ActernityResponse = (SoapObject) soap.getProperty(0);
+				String createBookingStatus = ActernityResponse.getProperty("code").toString(); 
+				String message = ActernityResponse.getProperty("message").toString();
+				if (createBookingStatus.equalsIgnoreCase(CallSOAPAction.SUCCESS_CODE)) {
+
+					SoapObject data = (SoapObject) ActernityResponse.getProperty("data");
+					String awb = data.getProperty("awb").toString();
+					if (awb != null){
+						String ca3dg = awb.substring(0, 3);
+						String awbStock = awb.substring(4, 8);
+						String awbNo = awb.substring(9, 13);
+						SoapObject bookingInfo = (SoapObject) data.getProperty("bookingInformation");
+						SoapObject dataList = (SoapObject) bookingInfo.getProperty("list");
+						String customCode = dataList.getProperty("customCode").toString();
+						result.setCa3dg(ca3dg);
+						result.setAwbNo(awbNo);
+						result.setAwbStock(awbStock);
+						
+					}			
+			}
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+				
+			}
+		};	
+		new CallSOAPAction(params, "createBooking", callBack);
+		return result;
+	}
+
+
+
+	@Override
+	public String getFFWB(String sessionId) {
+
+		return null;
 	}
 
 

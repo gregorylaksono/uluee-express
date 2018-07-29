@@ -102,7 +102,6 @@ public class CommodityTableLayout extends VerticalLayout{
 	closeButton.setStyleName(ValoTheme.BUTTON_SMALL);
 	closeButton.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 	closeButton.addClickListener(e ->{
-		UIFactory.closeAllWindow();
 		windowParent.react(commodities);
 	});
 	

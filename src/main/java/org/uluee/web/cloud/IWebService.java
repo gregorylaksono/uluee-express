@@ -45,5 +45,8 @@ public interface IWebService {
 	public String printInvoice(String ca3dg, String awbStock, String awbNo );
 	public String printAwb(String ca3dg, String awbStock, String awbNo );
 	public Map<String, List<String>> getAirportList(String caId, String sessionId, String match);
-	public List<FlightSchedule> getSchedules(String sessionId, String caId, String c3dg, String deprature, String destination, String deptDate, String destDate, String commodities);
+	public List<FlightSchedule> getSchedules(String sessionId, String caId, String c3dg, String deprature, String destination, String deptDate, String destDate, String[] commodities);
+	public BookingConfirmation book(String sessionId, String caidtemp, String ca3dgtemp, String[] flights, String[] commodities,
+			String shipperId, String consignee, String agentId, String depDate);
+	public String getFFWB(String sessionId);
 }

@@ -23,11 +23,12 @@ import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 import com.zybnet.autocomplete.server.AutocompleteField;
 import com.zybnet.autocomplete.server.AutocompleteQueryListener;
 
-public class GoogleMapNewDestLayout extends VerticalLayout{
+public class GoogleMapNewDestLayout extends Window{
 
 	/**
 	 * 
@@ -42,14 +43,20 @@ public class GoogleMapNewDestLayout extends VerticalLayout{
 	private RSAddName result;
 	private String companyName;
 	private AutocompleteField addressText;
+	private VerticalLayout parent = new VerticalLayout();
 	
 	public GoogleMapNewDestLayout(int type, IModalWindowBridge parent, String companyName) {
+		setDraggable(false);
+		setClosable(false);
+		setResizable(false);
+		setModal(true);
+		setContent(this.parent);
 		setCompanyName(companyName);
 		setType(type);
 		setParentWindow(parent);
 		createContents();
-		setSpacing(true);
-		setMargin(true);
+		this.parent.setSpacing(true);
+		this.parent.setMargin(true);
 		setHeight(600, Unit.PIXELS);
 		setWidth(800, Unit.PIXELS);
 	}
@@ -57,11 +64,11 @@ public class GoogleMapNewDestLayout extends VerticalLayout{
 	private void createContents() {
 		HorizontalLayout topLayout = createTopLayout();
 		VerticalLayout gmapContainer = createGoogleMapLayout();
-		addComponent(topLayout);
-		addComponent(gmapContainer);
+		this.parent.addComponent(topLayout);
+		this.parent.addComponent(gmapContainer);
 
-		setExpandRatio(topLayout, 0.0f);
-		setExpandRatio(gmapContainer, 1.0f);
+		this.parent.setExpandRatio(topLayout, 0.0f);
+		this.parent.setExpandRatio(gmapContainer, 1.0f);
 		companyNameText.setValue(companyName);
 		addressText.setValue(companyName);
 	}
@@ -107,9 +114,8 @@ public class GoogleMapNewDestLayout extends VerticalLayout{
 				}else{					
 					Long code = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().saveAddUser(result, user.getSessionId(), email);
 					result.setCompanyID(String.valueOf(code));
-					UIFactory.closeAllWindow();
 					parentWindow.react(result,type);
-					
+					GoogleMapNewDestLayout.this.close();
 				}
 			}else{
 				Notification.show("Address is unknown", Type.ERROR_MESSAGE);

@@ -3,11 +3,13 @@ package org.uluee.web.component;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import org.uluee.web.Uluee_expressUI;
+import org.uluee.web.cloud.model.BookingConfirmation;
 import org.uluee.web.cloud.model.CommodityItem;
 import org.uluee.web.cloud.model.Flight;
 import org.uluee.web.cloud.model.FlightSchedule;
@@ -47,15 +49,23 @@ public class BookingPage extends VerticalLayout implements View{
 	private static final String TO = "to";
 	private static final String FROM = "from";
 	private DateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	private SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+
 	private Label tVolWeightL;
 	private Label tvolumeL;
 	private Label tweightL;
 	private Label tPiecesL;
 	private List<FlightSchedule> result;
 	private TreeTable table;
-	private String commodities;
+	
+	private String[] commodities;
 	private String deprature;
 	private String destination;
+	private String consigneeId;
+	private String consigneeType;
+	private String shipperId;
+	private String consigneeParentId;
+	private String ffwId;
 
 
 	@Override
@@ -65,16 +75,25 @@ public class BookingPage extends VerticalLayout implements View{
 			String[] msgs = event.getParameters().split("/");
 			
 			try {
+				String[] consignee = msgs[0].split(Pattern.quote("|"));
+				this.consigneeId = consignee[0];
+				this.consigneeType = consignee[2];
+				this.consigneeParentId = consignee[1];
+				this.shipperId = msgs[1];
+				this.ffwId = msgs[2];
+				
 				String dep = Util.CONVERT_DATE_FORMAT.format(Util.NORMAL_DATE_FORMAT.parse(msgs[3]));
 				String arr = Util.CONVERT_DATE_FORMAT.format(Util.NORMAL_DATE_FORMAT.parse(msgs[4]));
-				this.commodities  = msgs[0];
-				this.deprature = msgs[1];
-				this.destination = msgs[2];
+				
+				this.commodities  = msgs[5].split("&&");
+				this.deprature = msgs[6];
+				this.destination = msgs[7];
 				
 				String sessionId = (String)((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId();
 				result = ((Uluee_expressUI) UI.getCurrent()).getWebServiceCaller().getSchedules(
 						sessionId, Constant.caIdTemp, Constant.ca3dgTemp, deprature, destination,
 						dep, arr, commodities);
+				createContents();
 				insertItems();
 			} catch (ParseException e) {
 				e.printStackTrace();
@@ -86,29 +105,28 @@ public class BookingPage extends VerticalLayout implements View{
 	}
 	private LinkedHashMap<String, Object> param;
 
-	public BookingPage(LinkedHashMap<String, Object> param) {
-		this.param = param;
+	public BookingPage() {
 		UI.getCurrent().getPage().setTitle("Schedule list");
 		setMargin(true);
 		setSpacing(true);
 		setHeight(100, Unit.PERCENTAGE);
-		createContents();
-		extractParam();
+		
+//		extractParam();
 	}
 
-	private void extractParam() {
-		try {
-			String dep = Util.CONVERT_DATE_FORMAT.format(Util.NORMAL_DATE_FORMAT.parse((String)param.get("minDep")));
-			String arr = Util.CONVERT_DATE_FORMAT.format(Util.NORMAL_DATE_FORMAT.parse((String)param.get("maxArr")));
-			param.put("minDep",dep);
-			param.put("maxArr",arr);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		result = ((Uluee_expressUI) UI.getCurrent()).getWebServiceCaller().getSchedules(param);
-		UIFactory.closeAllWindow();
-		insertItems();		
-	}
+//	private void extractParam() {
+//		try {
+//			String dep = Util.CONVERT_DATE_FORMAT.format(Util.NORMAL_DATE_FORMAT.parse((String)param.get("minDep")));
+//			String arr = Util.CONVERT_DATE_FORMAT.format(Util.NORMAL_DATE_FORMAT.parse((String)param.get("maxArr")));
+//			param.put("minDep",dep);
+//			param.put("maxArr",arr);
+//		} catch (ParseException e) {
+//			e.printStackTrace();
+//		}
+//		result = ((Uluee_expressUI) UI.getCurrent()).getWebServiceCaller().getSchedules(param);
+//		UIFactory.closeAllWindow();
+//		insertItems();		
+//	}
 
 	private void createContents() {
 		table = createTable();
@@ -209,11 +227,11 @@ public class BookingPage extends VerticalLayout implements View{
 			b.addStyleName(ValoTheme.BUTTON_PRIMARY);
 
 //			String[] args = schedule.getTotal_fee_from().split(" ");
-			String[] args = schedule.getTotal_fee_to().split(" ");
+			String[] args = schedule.getTotalChargesTo().split(" ");
 			final Double rateFinal = new Double(args[0]);
 			Item parent = table.addItem(schedule);
 			parent.getItemProperty(DEP_TIME).setValue("Flight "+index);
-			for(Flight f :schedule.getFlight()) {
+			for(Flight f :schedule.getFlightList()) {
 				Item child = table.addItem(f);
 				child.getItemProperty(DEP_TIME).setValue(format.format(f.getDepartureTime()));
 				child.getItemProperty(ARR_TIME).setValue(format.format(f.getArrivalTime()));
@@ -222,18 +240,34 @@ public class BookingPage extends VerticalLayout implements View{
 				table.setParent(f, schedule);
 			}
 			parent.getItemProperty(ARR_TIME).setValue("");
-			parent.getItemProperty(RATE).setValue(schedule.getTotal_fee_from());
+			parent.getItemProperty(RATE).setValue(schedule.getTotalChargesFrom());
 			parent.getItemProperty(SELECT).setValue(b);
 			index++;
 			b.addClickListener(e->{
-				PaypalData paypal = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().generateRedirectUrlPaypal(rateFinal.doubleValue(), schedule.getCurrTo());
-				getUI().getPage().setLocation(paypal.getRedirectUrl());
+				String sessionId = ((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId();
+				String[] flights = constructFlights(schedule.getFlightList());
+				String commodities = "";
+				String shipperId = "";
+				String consignee = consigneeId+"|"+consigneeParentId+"|"+consigneeType+"|"+"false";
+				String agentId = "";
+				String depDate = "";
+				BookingConfirmation bookingResult = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().book(sessionId, Constant.caIdTemp, 
+						Constant.ca3dgTemp, flights, this.commodities,shipperId,consignee,agentId,depDate );
 
-				((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().saveDataPaymentTemp(paypal.getToken(), paypal.getPaymentId(), schedule.getSessionKey(), schedule.getRateId());
-				((Uluee_expressUI)UI.getCurrent()).setSessionKey(schedule.getSessionKey());
+				
 			});
 		}
 
+	}
+
+	private String[] constructFlights(List<Flight> flightList) {
+		List<String> temp = new ArrayList();
+		for(Flight flight: flightList){
+			String tempFlight = flight.getCaId()+"|"+flight.getFltId()+"|"+sdf.format(flight.getDepartureTime())+
+					"|"+sdf.format(flight.getArrivalTime())+"|"+flight.getMode();
+			temp.add(tempFlight);
+		}
+		return temp.toArray(new String[temp.size()]);
 	}
 
 	private void describe(FlightSchedule schedule) {

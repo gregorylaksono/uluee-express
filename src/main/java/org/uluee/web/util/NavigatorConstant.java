@@ -6,4 +6,5 @@ public class NavigatorConstant {
 	public static final String BOOKING_PAGE = "booking";
 	public static final String CONFIRM_PAGE = "confirm";
 	public static final String PAYPAL_PAGE = "paypal";
+	public static final String LOGIN_PAGE = "login";
 }
