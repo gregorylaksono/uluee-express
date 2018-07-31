@@ -200,7 +200,7 @@ public class BookingPage extends VerticalLayout implements View{
 		table.addContainerProperty(SELECT, Button.class, null);
 
 		table.setWidth(100, Unit.PERCENTAGE);
-		table.setHeight(200, Unit.PERCENTAGE);
+		table.setHeight(200, Unit.PIXELS);
 
 		table.setColumnHeader(DEP_TIME, "Deprature time");
 		table.setColumnHeader(ARR_TIME, "Arrival time");

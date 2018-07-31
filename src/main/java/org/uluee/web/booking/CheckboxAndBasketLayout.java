@@ -56,7 +56,6 @@ public class CheckboxAndBasketLayout extends HorizontalLayout {
 
 	private void createContents() {
 		setSpacing(true);
-
 		basketButton = new Button("");
 		basketButton.setStyleName(ValoTheme.BUTTON_FRIENDLY);
 		basketButton.addStyleName(ValoTheme.BUTTON_SMALL);

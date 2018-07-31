@@ -14,7 +14,7 @@ import org.apache.xerces.xs.ItemPSVI;
 import org.uluee.web.Uluee_expressUI;
 import org.uluee.web.booking.CheckboxAndBasketLayout;
 import org.uluee.web.booking.DeptDestLayout;
-import org.uluee.web.booking.FromAndToDateLayout;
+import org.uluee.web.booking.AutoCompleteGoogleLayout;
 import org.uluee.web.booking.ItemDescriptionLayout;
 import org.uluee.web.booking.TracingTab;
 import org.uluee.web.cloud.IModalWindowBridge;
@@ -70,10 +70,10 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 	private static final long serialVersionUID = -2045062985535367445L;
 
 
+	private DeptDestLayout deptDestLayout;
+	private AutoCompleteGoogleLayout secondRowLayout;
 	private ItemDescriptionLayout itemDescriptionLayout;
 	private CheckboxAndBasketLayout topLayout;
-	private FromAndToDateLayout dateLayout;
-	private DeptDestLayout deptDestLayout;
 	private TracingTab tracing;
 	private TabSheet bookingTab;
 
@@ -166,13 +166,13 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 	}
 
 	private BookingComponent validateAllFields() {
-		if(dateLayout.getFromDate().getValue() == null) {
+		if(deptDestLayout.getFromDate().getValue() == null) {
 			Notification.show("Please insert from date", Type.ERROR_MESSAGE);return null;
 		}
-		if(deptDestLayout.getShipper() == null) {
+		if(secondRowLayout.getShipper() == null) {
 			Notification.show("Please input the shipper from", Type.ERROR_MESSAGE);return null;
 		}
-		if(deptDestLayout.getConsignee() == null) {
+		if(secondRowLayout.getConsignee() == null) {
 			Notification.show("Please input the consignee to", Type.ERROR_MESSAGE);return null;
 		}
 		if(itemDescriptionLayout.getItemWeightField().getValue() == null) {
@@ -220,13 +220,12 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 		LinkedHashMap<String, Object> param = new LinkedHashMap<>();
 		String[] stringCommodities =c.getStringCommodities().split("&&");
 
-		Date toDate = dateLayout.getToDate().getValue();
-		if(toDate == null) {
-			Calendar cal  = Calendar.getInstance();
-			cal.setTime(dateLayout.getFromDate().getValue());
-			cal.add(Calendar.DATE, 1);
-			toDate = cal.getTime();
-		}
+		Date toDate = null;
+
+		Calendar cal  = Calendar.getInstance();
+		cal.setTime(deptDestLayout.getFromDate().getValue());
+		cal.add(Calendar.DATE, 1);
+		toDate = cal.getTime();
 
 		//Get schedules
 		param.put("sessionId",((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
@@ -234,18 +233,18 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 		param.put("airline_ca_3dg", Constant.ca3dgTemp);
 		param.put("deprature", deptDestLayout.getDept());
 		param.put("destination", deptDestLayout.getDest());
-		param.put("minDeparture", Util.NORMAL_DATE_FORMAT.format(dateLayout.getFromDate().getValue()));
+		param.put("minDeparture", Util.NORMAL_DATE_FORMAT.format(deptDestLayout.getFromDate().getValue()));
 		param.put("maxArrival", Util.NORMAL_DATE_FORMAT.format(toDate));
 		param.put("commodities",Arrays.asList(stringCommodities));
 
 		//Additional params
-		param.put("shipperId", deptDestLayout.getShipper().getCompanyID());	
-		param.put("consigneeType", deptDestLayout.getConsignee().getType());
-		param.put("consigneeParentId", deptDestLayout.getConsignee().getParentID());
-		String tempConsignee = deptDestLayout.getConsignee().getCompanyID()+"|"+deptDestLayout.getConsignee().getParentID()+"|"+deptDestLayout.getConsignee().getType()+"|"+"false";
+		param.put("shipperId", secondRowLayout.getShipper().getCompanyID());	
+		param.put("consigneeType", secondRowLayout.getConsignee().getType());
+		param.put("consigneeParentId", secondRowLayout.getConsignee().getParentID());
+		String tempConsignee = secondRowLayout.getConsignee().getCompanyID()+"|"+secondRowLayout.getConsignee().getParentID()+"|"+secondRowLayout.getConsignee().getType()+"|"+"false";
 		param.put("consignee",tempConsignee);
 		param.put("agentId", ((Uluee_expressUI)UI.getCurrent()).getFfwId());
-		param.put("shipperId", deptDestLayout.getShipper().getCompanyID());
+		param.put("shipperId", secondRowLayout.getShipper().getCompanyID());
 
 		//		
 		//		param.put("latitudeShipper", deptDestLayout.getShipper().getLatitude());	
@@ -344,27 +343,27 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 		topLayout.getBasketButton().addClickListener(e->{
 			UIFactory.addWindow(new CommodityTableLayout(MainPage.this, itemDescriptionLayout.getCommodities()), false, false, false, true);
 		});
-		dateLayout = new FromAndToDateLayout();
 		deptDestLayout = new DeptDestLayout();
 		itemDescriptionLayout = new ItemDescriptionLayout();
+		secondRowLayout = new AutoCompleteGoogleLayout();
 		VerticalLayout buttonSubmitLayout = createButtonSubmitLayout();
-		deptDestLayout.getDeptField().setSuggestionPickedListener(e->{
+		secondRowLayout.getDeptField().setSuggestionPickedListener(e->{
 			if(e.isNotSaved()) {
-				deptDestLayout.getDeptSignLabel().addStyleName("warning-sign");
+				secondRowLayout.getDeptSignLabel().addStyleName("warning-sign");
 				UI.getCurrent().addWindow(new GoogleMapNewDestLayout(GoogleMapNewDestLayout.SHIPPER, MainPage.this, e.getCompanyName()));
 			}else {
-				deptDestLayout.getDeptSignLabel().addStyleName("check-sign");
-				deptDestLayout.setShipper(e);
+				secondRowLayout.getDeptSignLabel().addStyleName("check-sign");
+				secondRowLayout.setShipper(e);
 			}
 		});
 
-		deptDestLayout.getDestField().setSuggestionPickedListener(e->{
+		secondRowLayout.getDestField().setSuggestionPickedListener(e->{
 			if(e.isNotSaved()) {
-				deptDestLayout.getDestSignLabel().addStyleName("warning-sign");
+				secondRowLayout.getDestSignLabel().addStyleName("warning-sign");
 				UIFactory.addWindow(new GoogleMapNewDestLayout(GoogleMapNewDestLayout.CONSIGNEE, MainPage.this, e.getCompanyName()),false, false, true, true);
 			}else {
-				deptDestLayout.getDestSignLabel().addStyleName("check-sign");
-				deptDestLayout.setConsignee(e);
+				secondRowLayout.getDestSignLabel().addStyleName("check-sign");
+				secondRowLayout.setConsignee(e);
 			}
 		});
 
@@ -381,18 +380,17 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 		content.setCaption("Booking");
 		content.setSizeFull();
 		content.addComponent(topLayout);
-		content.addComponent(dateLayout);
 		content.addComponent(deptDestLayout);
-		content.addComponent(stripe1);
+//		content.addComponent(stripe1);
 		content.addComponent(itemDescriptionLayout);
-		content.addComponent(stripe2);
+//		content.addComponent(stripe2);
+		content.addComponent(secondRowLayout);
 		content.addComponent(buttonSubmitLayout);
 
 		content.setExpandRatio(topLayout, 0.0f);
-		content.setExpandRatio(dateLayout, 0.0f);
 		content.setExpandRatio(deptDestLayout, 0.0f);
-		content.setExpandRatio(stripe1, 0.0f);
-		content.setExpandRatio(stripe2, 0.0f);
+		content.setExpandRatio(secondRowLayout, 0.0f);
+//		content.setExpandRatio(stripe2, 0.0f);
 		content.setExpandRatio(itemDescriptionLayout, 0.0f);
 		content.setExpandRatio(buttonSubmitLayout, 1.0f);
 		content.setComponentAlignment(topLayout, Alignment.MIDDLE_RIGHT);
@@ -411,11 +409,11 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 			tempAdd = (RSAddName) o;
 			if(result.length > 1 && result[1] instanceof Integer){
 				if(Integer.parseInt(String.valueOf(result[1])) == GoogleMapNewDestLayout.CONSIGNEE){
-					deptDestLayout.setConsignee(tempAdd);
-					deptDestLayout.getDestSignLabel().addStyleName("check-sign");
+					secondRowLayout.setConsignee(tempAdd);
+					secondRowLayout.getDestSignLabel().addStyleName("check-sign");
 				}else{
-					deptDestLayout.setShipper(tempAdd);
-					deptDestLayout.getDeptSignLabel().addStyleName("check-sign");
+					secondRowLayout.setShipper(tempAdd);
+					secondRowLayout.getDeptSignLabel().addStyleName("check-sign");
 				}
 			}
 		}

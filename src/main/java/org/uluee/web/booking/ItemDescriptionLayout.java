@@ -18,13 +18,14 @@ import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 import com.zybnet.autocomplete.server.AutocompleteField;
 import com.zybnet.autocomplete.server.AutocompleteQueryListener;
 
-public class ItemDescriptionLayout extends HorizontalLayout {
+public class ItemDescriptionLayout extends VerticalLayout {
 	/**
 	 * 
 	 */
@@ -34,6 +35,8 @@ public class ItemDescriptionLayout extends HorizontalLayout {
 	private NumberField itemLongField;
 	private NumberField itemWidthField;
 	private NumberField itemHeightField;
+	private NumberField itemVolumeField;
+	private TextField sccField;
 	private AutocompleteField itemComodityField;
 	private List<CommodityWrapper> commodities = new ArrayList<>();
 	private Commodity commodity;
@@ -45,56 +48,18 @@ public class ItemDescriptionLayout extends HorizontalLayout {
 		setMargin(new MarginInfo(true, false, false, false));
 		setSpacing(true);
 		setHeight(null);
-		setWidth(100, Unit.PERCENTAGE);
-
-		VerticalLayout leftLayout = (VerticalLayout) UIFactory.createLayout(LayoutType.VERTICAL, SizeType.FULL, null, true);
-		VerticalLayout rightLayout = (VerticalLayout) UIFactory.createLayout(LayoutType.VERTICAL, SizeType.FULL, null, true);
-		rightLayout.setHeight(100, Unit.PERCENTAGE);
-		leftLayout.setHeight(100, Unit.PERCENTAGE);
-		addComponent(leftLayout);
-		addComponent(rightLayout);
+		setWidth(100, Unit.PERCENTAGE);		
 
 
 		//Left layout
-		
+		sccField = new TextField("SCC");
 		itemPieceField = new NumberField("Piece");
 		itemWeightField = new NumberField("Weight");
+		itemVolumeField = new NumberField("Volume(m3)");
 		itemComodityField = createCommodityAutoCompleteComponent();
-
 		itemPieceField.setWidth(100, Unit.PERCENTAGE);
-		itemWeightField.setWidth(100, Unit.PERCENTAGE);
 		itemComodityField.setWidth(100, Unit.PERCENTAGE);
-
-		HorizontalLayout topLeftLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, true);
-		HorizontalLayout bottomLeftLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, true);
-		topLeftLayout.setHeight(null);
-		bottomLeftLayout.setHeight(100, Unit.PERCENTAGE);
-
-		leftLayout.addComponent(topLeftLayout);
-		leftLayout.addComponent(bottomLeftLayout);
-
-		leftLayout.setExpandRatio(topLeftLayout, 0.0f);
-		leftLayout.setExpandRatio(bottomLeftLayout, 1.0f);
-
-		topLeftLayout.addComponent(itemPieceField);
-		topLeftLayout.addComponent(itemWeightField);
-		topLeftLayout.setExpandRatio(itemPieceField, 0.50f);
-		topLeftLayout.setExpandRatio(itemWeightField, 0.50f);
-		bottomLeftLayout.addComponent(itemComodityField);
-
-		//Right Layout
-		HorizontalLayout topRightLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, true);
-		HorizontalLayout bottomRightLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, true);
-		topRightLayout.setHeight(null);
-		bottomRightLayout.setHeight(100, Unit.PERCENTAGE);
-		bottomRightLayout.setCaption(" ");
-
-		rightLayout.addComponent(topRightLayout);
-		rightLayout.addComponent(bottomRightLayout);
-
-		rightLayout.setExpandRatio(topRightLayout, 0.0f);
-		rightLayout.setExpandRatio(bottomRightLayout, 1.0f);
-
+		
 		itemLongField = new NumberField("Length");
 		itemWidthField = new NumberField("Width");
 		itemHeightField = new NumberField("Height");
@@ -103,23 +68,38 @@ public class ItemDescriptionLayout extends HorizontalLayout {
 		itemWidthField.setInputPrompt("W (cm)");
 		itemHeightField.setInputPrompt("H (cm)");
 
-		itemLongField.setWidth(100, Unit.PERCENTAGE);
-		itemHeightField.setWidth(100, Unit.PERCENTAGE);
-		itemWidthField.setWidth(100, Unit.PERCENTAGE);
+		sccField.setWidth(100, Unit.PERCENTAGE);
+
+		itemLongField.setWidth(100, Unit.PIXELS);
+		itemHeightField.setWidth(100, Unit.PIXELS);
+		itemWidthField.setWidth(100, Unit.PIXELS);
+		itemWeightField.setWidth(100, Unit.PIXELS);
+		itemVolumeField.setWidth(100, Unit.PIXELS);
+		
+		Button addGoodsButton = new Button("Add Goods");
+		HorizontalLayout topLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, true);
+		HorizontalLayout bottomLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, true);
+		topLayout.setHeight(null);
+		bottomLayout.setHeight(100, Unit.PERCENTAGE);
+
+		addComponent(topLayout);
+		addComponent(bottomLayout);
+
+		topLayout.addComponent(itemComodityField);
+		topLayout.addComponent(sccField);
+		topLayout.addComponent(itemPieceField);
+		
+		bottomLayout.addComponent(itemWeightField);
+		bottomLayout.addComponent(itemLongField);
+		bottomLayout.addComponent(itemWidthField);
+		bottomLayout.addComponent(itemHeightField);
+		bottomLayout.addComponent(itemVolumeField);
+		bottomLayout.addComponent(addGoodsButton);
+		bottomLayout.setComponentAlignment(addGoodsButton, Alignment.BOTTOM_RIGHT);
+		
 		
 		formatAllNumberFields();
 
-		topRightLayout.addComponent(itemLongField);
-		topRightLayout.addComponent(itemWidthField);
-		topRightLayout.addComponent(itemHeightField);
-
-		topRightLayout.setExpandRatio(itemLongField, 0.33f);
-		topRightLayout.setExpandRatio(itemWidthField, 0.33f);
-		topRightLayout.setExpandRatio(itemHeightField, 0.33f);
-
-		Button addGoodsButton = new Button("Add Goods");
-		bottomRightLayout.addComponent(addGoodsButton);
-		bottomRightLayout.setComponentAlignment(addGoodsButton, Alignment.BOTTOM_LEFT);
 		addGoodsButton.setStyleName(ValoTheme.BUTTON_FRIENDLY);
 		addGoodsButton.addStyleName(ValoTheme.BUTTON_SMALL);
 		addGoodsButton.addClickListener(e ->{
@@ -127,7 +107,7 @@ public class ItemDescriptionLayout extends HorizontalLayout {
 			if(isValid){
 				Double volume = Double.parseDouble(itemLongField.getValue()) * Double.parseDouble(itemHeightField.getValue()) *
 							    Double.parseDouble(itemWidthField.getValue());
-				
+				itemVolumeField.setValue(volume);
 				CommodityWrapper commodity = new CommodityWrapper();
 				
 				commodity.setCom_id(String.valueOf(this.commodity.getCommId())).
@@ -297,6 +277,22 @@ public class ItemDescriptionLayout extends HorizontalLayout {
 
 	public void setCommodity(Commodity commodity) {
 		this.commodity = commodity;
+	}
+
+	public NumberField getItemVolumeField() {
+		return itemVolumeField;
+	}
+
+	public void setItemVolumeField(NumberField itemVolumeField) {
+		this.itemVolumeField = itemVolumeField;
+	}
+
+	public TextField getSccField() {
+		return sccField;
+	}
+
+	public void setSccField(TextField sccField) {
+		this.sccField = sccField;
 	}
 	
 	

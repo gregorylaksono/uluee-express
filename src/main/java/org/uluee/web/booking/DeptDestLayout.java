@@ -16,7 +16,9 @@ import org.uluee.web.util.UIFactory.SizeType;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
@@ -24,16 +26,14 @@ import com.vaadin.ui.VerticalLayout;
 import com.zybnet.autocomplete.server.AutocompleteField;
 import com.zybnet.autocomplete.server.AutocompleteQueryListener;
 
-public class DeptDestLayout extends VerticalLayout{
+public class DeptDestLayout extends HorizontalLayout{
 	
 	private ComboBox deptCb ;
 	private ComboBox destCb ;
-	private AutocompleteField deptField;
-	private AutocompleteField destField;
-	private Label deptSignLabel;
-	private Label destSignLabel;
-	private RSAddName shipper;
-	private RSAddName consignee;
+	private DateField fromDate;
+
+
+
 	private ValueChangeListener deptChangeListener = new ValueChangeListener() {
 		
 		@Override
@@ -57,9 +57,10 @@ public class DeptDestLayout extends VerticalLayout{
 
 	private void createContents() {
 		setSpacing(true);
+		setWidth(100, Unit.PERCENTAGE);
 		setHeight(70, Unit.PIXELS);
-		deptCb = new ComboBox();
-		destCb = new ComboBox();
+		deptCb = new ComboBox("From");
+		destCb = new ComboBox("to");
 		
 		deptCb.setNullSelectionAllowed(false);
 		destCb.setNullSelectionAllowed(false);
@@ -67,176 +68,18 @@ public class DeptDestLayout extends VerticalLayout{
 		deptCb.addValueChangeListener(deptChangeListener);
 		deptCb.setImmediate(true);
 		
-		HorizontalLayout tempLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, false);
-		HorizontalLayout deptLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, false);
-		HorizontalLayout destLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, false);
-		
-		deptField = createShipperAutoCompleteComponent();
-		destField = createConsigneeAutoCompleteComponent();
-		
-		deptSignLabel = new Label();
-		destSignLabel = new Label();
-		
-		deptSignLabel.setWidth(null);
-		destSignLabel.setWidth(null);
-		
-		tempLayout.addComponent(deptCb);
-		tempLayout.addComponent(destCb);
-		
-		deptLayout.addComponent(deptField);
-		deptLayout.addComponent(deptSignLabel);
-		
-		destLayout.addComponent(destField);
-		destLayout.addComponent(destSignLabel);
-		
-		deptLayout.setExpandRatio(deptField, 1.0f);
-		deptLayout.setExpandRatio(deptSignLabel, 0.0f);
-		
-		destLayout.setExpandRatio(destField, 1.0f);
-		destLayout.setExpandRatio(destSignLabel, 0.0f);
 
-		deptField.setWidth(100, Unit.PERCENTAGE);
-		destField.setWidth(100, Unit.PERCENTAGE);
-		addComponent(tempLayout);
-		addComponent(deptLayout);
-		addComponent(destLayout);
+		
+		fromDate = new DateField("From");
+		fromDate.setWidth(100, Unit.PERCENTAGE);
+		fromDate.setResolution(Resolution.MINUTE);		
+		
+		addComponent(deptCb);
+		addComponent(destCb);
+		addComponent(fromDate);
 		
 	}
-	
-	private AutocompleteField<RSAddName> createShipperAutoCompleteComponent() {
-		AutocompleteField<RSAddName> field = new AutocompleteField<>();
-		field.setWidth(100, Unit.PERCENTAGE);
-		field.setQueryListener(new AutocompleteQueryListener<RSAddName>() {
 
-			@Override
-			public void handleUserQuery(AutocompleteField<RSAddName> arg0, String arg1) {
-				User user = ((Uluee_expressUI)UI.getCurrent()).getUser();
-				List<RSAddName> dbData = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getShipperFfwAlsoNotifyDeliveredToAddressByMatchService(arg1, user.getSessionId());
-				if(dbData.size() > 0) {
-					for (RSAddName rSAddName : dbData) {
-						String cityAdd = rSAddName.getCity();
-						String countryAdd = rSAddName.getCountry().toString();
-						String street = (", ").concat(rSAddName.getStreet());
-						if( cityAdd.length() >= 2)
-						{
-							cityAdd = ","+" "+cityAdd.toString();
-						}
-						if(countryAdd.length() >= 2){
-							countryAdd = ","+" "+countryAdd.toString();
-						}
-						arg0.addSuggestion(rSAddName,rSAddName.getCompanyName()+street+cityAdd+countryAdd);
-						if (arg0.getState().suggestions.size() == 9) {
-							break;
-						}						
-					}
-				}
-				else {
-					List<String> rsult = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getGoogleAutocomplete(arg1);
-
-					for(String s:rsult) {
-						RSAddName addName = new RSAddName();
-						addName.setCompanyName(s).setNotSaved(true);
-						arg0.addSuggestion(addName, s);
-					}
-
-				}
-			}
-		});
-		
-		
-		return field;
-	}
-
-	private AutocompleteField<RSAddName> createConsigneeAutoCompleteComponent() {
-		AutocompleteField<RSAddName> field = new AutocompleteField<>();
-		field.setWidth(100, Unit.PERCENTAGE);
-		field.setQueryListener(new AutocompleteQueryListener<RSAddName>() {
-
-			@Override
-			public void handleUserQuery(AutocompleteField<RSAddName> arg0, String arg1) {
-				User user = ((Uluee_expressUI)UI.getCurrent()).getUser();
-				List<RSAddName> dbData = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getShipperFfwAlsoNotifyDeliveredToAddressByMatchService(arg1, user.getSessionId());
-				if(dbData.size() > 0) {
-					for (RSAddName rSAddName : dbData) {
-						String cityAdd = rSAddName.getCity();
-						String countryAdd = rSAddName.getCountry().toString();
-						String street = (", ").concat(rSAddName.getStreet());
-						if( cityAdd.length() >= 2)
-						{
-							cityAdd = ","+" "+cityAdd.toString();
-						}
-						if(countryAdd.length() >= 2){
-							countryAdd = ","+" "+countryAdd.toString();
-						}
-						arg0.addSuggestion(rSAddName,rSAddName.getCompanyName()+street+cityAdd+countryAdd);
-						if (arg0.getState().suggestions.size() == 9) {
-							break;
-						}						
-					}
-				}
-				else {
-					List<String> rsult = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getGoogleAutocomplete(arg1);
-
-					for(String s:rsult) {
-						RSAddName addName = new RSAddName();
-						addName.setCompanyName(s).setNotSaved(true);
-						arg0.addSuggestion(addName, s);
-					}
-
-				}
-			}
-		});
-		
-		return field;
-	}
-
-	public AutocompleteField<RSAddName> getDeptField() {
-		return deptField;
-	}
-
-	public void setDeptField(AutocompleteField<RSAddName> deptField) {
-		this.deptField = deptField;
-	}
-
-	public AutocompleteField<RSAddName> getDestField() {
-		return destField;
-	}
-
-	public void setDestField(AutocompleteField<RSAddName> destField) {
-		this.destField = destField;
-	}
-
-	public Label getDeptSignLabel() {
-		return deptSignLabel;
-	}
-
-	public void setDeptSignLabel(Label deptSignLabel) {
-		this.deptSignLabel = deptSignLabel;
-	}
-
-	public Label getDestSignLabel() {
-		return destSignLabel;
-	}
-
-	public void setDestSignLabel(Label destSignLabel) {
-		this.destSignLabel = destSignLabel;
-	}
-
-	public RSAddName getShipper() {
-		return shipper;
-	}
-
-	public void setShipper(RSAddName shipper) {
-		this.shipper = shipper;
-	}
-
-	public RSAddName getConsignee() {
-		return consignee;
-	}
-
-	public void setConsignee(RSAddName consignee) {
-		this.consignee = consignee;
-	}
 
 	public String getDept() {
 		String objDept = String.valueOf(deptCb.getValue());
@@ -261,6 +104,14 @@ public class DeptDestLayout extends VerticalLayout{
 
 	public ComboBox getDestCb() {
 		return destCb;
+	}
+
+	public DateField getFromDate() {
+		return fromDate;
+	}
+
+	public void setFromDate(DateField fromDate) {
+		this.fromDate = fromDate;
 	}
 
 
