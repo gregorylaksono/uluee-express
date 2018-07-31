@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import javax.servlet.annotation.WebServlet;
 
 import org.slf4j.bridge.SLF4JBridgeHandler;
+import org.uluee.web.booking.TracingTab;
 import org.uluee.web.cloud.IWebService;
 import org.uluee.web.cloud.WebServiceCaller;
 import org.uluee.web.cloud.model.BookingConfirmation;
@@ -38,6 +39,8 @@ import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.TabSheet.Tab;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
@@ -70,6 +73,7 @@ public class Uluee_expressUI extends UI {
 	private BookingConfirmation confirmation;
 	private ViewProvider ViewProvider ;
 	private String ffwId;
+	private TabSheet expressTab;
 	@Override
 	protected void init(VaadinRequest request) {
 		VerticalLayout parent_root = createParentRoot();
@@ -77,6 +81,7 @@ public class Uluee_expressUI extends UI {
 
 		navigator = new Navigator(this, content);
 		//		navigator.addView(NavigatorConstant.PAYPAL_PAGE, DummyPage.class);
+		navigator.addView("", MainPage.class);
 		navigator.addView(NavigatorConstant.BOOKING_PAGE, BookingPage.class);
 		navigator.addView(NavigatorConstant.LOGIN_PAGE, LoginPage.class);
 		navigator.addView(NavigatorConstant.MAIN_PAGE, MainPage.class);
@@ -89,7 +94,9 @@ public class Uluee_expressUI extends UI {
 					navigator.navigateTo(NavigatorConstant.LOGIN_PAGE);
 				}
 				if(event.getViewName().equals("")){
-
+					if(user != null) {
+						navigator.navigateTo(NavigatorConstant.MAIN_PAGE);
+					}
 				}
 				return true;
 			}
@@ -140,6 +147,9 @@ public class Uluee_expressUI extends UI {
 		content = new CssLayout();
 		content.setId(CSSStyle.ROOT_LAYOUT);
 
+		Label logo = new Label("");
+		logo.addStyleName("logo");
+		layout.addComponent(logo);
 		layout.setSizeFull();
 		layout.addComponent(userLabel);
 		layout.addComponent(content);
@@ -148,6 +158,21 @@ public class Uluee_expressUI extends UI {
 		layout.setExpandRatio(userLabel, 0.0f);
 		layout.setExpandRatio(content, 1.0f);
 		return layout;
+	}
+	
+	public void trace(String awb, String ca3dg, String awbStock ) {
+		Tab tab = expressTab.getTab(1);
+		if(tab != null) {
+			expressTab.removeTab(tab);
+			tab = expressTab.addTab(new TracingTab(ca3dg, awbStock, awb));
+		}
+		expressTab.setSelectedTab(tab);
+	}
+	
+	
+
+	public void setTracingTab(TabSheet tracingTab) {
+		this.expressTab = tracingTab;
 	}
 
 	public Navigator getNavigator() {

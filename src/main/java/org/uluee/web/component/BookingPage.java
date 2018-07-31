@@ -66,6 +66,8 @@ public class BookingPage extends VerticalLayout implements View{
 	private String shipperId;
 	private String consigneeParentId;
 	private String ffwId;
+	private String dep;
+	private String arr;
 
 
 	@Override
@@ -82,10 +84,10 @@ public class BookingPage extends VerticalLayout implements View{
 				this.shipperId = msgs[1];
 				this.ffwId = msgs[2];
 				
-				String dep = Util.CONVERT_DATE_FORMAT.format(Util.NORMAL_DATE_FORMAT.parse(msgs[3]));
-				String arr = Util.CONVERT_DATE_FORMAT.format(Util.NORMAL_DATE_FORMAT.parse(msgs[4]));
+				dep = Util.CONVERT_DATE_FORMAT.format(Util.NORMAL_DATE_FORMAT.parse(msgs[3]));
+				arr = Util.CONVERT_DATE_FORMAT.format(Util.NORMAL_DATE_FORMAT.parse(msgs[4]));
 				
-				this.commodities  = msgs[5].split("&&");
+				this.commodities  = msgs[5].replace("!+@", "/").split("&&");
 				this.deprature = msgs[6];
 				this.destination = msgs[7];
 				
@@ -198,7 +200,7 @@ public class BookingPage extends VerticalLayout implements View{
 		table.addContainerProperty(SELECT, Button.class, null);
 
 		table.setWidth(100, Unit.PERCENTAGE);
-		table.setHeight(100, Unit.PERCENTAGE);
+		table.setHeight(200, Unit.PERCENTAGE);
 
 		table.setColumnHeader(DEP_TIME, "Deprature time");
 		table.setColumnHeader(ARR_TIME, "Arrival time");
@@ -227,8 +229,8 @@ public class BookingPage extends VerticalLayout implements View{
 			b.addStyleName(ValoTheme.BUTTON_PRIMARY);
 
 //			String[] args = schedule.getTotal_fee_from().split(" ");
-			String[] args = schedule.getTotalChargesTo().split(" ");
-			final Double rateFinal = new Double(args[0]);
+//			String[] args = schedule.getTotalChargesTo().split(" ");
+//			final Double rateFinal = new Double(schedule.getFlightList().get(0).getRate());
 			Item parent = table.addItem(schedule);
 			parent.getItemProperty(DEP_TIME).setValue("Flight "+index);
 			for(Flight f :schedule.getFlightList()) {
@@ -240,21 +242,21 @@ public class BookingPage extends VerticalLayout implements View{
 				table.setParent(f, schedule);
 			}
 			parent.getItemProperty(ARR_TIME).setValue("");
-			parent.getItemProperty(RATE).setValue(schedule.getTotalChargesFrom());
+			parent.getItemProperty(RATE).setValue(schedule.getFlightList().get(0).getRate()+" "+schedule.getFlightList().get(0).getCurrency());
 			parent.getItemProperty(SELECT).setValue(b);
 			index++;
 			b.addClickListener(e->{
 				String sessionId = ((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId();
 				String[] flights = constructFlights(schedule.getFlightList());
-				String commodities = "";
-				String shipperId = "";
+				String[] commodities = this.commodities;
+				String shipperId = this.shipperId;
 				String consignee = consigneeId+"|"+consigneeParentId+"|"+consigneeType+"|"+"false";
-				String agentId = "";
-				String depDate = "";
+				String agentId = this.ffwId;
+				String depDate = this.dep;
 				BookingConfirmation bookingResult = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().book(sessionId, Constant.caIdTemp, 
-						Constant.ca3dgTemp, flights, this.commodities,shipperId,consignee,agentId,depDate );
-
-				
+						Constant.ca3dgTemp, flights, commodities,shipperId,consignee,agentId,depDate );
+				((Uluee_expressUI)UI.getCurrent()).setBookingData(bookingResult);
+				((Uluee_expressUI)UI.getCurrent()).getNavigator().navigateTo(NavigatorConstant.MAIN_PAGE+"/tracing");
 			});
 		}
 

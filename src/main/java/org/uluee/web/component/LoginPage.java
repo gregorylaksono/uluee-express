@@ -36,11 +36,12 @@ public class LoginPage extends VerticalLayout implements View {
 	}
 
 	private void createContent() {
+		VerticalLayout root = new VerticalLayout();
 		FormLayout form = new FormLayout();
 		final TextField username_text = new TextField("Username: ");
 		final PasswordField password_text = new PasswordField("Password:");
 
-		form.setWidth(null);
+		form.setWidth(100, Unit.PERCENTAGE);
 		form.addComponent(username_text);
 		form.addComponent(password_text);
 
@@ -54,11 +55,11 @@ public class LoginPage extends VerticalLayout implements View {
 		login_layout.setHeight(null);
 		login_layout.setComponentAlignment(login_button,Alignment.MIDDLE_RIGHT);
 
-		addComponent(form);
-		addComponent(login_layout);
+		root.addComponent(form);
+		root.addComponent(login_layout);
 
-		setExpandRatio(form, 1.0f);
-		setExpandRatio(login_layout, 0.0f);
+		root.setExpandRatio(form, 1.0f);
+		root.setExpandRatio(login_layout, 0.0f);
 
 		login_button.addClickListener(new ClickListener() {
 
@@ -89,6 +90,10 @@ public class LoginPage extends VerticalLayout implements View {
 				});
 			}
 		});
+		root.setWidth(250, Unit.PIXELS);
+		addComponent(root);
+		setComponentAlignment(root, Alignment.MIDDLE_CENTER);
+		setHeight(100, Unit.PERCENTAGE);
 	}
 
 	@Override

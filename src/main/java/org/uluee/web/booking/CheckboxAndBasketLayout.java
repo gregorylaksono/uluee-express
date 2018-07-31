@@ -26,7 +26,6 @@ public class CheckboxAndBasketLayout extends HorizontalLayout {
 	 * 
 	 */
 	private static final long serialVersionUID = -5537467878187699205L;
-	private OptionGroup bookingOption;
 	private Button basketButton;
 	private Button loginButton;
 //	private boolean isLoggedIn;
@@ -57,9 +56,6 @@ public class CheckboxAndBasketLayout extends HorizontalLayout {
 
 	private void createContents() {
 		setSpacing(true);
-		bookingOption = new OptionGroup();
-		bookingOption.addItem("Deprature");
-		bookingOption.addItem("Arrival");
 
 		basketButton = new Button("");
 		basketButton.setStyleName(ValoTheme.BUTTON_FRIENDLY);
@@ -78,28 +74,16 @@ public class CheckboxAndBasketLayout extends HorizontalLayout {
 		loginButton.setStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
 		loginButton.addStyleName(ValoTheme.BUTTON_SMALL);
 		
-		setWidth(100, Unit.PERCENTAGE);
 		setHeight(40, Unit.PIXELS);
-		addComponent(bookingOption);
 		addComponent(loginButton);
 		addComponent(basketButton);
 
-		setExpandRatio(bookingOption, 1.0f);
 		setExpandRatio(basketButton, 0.0f);
 		setExpandRatio(loginButton, 0.0f);
 
-		setComponentAlignment(bookingOption, Alignment.MIDDLE_LEFT);
 		setComponentAlignment(basketButton, Alignment.MIDDLE_RIGHT);
 		setComponentAlignment(loginButton, Alignment.MIDDLE_RIGHT);
 
-	}
-
-	public OptionGroup getBookingOption() {
-		return bookingOption;
-	}
-
-	public void setBookingOption(OptionGroup bookingOption) {
-		this.bookingOption = bookingOption;
 	}
 
 	public Button getBasketButton() {

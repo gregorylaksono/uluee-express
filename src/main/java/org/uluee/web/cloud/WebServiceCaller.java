@@ -946,9 +946,9 @@ public class WebServiceCaller implements IWebService {
 		params.put("destination",destination);
 		params.put("minDeparture",deptDate);
 		params.put("maxArrival",destDate);
-		
+
 		params.put("commodities",commodities);
-		
+
 		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
 
 			@Override
@@ -994,7 +994,7 @@ public class WebServiceCaller implements IWebService {
 			public void handleError(String statusCode) {
 				System.out.println(statusCode);
 			}
-			
+
 		};
 		new CallSOAPAction(params, "getSchedules", callBack);
 		return result;
@@ -1003,7 +1003,6 @@ public class WebServiceCaller implements IWebService {
 	@Override
 	public BookingConfirmation book(String sessionId, String caidtemp, String ca3dgtemp, String[] flights,
 			String[] commodities, String shipperId, String consignee, String agentId, String depDate) {
-		
 		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
 		params.put("sessionId",sessionId);
 		params.put("airline_ca_id",caidtemp );
@@ -1014,38 +1013,28 @@ public class WebServiceCaller implements IWebService {
 		params.put("consignee", consignee);
 		params.put("agentId", agentId);
 		params.put("depDate", depDate);
-		
-		
+
+
 		BookingConfirmation result = new BookingConfirmation();
 		ISOAPResultCallBack callBack = new ISOAPResultCallBack(){
 
 			@Override
 			public void handleResult(SoapObject soap, String statusCode) {
-				SoapObject ActernityResponse = (SoapObject) soap.getProperty(0);
-				String createBookingStatus = ActernityResponse.getProperty("code").toString(); 
-				String message = ActernityResponse.getProperty("message").toString();
-				if (createBookingStatus.equalsIgnoreCase(CallSOAPAction.SUCCESS_CODE)) {
+				String awb = soap.getProperty("awb").toString();
+				if (awb != null){
+					String ca3dg = awb.substring(0, 3);
+					String awbStock=awb.substring(4, 8);
+					String awbNo=awb.substring(9, 13);
+					result.setCa3dg(ca3dg);
+					result.setAwbStock(awbStock);
+					result.setAwbNo(awbNo);
 
-					SoapObject data = (SoapObject) ActernityResponse.getProperty("data");
-					String awb = data.getProperty("awb").toString();
-					if (awb != null){
-						String ca3dg = awb.substring(0, 3);
-						String awbStock = awb.substring(4, 8);
-						String awbNo = awb.substring(9, 13);
-						SoapObject bookingInfo = (SoapObject) data.getProperty("bookingInformation");
-						SoapObject dataList = (SoapObject) bookingInfo.getProperty("list");
-						String customCode = dataList.getProperty("customCode").toString();
-						result.setCa3dg(ca3dg);
-						result.setAwbNo(awbNo);
-						result.setAwbStock(awbStock);
-						
-					}			
-			}
+				}
 			}
 
 			@Override
 			public void handleError(String statusCode) {
-				
+
 			}
 		};	
 		new CallSOAPAction(params, "createBooking", callBack);
@@ -1056,8 +1045,53 @@ public class WebServiceCaller implements IWebService {
 
 	@Override
 	public String getFFWB(String sessionId) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId", sessionId);
+		final StringBuffer r = new StringBuffer();
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
 
-		return null;
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				List<RSAddName> ffwNames = new ArrayList();
+				String ffwName = null;
+				String ffwId = "";
+				for (int i = 0; i < data.getPropertyCount(); i++) {
+					SoapObject array = (SoapObject) data.getProperty(i);
+					RSAddName rsAddNameTemp = new RSAddName();
+					rsAddNameTemp.setParentID(array.getProperty("parentId")
+							.toString());
+					rsAddNameTemp.setCompanyID(array.getProperty("id")
+							.toString());
+					rsAddNameTemp.setType(array.getProperty("type")
+							.toString());
+					rsAddNameTemp.setCompanyName(array.getProperty("name")
+							.toString());
+					rsAddNameTemp.setCity(array.getProperty("city").toString());
+					rsAddNameTemp.setCountry(array.getProperty("country").toString());
+					ffwNames.add(rsAddNameTemp);
+				}
+
+				ffwName = ffwNames.get(0).getCompanyName().toString();
+
+				if (ffwNames.get(0).getType().toString().equals("f")) {
+					ffwId = ffwNames.get(0).getCompanyID().toString();
+				} else {
+					ffwId = "12346227";
+				}
+
+				r.append(ffwId);
+
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+				// TODO Auto-generated method stub
+
+			}
+
+		};
+		new CallSOAPAction(params, "getFfwAddressByAddId", callBack);
+		return r.toString();
 	}
 
 

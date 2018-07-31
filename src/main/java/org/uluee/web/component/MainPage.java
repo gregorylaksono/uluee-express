@@ -92,7 +92,6 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 		setSpacing(true);
 		setMargin(true);
 		setSizeFull();
-		initFieldValue();
 		String params = event.getParameters();
 		if(params.contains("tracing")){
 			bookingTab.setSelectedTab(tracing);
@@ -139,14 +138,12 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 
 	}
 
-	private void initFieldValue() {
 
-		topLayout.getBookingOption().select("Deprature");
-	}
 
 	private void createContents() {
 		bookingTab = createTab();
 		addComponent(bookingTab);
+		((Uluee_expressUI)UI.getCurrent()).setTracingTab(bookingTab);
 	}
 
 	private VerticalLayout createButtonSubmitLayout() {
@@ -205,7 +202,7 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 					new Double(itemDescriptionLayout.getItemLongField().getValue()) *
 					new Double(itemDescriptionLayout.getItemWidthField().getValue())).
 			setAnn_id(commodity.getAnnId()).setCom_id(String.valueOf(commodity.getCommId())).
-			setCommodity(commodity.getCommName()).setScc(commodity.getSccCode()==null?"N/A":commodity.getSccCode());
+			setCommodity(commodity.getCommName()).setScc(commodity.getSccCode()==null?"N!+@A":commodity.getSccCode());
 			comm.add(c);
 
 			itemDescriptionLayout.setCommodities(comm);
@@ -398,6 +395,7 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 		content.setExpandRatio(stripe2, 0.0f);
 		content.setExpandRatio(itemDescriptionLayout, 0.0f);
 		content.setExpandRatio(buttonSubmitLayout, 1.0f);
+		content.setComponentAlignment(topLayout, Alignment.MIDDLE_RIGHT);
 		tab.addTab(content);
 		tab.addTab(tracing);
 		return tab;

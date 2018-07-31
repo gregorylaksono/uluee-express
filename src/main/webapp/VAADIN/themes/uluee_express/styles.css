@@ -13240,7 +13240,9 @@ div.v-layout.v-horizontal.v-widget {
 }
 
 .uluee_express #uluee-root-parent {
-	background-image: url(images/root_background.jpg);
+	background-image: url(images/BG_SX_final_Jul18_opt.png);
+	background-repeat: no-repeat;
+	background-size: cover;
 }
 
 .uluee_express #uluee-root .v-margin-left {
@@ -13396,4 +13398,12 @@ div.v-layout.v-horizontal.v-widget {
 	font-weight: bold;
 	padding-top: 10px;
 	padding-right: 10px;
+}
+
+.uluee_express .logo {
+	background-image: url(images/sx-logo-cargo_cmyk_black_v2.png);
+	height: 75px;
+	background-repeat: no-repeat;
+	background-size: contain;
+	position: absolute;
 }
