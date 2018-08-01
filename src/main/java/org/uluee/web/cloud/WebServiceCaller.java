@@ -714,10 +714,10 @@ public class WebServiceCaller implements IWebService {
 				SoapObject consignee = (SoapObject) address.getProperty("consignee");
 				List<CommodityItem> comList = new ArrayList<>();
 				Address address1 = new Address();
-				address1.setName(shipper.getProperty("name").toString());
-				address1.setCountry(shipper.getProperty("country").toString());
-				address1.setEmail(shipper.getProperty("email").toString());
-				address1.setCity(shipper.getProperty("city").toString());
+				address1.setName(shipper.getProperty("name") != null ? shipper.getProperty("name").toString():"");
+				address1.setCountry(shipper.getProperty("country")!=null ? shipper.getProperty("country").toString() : "");
+				address1.setEmail(shipper.getProperty("email") != null ? shipper.getProperty("email").toString():"");
+				address1.setCity(shipper.getProperty("city") != null ? shipper.getProperty("city").toString() :"");
 
 				Address address2 = new Address();
 				address2.setName(consignee.getProperty("name").toString());

@@ -56,17 +56,17 @@ public class UIFactory {
 		return button;
 	}
 	
-	public static void addWindow(Component content,boolean isExpandable, boolean isDragable, boolean isCloseable, boolean isModal) {
-		Window w = new Window();
-		w.setContent(content);
-		w.setDraggable(isDragable);
-		w.setClosable(isCloseable);
-		w.setModal(isModal);
-		w.setResizable(false);
-		
-		((Uluee_expressUI)UI.getCurrent()).addWindow(w);
-	}
-	
+//	public static void addWindow(Component content,boolean isExpandable, boolean isDragable, boolean isCloseable, boolean isModal) {
+//		Window w = new Window();
+//		w.setContent(content);
+//		w.setDraggable(isDragable);
+//		w.setClosable(isCloseable);
+//		w.setModal(isModal);
+//		w.setResizable(false);
+//		
+//		((Uluee_expressUI)UI.getCurrent()).addWindow(w);
+//	}
+//	
 	public static  AbstractOrderedLayout createLayout(LayoutType layoutType, SizeType sizeType, MarginInfo margin, Boolean isSpacing){
 		AbstractOrderedLayout layout = null;
 		if(layoutType.equals(LayoutType.VERTICAL)){

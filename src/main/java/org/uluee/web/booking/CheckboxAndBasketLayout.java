@@ -29,20 +29,20 @@ public class CheckboxAndBasketLayout extends HorizontalLayout {
 	private Button basketButton;
 	private Button loginButton;
 //	private boolean isLoggedIn;
-	private ClickListener loginListener = new ClickListener() {
-		
-		@Override
-		public void buttonClick(ClickEvent event) {
-			loginButton.removeClickListener(logoutListener);
-			UIFactory.addWindow(new LoginPage(), false, false, true, true);
-		}
-	};
+//	private ClickListener loginListener = new ClickListener() {
+//		
+//		@Override
+//		public void buttonClick(ClickEvent event) {
+//			loginButton.removeClickListener(logoutListener);
+//			UIFactory.addWindow(new LoginPage(), false, false, true, true);
+//		}
+//	};
 	
 	private ClickListener logoutListener = new ClickListener() {
 		
 		@Override
 		public void buttonClick(ClickEvent event) {
-			loginButton.removeClickListener(loginListener);
+//			loginButton.removeClickListener(loginListener);
 			((Uluee_expressUI)UI.getCurrent()).setUserLoggedFlaged(false);
 			((Uluee_expressUI)UI.getCurrent()).setUserLabel("");
 			((Uluee_expressUI)UI.getCurrent()).login();
@@ -66,9 +66,6 @@ public class CheckboxAndBasketLayout extends HorizontalLayout {
 			loginButton.setCaption("Logout");
 //			isLoggedIn = false;
 			loginButton.addClickListener(logoutListener);
-		}else {
-			loginButton.addClickListener(loginListener);
-			
 		}
 		loginButton.setStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
 		loginButton.addStyleName(ValoTheme.BUTTON_SMALL);
