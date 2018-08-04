@@ -10,10 +10,12 @@ import org.uluee.web.cloud.model.Commodity;
 import org.uluee.web.cloud.model.DataPaymentTempDTD;
 import org.uluee.web.cloud.model.FlightSchedule;
 import org.uluee.web.cloud.model.PaypalData;
+import org.uluee.web.cloud.model.Preferences;
 import org.uluee.web.cloud.model.RSAddName;
 import org.uluee.web.cloud.model.ScheduleDoorToDoor;
 import org.uluee.web.cloud.model.Status;
 import org.uluee.web.cloud.model.User;
+import org.uluee.web.cloud.model.UserWrapper;
 
 
 
@@ -22,7 +24,7 @@ public interface IWebService {
 	public static final String LATITUDE = "lat";
 	public static final String LONGTITUDE = "long";
 	public static final String COMPANY = "company";
-	
+
 	public User login(String username, String password);
 	public List<String> getGoogleAutocomplete(String match);
 	public List<RSAddName> getShipperFfwAlsoNotifyDeliveredToAddressByMatchService(String match, String sessionId);
@@ -32,15 +34,13 @@ public interface IWebService {
 	public Long saveAddUser(RSAddName result, String sessionId, String email);
 	public List<RSAddName> getFfwAddressByMatch(String match, String sessionId);
 	public PaypalData generateRedirectUrlPaypal(double dTotdalRates, String currency);
-	
+
 	public String saveDataPaymentTemp(String tokenId, String paymentId, String sessionKey, String rateId);
 	public DataPaymentTempDTD getTempData(String tokenId, String paymentId);
-	
+
 	public BookingConfirmation createBookingDoorToDoorNew(String sessionKey, String rateId);
 	public BookingConfirmation getTracingShipmentInfo(String ca3dg, String awbStock, String awbNo) ;
-	public boolean sendFWB(String ca3dg, String awbStock, String awbNo );
-	
-	
+
 	public String printBarCode(String ca3dg, String awbStock, String awbNo );
 	public String printInvoice(String ca3dg, String awbStock, String awbNo );
 	public String printAwb(String ca3dg, String awbStock, String awbNo );
@@ -50,4 +50,14 @@ public interface IWebService {
 			String shipperId, String consignee, String agentId, String depDate);
 	public String getFFWB(String sessionId);
 	public List<String> getCurrencies(String sessionId);
+	public boolean register(String registerContent);
+	public Preferences getPreferences(String sessionId);
+	public boolean savePreferences(Preferences pref,String sessionId);
+	public List<UserWrapper> getUserWrapper(String sessionId);
+	public boolean saveUser(UserWrapper u, String sessionId);
+	public boolean updateUser(UserWrapper u, String sessionId);
+	public boolean deleteUser(UserWrapper u, String sessionId);
+	public boolean sendFwb(String sessionId,String ca3dg,String awbStock, String awbNo);
+	public String print(String sessionId,String ca3dg,String awbStock, String awbNo,int type);
+
 }

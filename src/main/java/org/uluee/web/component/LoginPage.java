@@ -43,7 +43,7 @@ public class LoginPage extends VerticalLayout implements View {
 		FormLayout form = new FormLayout();
 		final TextField username_text = new TextField("Username: ");
 		final PasswordField password_text = new PasswordField("Password:");
-		Button registerButton = new Button("Don't have an account! Sign Up Here");
+		Button registerButton = new Button("Don't have an account? Sign Up Here");
 		registerButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
 		registerButton.addStyleName(ValoTheme.BUTTON_SMALL);
 		

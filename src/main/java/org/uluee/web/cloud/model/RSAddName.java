@@ -22,6 +22,7 @@ public class RSAddName implements Serializable, Comparable<RSAddName>{
 	private String latitude;
 	private String longitude;
 	private String street;
+	private String countryId;
 	private boolean isNotSaved;
 	
 	public String getStreet() {
@@ -140,6 +141,15 @@ public class RSAddName implements Serializable, Comparable<RSAddName>{
 
 	public void setNotSaved(boolean isNotSaved) {
 		this.isNotSaved = isNotSaved;
+	}
+
+	public String getCountryId() {
+		return countryId;
+	}
+
+	public RSAddName setCountryId(String countryId) {
+		this.countryId = countryId;
+		return this;
 	}
 	
 	

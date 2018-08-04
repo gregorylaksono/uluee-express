@@ -75,10 +75,10 @@ public class ItemDescriptionLayout extends VerticalLayout {
 		itemWidthField.setWidth(100, Unit.PIXELS);
 		itemWeightField.setWidth(100, Unit.PIXELS);
 		itemVolumeField.setWidth(100, Unit.PIXELS);
-		itemHeightField.setEnabled(false);
+		itemVolumeField.setEnabled(false);
 		
 		double vol = calculateVolumn();
-		itemHeightField.setValue(vol);
+		itemVolumeField.setValue(vol);
 		
 		Button addGoodsButton = new Button("Add Goods");
 		HorizontalLayout topLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, true);

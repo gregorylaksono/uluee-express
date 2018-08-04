@@ -8,6 +8,7 @@ import org.uluee.web.Uluee_expressUI;
 import org.uluee.web.cloud.model.BookingConfirmation;
 import org.uluee.web.cloud.model.CommodityItem;
 import org.uluee.web.cloud.model.Status;
+import org.uluee.web.cloud.model.User;
 import org.uluee.web.util.CallSOAPAction;
 import org.uluee.web.util.UIFactory;
 import org.uluee.web.util.UIFactory.ButtonSize;
@@ -19,6 +20,7 @@ import com.vaadin.data.Item;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CssLayout;
@@ -31,6 +33,7 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.ValoTheme;
@@ -49,15 +52,47 @@ public class TracingTab extends VerticalLayout {
 	private Label shipperL;
 	private Label consigneeL;
 	private Table statusTable;
-	private TextField awb1;
-	private TextField awb2;
-	private TextField awb3;
+	private TextField ca3dgText;
+	private TextField awbStockText;
+	private TextField awbNoText;
 	private String awbStock;
 	private String ca3dg;
 	private String awbNo;
 	private Button searchAWb;
 	private final static Logger LOG = Logger.getLogger(TracingTab.class.getName());
+	private ClickListener sendFwbClickListener = new ClickListener() {
 
+		@Override
+		public void buttonClick(ClickEvent event) {
+			String awbStock = awbStockText.getValue();
+			String ca3dg = ca3dgText.getValue();
+			String awbNo = awbNoText.getValue();
+			if(awbStock.isEmpty() || ca3dg.isEmpty() || awbNo.isEmpty()){
+				Notification.show("Please input awb no", Type.ERROR_MESSAGE);
+				return;
+			}
+			User user = ((Uluee_expressUI)UI.getCurrent()).getUser();
+			if(user != null){
+				((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().sendFwb(user.getSessionId(), ca3dg, awbStock, awbNo);
+			}else{
+				Notification.show("User is not logged in", Type.ERROR_MESSAGE);
+			}
+
+		}
+	};
+	private ClickListener printListener = new ClickListener() {
+		
+		@Override
+		public void buttonClick(ClickEvent event) {
+			Window w = new Window();
+			w.setModal(true);
+			w.setResizable(false);
+			w.setClosable(true);
+			w.setContent(printLayout());
+			UI.getCurrent().addWindow(w);
+		}
+	};
+	
 	public TracingTab(String caption) {
 		setCaption(caption);
 		init();
@@ -74,9 +109,9 @@ public class TracingTab extends VerticalLayout {
 		if(this.ca3dg != null &&
 				this.awbNo != null &&
 				this.awbStock != null) {
-			awb1.setValue(ca3dg);
-			awb2.setValue(awbStock);
-			awb3.setValue(awbNo);
+			ca3dgText.setValue(ca3dg);
+			awbStockText.setValue(awbStock);
+			awbNoText.setValue(awbNo);
 			searchAWb.click();
 		}
 	}
@@ -111,17 +146,36 @@ public class TracingTab extends VerticalLayout {
 		parent.setHeight(100, Unit.PERCENTAGE);
 		parent.setWidth(50, Unit.PERCENTAGE);
 
-		Button button1 = UIFactory.createButton(ButtonSize.SMALL, ButtonStyle.BORDERLESS,"Send FWB");
-		Button button2 = UIFactory.createButton(ButtonSize.SMALL, ButtonStyle.BORDERLESS,"Print");
-		Button button3 = UIFactory.createButton(ButtonSize.SMALL, ButtonStyle.BORDERLESS,"CUC & MUC");
+		Button sendFwbButton = new Button("");
+		Button printButton = new Button("");
+		Button cucMucButton = new Button("");
 
-		parent.addComponent(button1);
-		parent.addComponent(button2);
-		parent.addComponent(button3);
+		sendFwbButton.addStyleName(ValoTheme.BUTTON_SMALL);
+		printButton.addStyleName(ValoTheme.BUTTON_SMALL);
+		cucMucButton.addStyleName(ValoTheme.BUTTON_SMALL);
 
-		parent.setComponentAlignment(button1, Alignment.MIDDLE_RIGHT);
-		parent.setComponentAlignment(button2, Alignment.MIDDLE_RIGHT);
-		parent.setComponentAlignment(button3, Alignment.MIDDLE_RIGHT);
+		sendFwbButton.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		printButton.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+		cucMucButton.addStyleName(ValoTheme.BUTTON_BORDERLESS);
+
+		sendFwbButton.addStyleName("tracking-button");
+		printButton.addStyleName("tracking-button");
+		cucMucButton.addStyleName("tracking-button");
+		
+		sendFwbButton.addClickListener(sendFwbClickListener);
+		printButton.addClickListener(printListener);
+		
+		sendFwbButton.setIcon(new ThemeResource("images/sky_ico_fwbM.png"));
+		printButton.setIcon(new ThemeResource("images/sky_ico_printM.png"));
+		cucMucButton.setIcon(new ThemeResource("images/sky_ico_mrnM.png"));
+
+		parent.addComponent(sendFwbButton);
+		parent.addComponent(printButton);
+		parent.addComponent(cucMucButton);
+
+		parent.setComponentAlignment(sendFwbButton, Alignment.MIDDLE_RIGHT);
+		parent.setComponentAlignment(printButton, Alignment.MIDDLE_RIGHT);
+		parent.setComponentAlignment(cucMucButton, Alignment.MIDDLE_RIGHT);
 
 		return parent;
 	}
@@ -183,26 +237,26 @@ public class TracingTab extends VerticalLayout {
 		parent.setId("awb-search-section");
 		parent.addStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
 
-		awb1 = new TextField();
-		awb2 = new TextField();
-		awb3 = new TextField();
+		ca3dgText = new TextField();
+		awbStockText = new TextField();
+		awbNoText = new TextField();
 
-		awb1.setWidth(56, Unit.PIXELS);
-		awb2.setWidth(63, Unit.PIXELS);
-		awb3.setWidth(63, Unit.PIXELS);
+		ca3dgText.setWidth(56, Unit.PIXELS);
+		awbStockText.setWidth(63, Unit.PIXELS);
+		awbNoText.setWidth(63, Unit.PIXELS);
 
 		searchAWb = UIFactory.createButton(ButtonSize.NORMAL, ButtonStyle.PRIMARY, "Search");
-		parent.addComponent(awb1);
-		parent.addComponent(awb2);
-		parent.addComponent(awb3);
+		parent.addComponent(ca3dgText);
+		parent.addComponent(awbStockText);
+		parent.addComponent(awbNoText);
 		parent.addComponent(searchAWb);
 		searchAWb.addClickListener(new ClickListener() {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				String ca3dg = awb1.getValue();
-				String awbStock = awb2.getValue();
-				String awbNo = awb3.getValue();
+				String ca3dg = ca3dgText.getValue();
+				String awbStock = awbStockText.getValue();
+				String awbNo = awbNoText.getValue();
 				if(!ca3dg.equals("") && !awbStock.equals("") && !awbNo.equals("") ){
 					BookingConfirmation result = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getTracingShipmentInfo(ca3dg, awbStock, awbNo);
 
@@ -225,9 +279,9 @@ public class TracingTab extends VerticalLayout {
 	}
 
 	public void initData(BookingConfirmation bookingData) {
-		awb1.setValue(bookingData.getCa3dg());
-		awb2.setValue(bookingData.getAwbStock());
-		awb3.setValue(bookingData.getAwbNo());
+		ca3dgText.setValue(bookingData.getCa3dg());
+		awbStockText.setValue(bookingData.getAwbStock());
+		awbNoText.setValue(bookingData.getAwbNo());
 		LinkedList<Status> status = bookingData.getStatusInformation();
 		statusTable.removeAllItems();
 		if(status == null) {
@@ -252,8 +306,43 @@ public class TracingTab extends VerticalLayout {
 			shipperL.setValue(bookingData.getShipper().getName());
 			consigneeL.setValue(bookingData.getConsignee().getName());
 		}
-		
 
+
+	}
+	
+	private VerticalLayout printLayout(){
+		VerticalLayout l = new VerticalLayout();
+		l.setSpacing(true);
+		Button printAwbButton = new Button();
+		Button printBarcodeButton = new Button();
+		Button printInvoiceButton = new Button();
+		printAwbButton.addClickListener(e->{
+			print(0);
+		});
+		printBarcodeButton.addClickListener(e->{
+			print(2);
+		});
+		printInvoiceButton.addClickListener(e->{
+			print(1);
+		});
+		l.addComponent(printAwbButton);
+		l.addComponent(printBarcodeButton);
+		l.addComponent(printInvoiceButton);
+		
+		return l;
+	}
+
+	private void print(int i) {
+		String awbStock = awbStockText.getValue();
+		String ca3dg = ca3dgText.getValue();
+		String awbNo = awbNoText.getValue();
+		User u = ((Uluee_expressUI)UI.getCurrent()).getUser();
+		if(awbStock.isEmpty() || ca3dg.isEmpty() || awbNo.isEmpty()){
+			Notification.show("Please input awb no", Type.ERROR_MESSAGE);
+			return;
+		}			
+		String url = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().print(u.getSessionId(), ca3dg, awbStock, awbNo, 0);
+		getUI().getPage().setLocation(url);		
 	}
 
 

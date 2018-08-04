@@ -89,9 +89,9 @@ public class CheckboxAndBasketLayout extends HorizontalLayout {
 	}
     private MenuBar getMenuButton(String caption) {
         MenuBar split = new MenuBar();
-        split.setIcon(FontAwesome.DOT_CIRCLE_O);
         MenuBar.MenuItem dropdown = split.addItem(caption, null);
-
+        split.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
+        split.addStyleName(ValoTheme.MENUBAR_SMALL);
         dropdown.addItem("Logout", null);
         dropdown.addItem("Preferences", null);
         dropdown.addItem("Help", null);

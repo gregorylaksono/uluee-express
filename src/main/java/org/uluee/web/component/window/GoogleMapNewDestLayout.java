@@ -114,7 +114,7 @@ public class GoogleMapNewDestLayout extends Window{
 				}else{					
 					Long code = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().saveAddUser(result, user.getSessionId(), email);
 					result.setCompanyID(String.valueOf(code));
-					parentWindow.react(result,type);
+					parentWindow.react(result,type,email);
 					GoogleMapNewDestLayout.this.close();
 				}
 			}else{
@@ -170,6 +170,7 @@ public class GoogleMapNewDestLayout extends Window{
 			String latitude = result.getLatitude();
 			String longtitude = result.getLongitude();
 			String company = result.getCompanyName();
+			
 			
 			LatLon point = new LatLon(Double.parseDouble(latitude), Double.parseDouble(longtitude));
 			addressMap.addMarker("NOT DRAGGABLE: "+company, point, false, null);

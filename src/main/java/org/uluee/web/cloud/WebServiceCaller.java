@@ -30,11 +30,13 @@ import org.uluee.web.cloud.model.DataPaymentTempDTD;
 import org.uluee.web.cloud.model.Flight;
 import org.uluee.web.cloud.model.FlightSchedule;
 import org.uluee.web.cloud.model.PaypalData;
+import org.uluee.web.cloud.model.Preferences;
 import org.uluee.web.cloud.model.RSAddName;
 import org.uluee.web.cloud.model.ScheduleDoorToDoor;
 import org.uluee.web.cloud.model.Status;
 import org.uluee.web.cloud.model.StatusInfoWrapper;
 import org.uluee.web.cloud.model.User;
+import org.uluee.web.cloud.model.UserWrapper;
 import org.uluee.web.util.CallSOAPAction;
 import org.uluee.web.util.CallSOAPAction.ISOAPResultCallBack;
 import org.uluee.web.util.Constant;
@@ -414,7 +416,7 @@ public class WebServiceCaller implements IWebService {
 					}
 				}
 			}
-			addResult.setCompanyName(select).setCity(city).setCountry(countryName).
+			addResult.setCompanyName(select).setCity(city).setCountry(countryName).setCountryId(countryId).
 			setLatitude(latitude).setLongitude(longitude).setStreet(street).setType("s");
 
 		} catch (JSONException e) {
@@ -760,36 +762,6 @@ public class WebServiceCaller implements IWebService {
 	}
 
 	@Override
-	public boolean sendFWB(String ca3dg, String awbStock, String awbNo) {
-		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
-		params.put("sessionId", ((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
-		params.put("ca3dg",ca3dg);
-		params.put("awbStock", awbStock);
-		params.put("awbNo", awbNo);
-		final StringBuffer r = new StringBuffer();
-		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
-
-			@Override
-			public void handleResult(SoapObject data, String statusCode) {
-				SoapObject ActernityResponse = (SoapObject) data.getProperty(0);
-
-				String code = ActernityResponse.getProperty("code").toString();
-				if(code.equals("00:success")){
-					r.append(true);
-				}
-			}
-
-			@Override
-			public void handleError(String statusCode) {
-
-			}
-
-		};
-		new CallSOAPAction(params, "sendFWB", callBack  );
-		return Boolean.parseBoolean(r.toString());
-	}
-
-	@Override
 	public String printBarCode(String ca3dg, String awbStock, String awbNo) {
 		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
 		params.put("sessionId", ((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId());
@@ -1112,12 +1084,275 @@ public class WebServiceCaller implements IWebService {
 			@Override
 			public void handleError(String statusCode) {
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 		};
 		new CallSOAPAction(params, "getCurrencies", callBack);
 		return result;
+	}
+
+	@Override
+	public boolean register(String registerContent) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("addrData",registerContent);
+		final Boolean[] result = new Boolean[1];
+		result[0] = false;
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				result[0]=true;
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+
+			}
+
+		};
+		new CallSOAPAction(params, "registerUser", callBack);
+		return result[0];
+	}
+
+	@Override
+	public Preferences getPreferences(String sessionId) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId",sessionId);
+		final Preferences s = new Preferences();
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject arrayData, String statusCode) {
+				String companyName = arrayData.getProperty("companyName").toString();
+				String airportCode = arrayData.getProperty("airport").toString();
+				String airportName = arrayData.getProperty("airportName").toString();
+				//String customRef = arrayData.getProperty("customReference").toString();
+				String contactPerson = arrayData.getProperty("contactPerson").toString();
+				String country = arrayData.getProperty("country").toString();
+				String street = arrayData.getProperty("street").toString();
+				String telephone = arrayData.getProperty("telephone").toString();
+				//				String fax = arrayData.getProperty("fax").toString();
+				String email = arrayData.getProperty("email").toString();	
+				String currency = arrayData.getProperty("currency").toString();	
+				s.setCompanyName(companyName).setAirportCode(airportCode).
+				setAirportName(airportName).setContactPerson(contactPerson).
+				setCountry(country).setStreet(street).setTelephone(telephone).
+				setEmail(email).setCurrency(currency);
+
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+
+			}
+
+		};
+		new CallSOAPAction(params, "loadDefaultPreferences", callBack);
+		return s;
+	}
+
+	@Override
+	public boolean savePreferences(Preferences pref, String sessionId) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId", sessionId);
+		params.put("airport", pref.getAirportCode());
+		params.put("companyName", pref.getCompanyName());		
+		params.put("customReference", "");
+		params.put("countryName", pref.getCountry());					
+		params.put("fax", "");
+		params.put("telp", pref.getTelephone());
+		params.put("email", pref.getEmail());
+		params.put("contactPerson", pref.getContactPerson());	
+		params.put("street", pref.getStreet());				
+		params.put("currCode", pref.getCurrency());
+		Boolean[] result = new Boolean[1];
+		result[0] = false;
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				result[0] = true;
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+
+			}
+
+		};
+		new CallSOAPAction(params, "saveDefaultPreferences", callBack);
+		return result[0];
+	}
+
+	@Override
+	public List<UserWrapper> getUserWrapper(String sessionId) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId", sessionId);
+		final List<UserWrapper> results = new ArrayList<>();
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				for (int i = 0; i < data.getPropertyCount(); i++) {
+					SoapObject UserObject = (SoapObject) data.getProperty(i);
+					UserWrapper userWrapper = new UserWrapper();
+					userWrapper.setEmail(UserObject.getProperty("email").toString());
+					userWrapper.setFamilyName(UserObject.getProperty("family_name").toString());
+					userWrapper.setFirstName(UserObject.getProperty("first_name").toString());
+					userWrapper.setLoginName(UserObject.getProperty("login_name").toString());
+					userWrapper.setPassword(UserObject.getProperty("password").toString());
+					userWrapper.setIdUser(UserObject.getProperty("user_id").toString());
+					results.add(userWrapper);
+				}				
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+
+			}
+
+		};
+		new CallSOAPAction(params, "getListUserPreferences", callBack);
+		return results;
+	}
+
+	@Override
+	public boolean saveUser(UserWrapper u, String sessionId) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId", sessionId);
+		params.put("familyName", u.getFamilyName());
+		params.put("firstName", u.getFirstName());		
+		params.put("loginName", u.getLoginName());		
+		params.put("password", u.getPassword());	
+		params.put("email", u.getEmail());
+		Boolean[] rsult = new Boolean[1];
+		rsult[0] = false;
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				rsult[0]=true;				
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+				// TODO Auto-generated method stub
+
+			}
+
+		};
+		new CallSOAPAction(params, "addUserLogin", callBack);
+		return rsult[0];
+	}
+
+	@Override
+	public boolean updateUser(UserWrapper u, String sessionId) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId", sessionId);
+		Boolean[] rsult = new Boolean[1];
+		rsult[0] = false;
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				rsult[0]=true;				
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+				// TODO Auto-generated method stub
+
+			}
+
+		};
+		new CallSOAPAction(params, "updateUserLogin", callBack);
+		return rsult[0];
+	}
+
+	@Override
+	public boolean deleteUser(UserWrapper u, String sessionId) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId", sessionId);
+		Boolean[] rsult = new Boolean[1];
+		rsult[0] =false;
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				rsult[0]=true;		
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+				// TODO Auto-generated method stub
+
+			}
+
+		};
+		new CallSOAPAction(params, "deleteUserLogin", callBack);
+		return rsult[0];
+	}
+
+	@Override
+	public boolean sendFwb(String sessionId, String ca3dg, String awbStock, String awbNo) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId", sessionId);
+		params.put("ca3dg", ca3dg);
+		params.put("awbStock", awbStock);
+		params.put("awbNo", awbNo);
+		Boolean[] rsult = new Boolean[1];
+		rsult[0] =false;
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				rsult[0]=true;				
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+
+			}
+
+		};
+		new CallSOAPAction(params, "sendFWB", callBack);
+		return rsult[0];
+	}
+
+	@Override
+	public String print(String sessionId, String ca3dg, String awbStock, String awbNo, int type) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId", sessionId);
+		params.put("ca3dg", ca3dg);
+		params.put("awbStock", awbStock);
+		params.put("awbNo", awbNo);
+		StringBuffer url = new StringBuffer();
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				for (int i = 0; i < data.getPropertyCount(); i++) {
+					String urlResult = data.getProperty(i).toString();
+					url.append(urlResult);
+				}
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+				// TODO Auto-generated method stub
+
+			}
+
+		};
+		String serviceName = "";
+		switch(type){
+			case 0 : serviceName ="printAWB";break;
+			case 1 : serviceName ="printInvoicePdf";break;
+			case 2 : serviceName ="printBarcode";break;
+		}
+		new CallSOAPAction(params, serviceName, callBack);
+		return url.toString();
 	}
 
 

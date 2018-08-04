@@ -27,6 +27,8 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
@@ -43,6 +45,7 @@ public class RegisterPage extends VerticalLayout implements View, IModalWindowBr
 	 */
 	private static final long serialVersionUID = -1802742159581725527L;
 	private List<String> currencies = new ArrayList();
+	private RSAddName locationSelected;
 //	private TextField company;
 	private TextField firstname;
 	private ComboBox gender;
@@ -56,8 +59,35 @@ public class RegisterPage extends VerticalLayout implements View, IModalWindowBr
 		@Override
 		public void buttonClick(ClickEvent event) {
 			validateFields();
+			String companyNameValue = locationSelected.getCompanyName();
+			String country = locationSelected.getCountry();
+			String countryId = locationSelected.getCountryId();
+			String address = locationSelected.getStreet();
+			String street  = locationSelected.getStreet();;
+			String city = locationSelected.getCity();
+			String longitude = locationSelected.getLongitude();
+			String latitude = locationSelected.getLatitude();
+			String emailValue = emailAddress;
+			String firstNameValue = firstname.getValue();
+			String lastNameValue = lastname.getValue();
+			String selectedCur = (String) currency.getValue();
+			String selectedGen = (String) gender.getValue();
+			
+			String tempSignUp = companyNameValue+"|"+firstNameValue+"|"+lastNameValue+
+					"|"+emailValue+"|"+selectedCur+"|"+"TXL"+"|"+country+"|"+countryId+"|"+"s"+"|"+""+"|"+""+"|"+selectedGen+"|"+address+"|"+
+					"cp"+"|"+street+"|"+"s"+"|"+city+"|"+"c"+"|"+""+"|"+""+"|"+""+"|"+""+"|"+""+"|"+""+"|"+emailValue+"|"+
+					"e"+"|"+longitude+"|"+latitude+"|"+"empty";
+			
+			boolean result = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().register(tempSignUp);
+			if(result){
+				Notification.show("Registration", "Registration success", Type.HUMANIZED_MESSAGE);
+				UI.getCurrent().getNavigator().navigateTo(NavigatorConstant.LOGIN_PAGE);
+			}else{
+				Notification.show("Registration is failed", Type.ERROR_MESSAGE);
+			}
 		}
 	};
+	private String emailAddress;
 	public RegisterPage() {
 		setSpacing(true);
 		setMargin(true);
@@ -170,6 +200,7 @@ public class RegisterPage extends VerticalLayout implements View, IModalWindowBr
 		lastname.setValidationVisible(true);
 		telp.setValidationVisible(true);
 		
+		company.addValidator(new StringLengthValidator("Not valid", 3, 40, false));
 		firstname.addValidator(new StringLengthValidator("Not valid", 3, 40, false));
 		lastname.addValidator(new StringLengthValidator("Not valid", 3, 40, false));
 		telp.addValidator(new RegexpValidator("[0-9]+", "Not valid"));
@@ -177,7 +208,6 @@ public class RegisterPage extends VerticalLayout implements View, IModalWindowBr
 	}
 	
 	private void validateFields(){
-		company.validate();
 		firstname.validate();
 		gender.validate();
 		currency.validate();
@@ -194,8 +224,10 @@ public class RegisterPage extends VerticalLayout implements View, IModalWindowBr
 		}
 		
 		gender.setNullSelectionAllowed(false);
-		gender.addItem("Male");
-		gender.addItem("Female");
+		gender.addItem("m");
+		gender.addItem("f");
+		gender.setItemCaption("m", "Male");
+		gender.setItemCaption("f", "Female");
 	}
 
 	private AutocompleteField<RSAddName> createCompanyAutoCompleteComponent(String caption) {
@@ -229,7 +261,8 @@ public class RegisterPage extends VerticalLayout implements View, IModalWindowBr
 
 	@Override
 	public void react(Object... result) {
-		
+		this.locationSelected = (RSAddName) result[0];
+		this.emailAddress = (String) result[2];
 	}
 
 }
