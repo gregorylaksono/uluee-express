@@ -75,6 +75,10 @@ public class ItemDescriptionLayout extends VerticalLayout {
 		itemWidthField.setWidth(100, Unit.PIXELS);
 		itemWeightField.setWidth(100, Unit.PIXELS);
 		itemVolumeField.setWidth(100, Unit.PIXELS);
+		itemHeightField.setEnabled(false);
+		
+		double vol = calculateVolumn();
+		itemHeightField.setValue(vol);
 		
 		Button addGoodsButton = new Button("Add Goods");
 		HorizontalLayout topLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, true);
@@ -130,6 +134,16 @@ public class ItemDescriptionLayout extends VerticalLayout {
 		
 	}
 	
+	private double calculateVolumn() {
+		try{
+			double result = Double.parseDouble(itemLongField.getValue()) * Double.parseDouble(itemWidthField.getValue()) *
+			Double.parseDouble(itemHeightField.getValue());
+			return result;
+		}catch(Exception e){
+			return 0;
+		}
+	}
+
 	private void formatAllNumberFields() {
 		itemPieceField.setDecimalAllowed(false);
 		itemPieceField.setDecimalPrecision(0);

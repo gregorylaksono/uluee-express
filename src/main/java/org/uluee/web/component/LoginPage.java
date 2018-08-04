@@ -2,6 +2,7 @@ package org.uluee.web.component;
 
 import org.uluee.web.Uluee_expressUI;
 import org.uluee.web.cloud.model.User;
+import org.uluee.web.component.window.TermAndConditionActernityWindow;
 import org.uluee.web.util.NavigatorConstant;
 import org.uluee.web.util.UIFactory;
 
@@ -37,10 +38,15 @@ public class LoginPage extends VerticalLayout implements View {
 
 	private void createContent() {
 		VerticalLayout root = new VerticalLayout();
+		root.setSpacing(true);
+		
 		FormLayout form = new FormLayout();
 		final TextField username_text = new TextField("Username: ");
 		final PasswordField password_text = new PasswordField("Password:");
-
+		Button registerButton = new Button("Don't have an account! Sign Up Here");
+		registerButton.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+		registerButton.addStyleName(ValoTheme.BUTTON_SMALL);
+		
 		form.setWidth(100, Unit.PERCENTAGE);
 		form.addComponent(username_text);
 		form.addComponent(password_text);
@@ -57,10 +63,11 @@ public class LoginPage extends VerticalLayout implements View {
 
 		root.addComponent(form);
 		root.addComponent(login_layout);
-
+		root.addComponent(registerButton);
 		root.setExpandRatio(form, 1.0f);
 		root.setExpandRatio(login_layout, 0.0f);
-
+		root.setExpandRatio(registerButton, 0.0f);
+		root.setComponentAlignment(registerButton, Alignment.BOTTOM_RIGHT);
 		login_button.addClickListener(new ClickListener() {
 
 			@Override
@@ -89,6 +96,9 @@ public class LoginPage extends VerticalLayout implements View {
 					}
 				});
 			}
+		});
+		registerButton.addClickListener( e->{
+			UI.getCurrent().getNavigator().navigateTo(NavigatorConstant.REGISTER_PAGE);
 		});
 		root.setWidth(250, Unit.PIXELS);
 		addComponent(root);

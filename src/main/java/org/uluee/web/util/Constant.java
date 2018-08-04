@@ -2,11 +2,12 @@ package org.uluee.web.util;
 	
 public class Constant {
 
-	public static final String USERNAME = "spice";
-	public static final String PASSWORD = "spice";
+	public static final String USERNAME = "sky";
+	public static final String PASSWORD = "sky";
 //	public static final String URL = "http://10.10.6.3";
-	public static final String URL = "http://acternity.net";
-	public static final String WS_PATH = URL+"/WEBSERVICE-SXTEST/services/MobileService?wsdl";
+	public static final String URL = "http://localhost:8082";
+//	public static final String WS_PATH = URL+"/WEBSERVICE-SXTEST/services/MobileService?wsdl";
+	public static final String WS_PATH = URL+"/WEBSERVICE/services/MobileService?wsdl";
 	public static final String caIdTemp = "YSX";
 	public static final String caIdForAirport = "YSX";
 	public static final String ca3dgTemp = "772";

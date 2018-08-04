@@ -49,4 +49,5 @@ public interface IWebService {
 	public BookingConfirmation book(String sessionId, String caidtemp, String ca3dgtemp, String[] flights, String[] commodities,
 			String shipperId, String consignee, String agentId, String depDate);
 	public String getFFWB(String sessionId);
+	public List<String> getCurrencies(String sessionId);
 }

@@ -19,6 +19,7 @@ import org.uluee.web.component.ConfirmPage;
 import org.uluee.web.component.DummyPage;
 import org.uluee.web.component.LoginPage;
 import org.uluee.web.component.MainPage;
+import org.uluee.web.component.RegisterPage;
 import org.uluee.web.util.Constant;
 import org.uluee.web.util.NavigatorConstant;
 
@@ -86,6 +87,7 @@ public class Uluee_expressUI extends UI {
 		navigator.addView(NavigatorConstant.LOGIN_PAGE, LoginPage.class);
 		navigator.addView(NavigatorConstant.MAIN_PAGE, MainPage.class);
 		navigator.addView(NavigatorConstant.CONFIRM_PAGE, ConfirmPage.class);
+		navigator.addView(NavigatorConstant.REGISTER_PAGE, RegisterPage.class);
 		navigator.addViewChangeListener(new ViewChangeListener() {
 
 			@Override

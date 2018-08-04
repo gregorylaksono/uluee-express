@@ -1094,5 +1094,31 @@ public class WebServiceCaller implements IWebService {
 		return r.toString();
 	}
 
+	@Override
+	public List<String> getCurrencies(String sessionId) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId", sessionId);
+		List<String> result = new ArrayList();
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				for (int i = 0; i < data.getPropertyCount(); i++) {
+					SoapObject currenciesObj = (SoapObject) data.getProperty(i);
+					result.add(currenciesObj.getProperty("cur_3lc").toString()+" "+"("+currenciesObj.getProperty("cur_name").toString()+")");
+				}				
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		};
+		new CallSOAPAction(params, "getCurrencies", callBack);
+		return result;
+	}
+
 
 }

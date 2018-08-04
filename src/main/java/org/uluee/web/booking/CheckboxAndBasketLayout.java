@@ -9,11 +9,13 @@ import org.uluee.web.util.UIFactory;
 import org.uluee.web.util.UIFactory.LayoutType;
 import org.uluee.web.util.UIFactory.SizeType;
 
+import com.vaadin.client.ui.Icon;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
@@ -71,17 +73,31 @@ public class CheckboxAndBasketLayout extends HorizontalLayout {
 		loginButton.addStyleName(ValoTheme.BUTTON_SMALL);
 		
 		setHeight(40, Unit.PIXELS);
+		MenuBar menuBar = getMenuButton("");
 		addComponent(loginButton);
 		addComponent(basketButton);
+		addComponent(menuBar);
 
 		setExpandRatio(basketButton, 0.0f);
 		setExpandRatio(loginButton, 0.0f);
+		setExpandRatio(menuBar, 0.0f);
 
 		setComponentAlignment(basketButton, Alignment.MIDDLE_RIGHT);
 		setComponentAlignment(loginButton, Alignment.MIDDLE_RIGHT);
+		setComponentAlignment(menuBar, Alignment.MIDDLE_RIGHT);
 
 	}
+    private MenuBar getMenuButton(String caption) {
+        MenuBar split = new MenuBar();
+        split.setIcon(FontAwesome.DOT_CIRCLE_O);
+        MenuBar.MenuItem dropdown = split.addItem(caption, null);
 
+        dropdown.addItem("Logout", null);
+        dropdown.addItem("Preferences", null);
+        dropdown.addItem("Help", null);
+
+        return split;
+    }
 	public Button getBasketButton() {
 		return basketButton;
 	}
