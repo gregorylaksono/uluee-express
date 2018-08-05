@@ -1335,7 +1335,13 @@ public class WebServiceCaller implements IWebService {
 
 			@Override
 			public void handleResult(SoapObject data, String statusCode) {
-				url.append(data.getAttribute(0));
+				if(data.getAttributeCount() > 0){
+					url.append(data.getAttribute(0));	
+				}else if(data.getPropertyCount() > 0){
+					url.append(data.getProperty(0));
+				}
+				
+				
 			}
 
 			@Override
