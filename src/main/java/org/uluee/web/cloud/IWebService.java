@@ -9,6 +9,7 @@ import org.uluee.web.cloud.model.BookingConfirmation;
 import org.uluee.web.cloud.model.Commodity;
 import org.uluee.web.cloud.model.DataPaymentTempDTD;
 import org.uluee.web.cloud.model.FlightSchedule;
+import org.uluee.web.cloud.model.MrnWrapper;
 import org.uluee.web.cloud.model.PaypalData;
 import org.uluee.web.cloud.model.Preferences;
 import org.uluee.web.cloud.model.RSAddName;
@@ -59,5 +60,9 @@ public interface IWebService {
 	public boolean deleteUser(UserWrapper u, String sessionId);
 	public boolean sendFwb(String sessionId,String ca3dg,String awbStock, String awbNo);
 	public String print(String sessionId,String ca3dg,String awbStock, String awbNo,int type);
+	public List<String> getCucCode(String sessionId);
+	public List<String> getMrnCodeByAwb(String sessionId,String ca3dg,String awbStock, String awbNo);
+	public String getCucNumberByAwb(String sessionId, String ca3dg, String awbStock, String awbNo);
+	public boolean saveCucMuc(String sessionId, String ca3dg, String awbStock, String awbNo, List<MrnWrapper> codes, String selected);
 
 }

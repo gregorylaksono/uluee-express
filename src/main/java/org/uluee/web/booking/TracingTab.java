@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.uluee.web.Uluee_expressUI;
+import org.uluee.web.booking.tracing.MrnCUCLayout;
 import org.uluee.web.cloud.model.BookingConfirmation;
 import org.uluee.web.cloud.model.CommodityItem;
 import org.uluee.web.cloud.model.Status;
@@ -30,12 +31,14 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.Table.Align;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.themes.ValoTheme;
 
 public class TracingTab extends VerticalLayout {
@@ -91,6 +94,26 @@ public class TracingTab extends VerticalLayout {
 			w.setContent(printLayout());
 			UI.getCurrent().addWindow(w);
 		}
+	};
+	private ClickListener cucMucListener = new ClickListener(){
+
+		@Override
+		public void buttonClick(ClickEvent event) {
+			String awbStock = awbStockText.getValue();
+			String ca3dg = ca3dgText.getValue();
+			String awbNo = awbNoText.getValue();
+			if(awbStock.isEmpty() || ca3dg.isEmpty() || awbNo.isEmpty()){
+				Notification.show("Please input awb no", Type.ERROR_MESSAGE);
+				return;
+			}
+			Window w = new Window();
+			w.setModal(true);
+			w.setResizable(false);
+			w.setClosable(true);
+			w.setContent(new MrnCUCLayout(ca3dg, awbStock, awbNo));
+			UI.getCurrent().addWindow(w);
+		}
+		
 	};
 	
 	public TracingTab(String caption) {
@@ -164,6 +187,7 @@ public class TracingTab extends VerticalLayout {
 		
 		sendFwbButton.addClickListener(sendFwbClickListener);
 		printButton.addClickListener(printListener);
+		cucMucButton.addClickListener(cucMucListener );
 		
 		sendFwbButton.setIcon(new ThemeResource("images/sky_ico_fwbM.png"));
 		printButton.setIcon(new ThemeResource("images/sky_ico_printM.png"));
@@ -331,6 +355,10 @@ public class TracingTab extends VerticalLayout {
 		
 		return l;
 	}
+	
+
+
+	
 
 	private void print(int i) {
 		String awbStock = awbStockText.getValue();

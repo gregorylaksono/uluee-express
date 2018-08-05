@@ -11,6 +11,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.ksoap2.serialization.SoapObject;
+import org.ksoap2.serialization.SoapPrimitive;
 import org.uluee.web.Uluee_expressUI;
 import org.uluee.web.cloud.model.Address;
 import org.uluee.web.cloud.model.BookingConfirmation;
@@ -29,6 +31,7 @@ import org.uluee.web.cloud.model.CommodityItem;
 import org.uluee.web.cloud.model.DataPaymentTempDTD;
 import org.uluee.web.cloud.model.Flight;
 import org.uluee.web.cloud.model.FlightSchedule;
+import org.uluee.web.cloud.model.MrnWrapper;
 import org.uluee.web.cloud.model.PaypalData;
 import org.uluee.web.cloud.model.Preferences;
 import org.uluee.web.cloud.model.RSAddName;
@@ -1353,6 +1356,115 @@ public class WebServiceCaller implements IWebService {
 		}
 		new CallSOAPAction(params, serviceName, callBack);
 		return url.toString();
+	}
+
+	@Override
+	public List<String> getCucCode(String sessionId) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId", sessionId);
+		final List<String> cucList = new ArrayList();
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				for (int i = 0; i < data.getPropertyCount(); i++) {
+					SoapPrimitive cucObject = (SoapPrimitive) data.getProperty(i);
+					cucList.add(cucObject.toString());
+				}				
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		};
+		new CallSOAPAction(params, "getCucNumber", callBack);
+		return cucList;
+	}
+
+	@Override
+	public List<String> getMrnCodeByAwb(String sessionId, String ca3dg, String awbStock, String awbNo) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId", sessionId);
+		params.put("ca3dg", ca3dg);
+		params.put("awbStock", awbStock);
+		params.put("awbNo", awbNo);
+		final List<String> cucList = new ArrayList();
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				for (int i = 0; i < data.getPropertyCount(); i++) {
+					SoapPrimitive mrnObject = (SoapPrimitive) data.getProperty(i);	
+					cucList.add(mrnObject.toString());
+				}				
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+				// TODO Auto-generated method stub
+				
+			}
+		};
+		new CallSOAPAction(params, "getMrnNumberByAwb", callBack);
+		return cucList;
+	}
+
+	@Override
+	public String getCucNumberByAwb(String sessionId, String ca3dg, String awbStock, String awbNo) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId", sessionId);
+		params.put("ca3dg", ca3dg);
+		params.put("awbStock", awbStock);
+		params.put("awbNo", awbNo);
+		final StringBuffer cucByAwb = new StringBuffer();
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				for (int i = 0; i < data.getPropertyCount(); i++) {
+					SoapPrimitive mrnObject = (SoapPrimitive) data.getProperty(i);	
+					cucByAwb.append(mrnObject.toString());
+				}			
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+				
+			}
+		};
+		new CallSOAPAction(params, "getCucNumberByAwb", callBack);
+		return cucByAwb.toString();
+	}
+
+	@Override
+	public boolean saveCucMuc(String sessionId, String ca3dg, String awbStock, String awbNo, List<MrnWrapper> codes, String selected) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId",sessionId);
+		params.put("ca3dg",ca3dg);
+		params.put("awbStock",awbStock);
+		params.put("awbNo",awbNo);
+		params.put("cucCode", selected);
+		params.put("mrns", codes.toArray(new String[codes.size()]));
+		Boolean[] rsult = new Boolean[1];
+		rsult[0] =false;
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				rsult[0] =true;				
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+				
+			}
+			
+		};
+		new CallSOAPAction(params, "saveCucAndMrnNumber", callBack);
+		return rsult[0];
 	}
 
 
