@@ -725,10 +725,10 @@ public class WebServiceCaller implements IWebService {
 				address1.setCity(shipper.getProperty("city") != null ? shipper.getProperty("city").toString() :"");
 
 				Address address2 = new Address();
-				address2.setName(consignee.getProperty("name").toString());
-				address2.setCountry(consignee.getProperty("country").toString());
-				address2.setEmail(consignee.getProperty("email").toString());
-				address2.setCity(consignee.getProperty("city").toString());
+				address2.setName(consignee.getProperty("name") != null ? consignee.getProperty("name").toString():"");
+				address2.setCountry(consignee.getProperty("country")!=null ?consignee.getProperty("country").toString():"");
+				address2.setEmail(consignee.getProperty("email") != null ? consignee.getProperty("email").toString():"");
+				address2.setCity(consignee.getProperty("city") != null ? consignee.getProperty("city").toString():"");
 
 				SoapObject shipmentInfo = (SoapObject) data.getProperty("shipmentInformation");
 
@@ -1335,10 +1335,7 @@ public class WebServiceCaller implements IWebService {
 
 			@Override
 			public void handleResult(SoapObject data, String statusCode) {
-				for (int i = 0; i < data.getPropertyCount(); i++) {
-					String urlResult = data.getProperty(i).toString();
-					url.append(urlResult);
-				}
+				url.append(data.getAttribute(0));
 			}
 
 			@Override
@@ -1368,8 +1365,8 @@ public class WebServiceCaller implements IWebService {
 			@Override
 			public void handleResult(SoapObject data, String statusCode) {
 				for (int i = 0; i < data.getPropertyCount(); i++) {
-					SoapPrimitive cucObject = (SoapPrimitive) data.getProperty(i);
-					cucList.add(cucObject.toString());
+					String t = data.getProperty(i).toString();
+					cucList.add(t);
 				}				
 			}
 
@@ -1397,9 +1394,11 @@ public class WebServiceCaller implements IWebService {
 			@Override
 			public void handleResult(SoapObject data, String statusCode) {
 				for (int i = 0; i < data.getPropertyCount(); i++) {
-					SoapPrimitive mrnObject = (SoapPrimitive) data.getProperty(i);	
-					cucList.add(mrnObject.toString());
-				}				
+					SoapObject mrnObject = (SoapObject) data.getProperty(i);
+					if(!mrnObject.toString().equals("anyType{}")){
+						cucList.add(mrnObject.toString());
+					}
+				}
 			}
 
 			@Override

@@ -38,8 +38,13 @@ public class MrnCUCLayout extends Window {
 		this.ca3dg = ca3dg;
 		this.awbStock = awbStock;
 		this.awbNo = awbNo;
+		setModal(true);
+		setResizable(false);
+		setClosable(true);
 		root.setSpacing(true);
 		root.setMargin(true);
+		root.setWidth(450, Unit.PIXELS);
+		root.setHeight(300, Unit.PIXELS);
 		Table mrnNoTable = createMRNNoTable();
 		HorizontalLayout mrnLayout = createMrnLayout();
 		ComboBox customCode = createCustomCodeComboBox();
@@ -49,11 +54,19 @@ public class MrnCUCLayout extends Window {
 		root.addComponent(mrnLayout);
 		root.addComponent(customCode);
 		root.addComponent(saveMucButton);
-		UI.getCurrent().addWindow(this);
+		
+		root.setExpandRatio(mrnNoTable, 1.0f);
+		root.setExpandRatio(mrnLayout, 0.0f);
+		root.setExpandRatio(customCode, 0.0f);
+		root.setExpandRatio(saveMucButton, 0.0f);
+		
+		setContent(root);
 	}
 
 	private Button createSaveMucButton() {
 		Button save = new Button("Save");
+		save.addStyleName(ValoTheme.BUTTON_SMALL);
+		save.addStyleName(ValoTheme.BUTTON_PRIMARY);
 		save.addClickListener(e->{
 			Collection<?> items = numberTable.getItemIds();
 			List itemSelected = new ArrayList<>();
@@ -90,7 +103,7 @@ public class MrnCUCLayout extends Window {
 		HorizontalLayout container = new HorizontalLayout();
 		container.setWidth(100, Unit.PERCENTAGE);
 		mrnNoText = new TextField("MRN");
-		Button addButton = new Button("Delete");
+		Button addButton = new Button("Add");
 		addButton.addStyleName(ValoTheme.BUTTON_TINY);
 		addButton.addStyleName(ValoTheme.BUTTON_PRIMARY);
 		addButton.addClickListener(e->{
@@ -98,8 +111,8 @@ public class MrnCUCLayout extends Window {
 				Notification.show("Please input MRN number", Type.ERROR_MESSAGE);
 				return;
 			}
+			insertItemTable(mrnNoText.getValue());
 			
-			numberTable.addItem(mrnNoText.getValue());
 		});
 		container.addComponent(mrnNoText);
 		container.addComponent(addButton);
@@ -111,20 +124,27 @@ public class MrnCUCLayout extends Window {
 	private Table createMRNNoTable() {
 		String sessionId = ((Uluee_expressUI)UI.getCurrent()).getUser().getSessionId();
 		numberTable = new Table();
+		numberTable.setWidth(100, Unit.PERCENTAGE);
+		numberTable.setHeight(100, Unit.PIXELS);
 		numberTable.addContainerProperty(1, String.class, null, "MRN No", null, Align.LEFT);
 		numberTable.addContainerProperty(2, String.class, null, "Delete", null, Align.LEFT);
 		List<String> result = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().getMrnCodeByAwb(sessionId, ca3dg, awbStock, awbNo);
 		for(String s: result){
-			Item i = numberTable.addItem(s);
-			i.getItemProperty(1).setValue(s);
-			Button action = new Button("Delete");
-			action.addStyleName(ValoTheme.BUTTON_TINY);
-			action.addStyleName(ValoTheme.BUTTON_DANGER);
-			action.addClickListener(e->{
-				numberTable.removeItem(s);
-			});
+			insertItemTable(s);
 		}
 		return numberTable;
+	}
+	
+	private void insertItemTable(String s){
+		Item i = numberTable.addItem(s);
+		i.getItemProperty(1).setValue(s);
+		Button action = new Button("Delete");
+		action.addStyleName(ValoTheme.BUTTON_TINY);
+		action.addStyleName(ValoTheme.BUTTON_DANGER);
+		action.addClickListener(e->{
+			numberTable.removeItem(s);
+		});
+		i.getItemProperty(2).setValue(action);
 	}
 
 }

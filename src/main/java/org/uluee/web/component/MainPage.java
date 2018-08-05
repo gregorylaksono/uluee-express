@@ -362,12 +362,7 @@ public class MainPage extends VerticalLayout implements View, IModalWindowBridge
 
 		secondRowLayout.getDestField().setSuggestionPickedListener(e->{
 			if(e.isNotSaved()) {
-				Window w = new Window();
-				w.setModal(true);
-				w.setClosable(false);
-				w.setDraggable(false);
-				w.setContent(new GoogleMapNewDestLayout(GoogleMapNewDestLayout.CONSIGNEE, MainPage.this, e.getCompanyName()));
-				UI.getCurrent().addWindow(w);
+				UI.getCurrent().addWindow(new GoogleMapNewDestLayout(GoogleMapNewDestLayout.CONSIGNEE, MainPage.this, e.getCompanyName()));
 				secondRowLayout.getDestSignLabel().addStyleName("warning-sign");
 			}else {
 				secondRowLayout.getDestSignLabel().addStyleName("check-sign");

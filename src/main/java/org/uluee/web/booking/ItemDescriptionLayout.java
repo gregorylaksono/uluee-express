@@ -13,11 +13,15 @@ import org.uluee.web.util.UIFactory.LayoutType;
 import org.uluee.web.util.UIFactory.SizeType;
 import org.vaadin.ui.NumberField;
 
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -40,6 +44,20 @@ public class ItemDescriptionLayout extends VerticalLayout {
 	private AutocompleteField itemComodityField;
 	private List<CommodityWrapper> commodities = new ArrayList<>();
 	private Commodity commodity;
+	private ValueChangeListener itemFieldListener = new ValueChangeListener() {
+		
+		@Override
+		public void valueChange(ValueChangeEvent event) {
+			boolean isValid = validateItems(itemLongField,itemWidthField,itemHeightField,itemPieceField,itemWeightField);
+			if(isValid){
+				Double volume = Double.parseDouble(itemLongField.getValue()) * Double.parseDouble(itemHeightField.getValue()) *
+							    Double.parseDouble(itemWidthField.getValue());
+				itemVolumeField.setValue(volume);
+			}else{
+//				Notification.show("format is not numeric", Type.ERROR_MESSAGE);
+			}
+		}
+	};
 	public ItemDescriptionLayout() {
 		createContents();
 	}
@@ -79,6 +97,11 @@ public class ItemDescriptionLayout extends VerticalLayout {
 		
 		double vol = calculateVolumn();
 		itemVolumeField.setValue(vol);
+		
+		itemLongField.addValueChangeListener(itemFieldListener);
+		itemHeightField.addValueChangeListener(itemFieldListener);
+		itemWeightField.addValueChangeListener(itemFieldListener);
+		itemWidthField.addValueChangeListener(itemFieldListener);
 		
 		Button addGoodsButton = new Button("Add Goods");
 		HorizontalLayout topLayout = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, true);
@@ -189,12 +212,12 @@ public class ItemDescriptionLayout extends VerticalLayout {
 
 	private boolean validateItems(NumberField itemLongField, NumberField itemWidthField, NumberField itemHeightField,
 			NumberField itemPieceField, NumberField itemWeightComboBox) {
-		if(itemLongField.getValue() == null || Double.parseDouble(itemLongField.getValue()) < 1) return false;
-		if(itemWidthField.getValue() == null || Double.parseDouble(itemWidthField.getValue()) < 1) return false;
-		if(itemHeightField.getValue() == null || Double.parseDouble(itemHeightField.getValue()) < 1) return false;
-		if(itemPieceField.getValue() == null || Double.parseDouble(itemPieceField.getValue()) < 1) return false;
-		if(itemWeightComboBox.getValue() == null || Double.parseDouble(itemWeightComboBox.getValue()) < 1) return false;
-		if(commodity == null) return false;
+		if(itemLongField.getValue().isEmpty() || Double.parseDouble(itemLongField.getValue()) < 1) return false;
+		if(itemWidthField.getValue().isEmpty() || Double.parseDouble(itemWidthField.getValue()) < 1) return false;
+		if(itemHeightField.getValue().isEmpty() || Double.parseDouble(itemHeightField.getValue()) < 1) return false;
+		if(itemPieceField.getValue().isEmpty()|| Double.parseDouble(itemPieceField.getValue()) < 1) return false;
+		if(itemWeightComboBox.getValue().isEmpty() || Double.parseDouble(itemWeightComboBox.getValue()) < 1) return false;
+//		if(commodity == null) return false;
 		
 		return true;
 	}

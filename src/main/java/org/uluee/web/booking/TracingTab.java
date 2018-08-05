@@ -106,12 +106,7 @@ public class TracingTab extends VerticalLayout {
 				Notification.show("Please input awb no", Type.ERROR_MESSAGE);
 				return;
 			}
-			Window w = new Window();
-			w.setModal(true);
-			w.setResizable(false);
-			w.setClosable(true);
-			w.setContent(new MrnCUCLayout(ca3dg, awbStock, awbNo));
-			UI.getCurrent().addWindow(w);
+			UI.getCurrent().addWindow(new MrnCUCLayout(ca3dg, awbStock, awbNo));
 		}
 		
 	};
@@ -252,11 +247,11 @@ public class TracingTab extends VerticalLayout {
 	private HorizontalLayout createAwbLayout() {
 		HorizontalLayout root = (HorizontalLayout) UIFactory.createLayout(LayoutType.HORIZONTAL, SizeType.FULL, null, false);
 		root.setHeight(70, Unit.PIXELS);
-		root.setCaption("AWB No");
 		//		Label awbNoLabel = new Label("AWB No");
 		//		awbNoLabel.addStyleName(ValoTheme.LABEL_H2);
 		//		awbNoLabel.setWidth(null);
-
+		Label awbNoLabel = new Label("AWB no");
+		awbNoLabel.setWidth(null);
 		CssLayout parent = new CssLayout();
 		parent.setId("awb-search-section");
 		parent.addStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
@@ -270,6 +265,7 @@ public class TracingTab extends VerticalLayout {
 		awbNoText.setWidth(63, Unit.PIXELS);
 
 		searchAWb = UIFactory.createButton(ButtonSize.NORMAL, ButtonStyle.PRIMARY, "Search");
+		parent.addComponent(awbNoLabel);
 		parent.addComponent(ca3dgText);
 		parent.addComponent(awbStockText);
 		parent.addComponent(awbNoText);
@@ -336,10 +332,13 @@ public class TracingTab extends VerticalLayout {
 	
 	private VerticalLayout printLayout(){
 		VerticalLayout l = new VerticalLayout();
+		l.setWidth(300, Unit.PIXELS);
+		l.setHeight(200, Unit.PIXELS);
 		l.setSpacing(true);
-		Button printAwbButton = new Button();
-		Button printBarcodeButton = new Button();
-		Button printInvoiceButton = new Button();
+		l.setMargin(true);
+		Button printAwbButton = new Button("Print AWB");
+		Button printBarcodeButton = new Button("Print barcode");
+		Button printInvoiceButton = new Button("Print invoice");
 		printAwbButton.addClickListener(e->{
 			print(0);
 		});
@@ -353,6 +352,9 @@ public class TracingTab extends VerticalLayout {
 		l.addComponent(printBarcodeButton);
 		l.addComponent(printInvoiceButton);
 		
+		l.setComponentAlignment(printAwbButton, Alignment.MIDDLE_CENTER);
+		l.setComponentAlignment(printBarcodeButton, Alignment.MIDDLE_CENTER);
+		l.setComponentAlignment(printInvoiceButton, Alignment.MIDDLE_CENTER);
 		return l;
 	}
 	
@@ -369,8 +371,9 @@ public class TracingTab extends VerticalLayout {
 			Notification.show("Please input awb no", Type.ERROR_MESSAGE);
 			return;
 		}			
-		String url = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().print(u.getSessionId(), ca3dg, awbStock, awbNo, 0);
-		getUI().getPage().setLocation(url);		
+		String url = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().print(u.getSessionId(), ca3dg, awbStock, awbNo, i);
+//		getUI().getPage().setLocation(url);		
+		getUI().getPage().open(url,"_blank");
 	}
 
 
