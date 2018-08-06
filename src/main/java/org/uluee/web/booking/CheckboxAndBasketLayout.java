@@ -3,6 +3,7 @@ package org.uluee.web.booking;
 import org.uluee.web.Uluee_expressUI;
 import org.uluee.web.component.LoginPage;
 import org.uluee.web.component.MainPage;
+import org.uluee.web.component.PreferencePage;
 import org.uluee.web.component.window.CommodityTableLayout;
 import org.uluee.web.util.NavigatorConstant;
 import org.uluee.web.util.UIFactory;
@@ -18,6 +19,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.OptionGroup;
 import com.vaadin.ui.UI;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.ValoTheme;
@@ -93,7 +95,15 @@ public class CheckboxAndBasketLayout extends HorizontalLayout {
         split.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
         split.addStyleName(ValoTheme.MENUBAR_SMALL);
         dropdown.addItem("Logout", null);
-        dropdown.addItem("Preferences", null);
+        dropdown.addItem("Preferences", e->{
+        	Window w = new Window();
+        	w.setClosable(true);
+        	w.setModal(true);
+        	w.setResizable(false);
+        	w.setContent(new PreferencePage());
+        	w.setWidth(650, Unit.PIXELS);
+        	UI.getCurrent().addWindow(w);
+        });
         dropdown.addItem("Help", null);
 
         return split;

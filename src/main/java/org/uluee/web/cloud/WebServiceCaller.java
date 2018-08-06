@@ -1127,17 +1127,16 @@ public class WebServiceCaller implements IWebService {
 
 			@Override
 			public void handleResult(SoapObject arrayData, String statusCode) {
-				String companyName = arrayData.getProperty("companyName").toString();
-				String airportCode = arrayData.getProperty("airport").toString();
-				String airportName = arrayData.getProperty("airportName").toString();
-				//String customRef = arrayData.getProperty("customReference").toString();
-				String contactPerson = arrayData.getProperty("contactPerson").toString();
-				String country = arrayData.getProperty("country").toString();
-				String street = arrayData.getProperty("street").toString();
-				String telephone = arrayData.getProperty("telephone").toString();
-				//				String fax = arrayData.getProperty("fax").toString();
-				String email = arrayData.getProperty("email").toString();	
-				String currency = arrayData.getProperty("currency").toString();	
+				SoapObject data = (SoapObject) arrayData.getProperty(0);
+				String companyName = data.getProperty("companyName").toString();
+				String airportCode = data.getProperty("airport").toString();
+				String airportName = data.getProperty("airportName").toString();
+				String contactPerson = data.getProperty("contactPerson").toString();
+				String country = data.getProperty("country").toString();
+				String street = data.getProperty("street").toString();
+				String telephone = data.getProperty("telephone").toString();
+				String email = data.getProperty("email").toString();	
+				String currency = data.getProperty("currency").toString();	
 				s.setCompanyName(companyName).setAirportCode(airportCode).
 				setAirportName(airportName).setContactPerson(contactPerson).
 				setCountry(country).setStreet(street).setTelephone(telephone).

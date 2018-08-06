@@ -78,23 +78,42 @@ public class LoginPage extends VerticalLayout implements View {
 					com.vaadin.ui.Notification.show("Login data can not be empty", Type.ERROR_MESSAGE);
 					return;
 				}
-				User user = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().login(username, password);
-				if(user == null) {
-					com.vaadin.ui.Notification.show("Authentication is failed", Type.ERROR_MESSAGE);
-					return;
-				}
-				login_button.setCaption("Please wait...");
+				login_button.setCaption("Please wait. Loading the data...");
 				login_button.setEnabled(false);
-				getUI().access(new Runnable() {
+				username_text.setEnabled(false);
+				password_text.setEnabled(false);
+				registerButton.setEnabled(false);
+				Runnable l = new Runnable() {
 
 					@Override
 					public void run() {
-						((Uluee_expressUI)UI.getCurrent()).setUser(user);
-						((Uluee_expressUI)UI.getCurrent()).setUserLoggedFlaged(true);
-						((Uluee_expressUI)UI.getCurrent()).setUserLabel("Welcome "+user.getUsername());
-						((Uluee_expressUI)UI.getCurrent()).getNavigator().navigateTo(NavigatorConstant.MAIN_PAGE);	
+						UI.getCurrent().access(new Runnable() {
+
+							@Override
+							public void run() {
+								
+								User user = ((Uluee_expressUI)UI.getCurrent()).getWebServiceCaller().login(username, password);
+								if(user == null) {
+									com.vaadin.ui.Notification.show("Authentication is failed", Type.ERROR_MESSAGE);
+									login_button.setEnabled(true);
+									username_text.setEnabled(true);
+									password_text.setEnabled(true);
+									registerButton.setEnabled(true);
+									login_button.setCaption("Login");
+									return;
+								}
+								((Uluee_expressUI)UI.getCurrent()).setUser(user);
+								((Uluee_expressUI)UI.getCurrent()).setUserLoggedFlaged(true);
+								((Uluee_expressUI)UI.getCurrent()).setUserLabel("Welcome "+user.getUsername());
+								((Uluee_expressUI)UI.getCurrent()).getNavigator().navigateTo(NavigatorConstant.MAIN_PAGE);
+							}
+							
+						});
 					}
-				});
+					
+				};
+				Thread as = new Thread(l);
+				as.start();
 			}
 		});
 		registerButton.addClickListener( e->{
@@ -104,6 +123,8 @@ public class LoginPage extends VerticalLayout implements View {
 		addComponent(root);
 		setComponentAlignment(root, Alignment.MIDDLE_CENTER);
 		setHeight(100, Unit.PERCENTAGE);
+		
+
 	}
 
 	@Override

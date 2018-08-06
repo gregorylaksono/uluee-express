@@ -19,6 +19,7 @@ import org.uluee.web.component.ConfirmPage;
 import org.uluee.web.component.DummyPage;
 import org.uluee.web.component.LoginPage;
 import org.uluee.web.component.MainPage;
+import org.uluee.web.component.PreferencePage;
 import org.uluee.web.component.RegisterPage;
 import org.uluee.web.util.Constant;
 import org.uluee.web.util.NavigatorConstant;
