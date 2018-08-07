@@ -101,18 +101,10 @@ public class MyLocationLayout extends VerticalLayout implements IModalWindowBrid
 	}
 
 	private void createContents() {
-		HorizontalLayout root = new HorizontalLayout();
-		root.setWidth(100, Unit.PERCENTAGE);
-		VerticalLayout col1 = new VerticalLayout();
-		VerticalLayout col2 = new VerticalLayout();
-		col1.setHeight(100, Unit.PERCENTAGE);
-		col2.setHeight(100, Unit.PERCENTAGE);
-		col1.setSpacing(true);
-		col2.setSpacing(true);
-		
-		root.setSpacing(true);
-		root.setMargin(true);
-		
+		VerticalLayout content = new VerticalLayout();
+		content.setHeight(100, Unit.PERCENTAGE);
+		content.setSpacing(true);
+
 		company_name_tf = createCompanyAutoCompleteComponent("Company Name");
 		airport_tf = new TextField("Airport");
 		contact_person_tf = new TextField("Contact person");
@@ -124,25 +116,30 @@ public class MyLocationLayout extends VerticalLayout implements IModalWindowBrid
 		
 		initFormBehavior();
 		
-		col1.addComponent(company_name_tf);
-		col1.addComponent(airport_tf);
-		col1.addComponent(contact_person_tf);
-		col1.addComponent(country_tf);
+		content.addComponent(company_name_tf);
+		content.addComponent(airport_tf);
+		content.addComponent(contact_person_tf);
+		content.addComponent(country_tf);
 		
-		col2.addComponent(street_tf);
-		col2.addComponent(telephone_tf);
-		col2.addComponent(email_tf);
-		col2.addComponent(currency_tf);
+		content.addComponent(street_tf);
+		content.addComponent(telephone_tf);
+		content.addComponent(email_tf);
+		content.addComponent(currency_tf);
 		
 		currency_tf.setInvalidAllowed(false);
 		currency_tf.setNullSelectionAllowed(false);
 		currency_tf.addItem("USD");
 		currency_tf.addItem("EUR");
 		
-		root.addComponent(col1);
-		root.addComponent(col2);
-		root.setComponentAlignment(col1, Alignment.MIDDLE_LEFT);
-		root.setComponentAlignment(col2, Alignment.MIDDLE_RIGHT);
+		company_name_tf.setWidth(100, Unit.PERCENTAGE);
+		currency_tf.setWidth(100, Unit.PERCENTAGE);
+		airport_tf.setWidth(100, Unit.PERCENTAGE);
+		contact_person_tf.setWidth(100, Unit.PERCENTAGE);
+		country_tf.setWidth(100, Unit.PERCENTAGE);
+		street_tf.setWidth(100, Unit.PERCENTAGE);
+		telephone_tf.setWidth(100, Unit.PERCENTAGE);
+		email_tf.setWidth(100, Unit.PERCENTAGE);
+	
 		
 		Button saveButton = new Button("Save");
 		Button resetButton = new Button("Reset");
@@ -162,9 +159,9 @@ public class MyLocationLayout extends VerticalLayout implements IModalWindowBrid
 		l.addComponent(saveButton);
 		l.addComponent(resetButton);
 		
-		col2.addComponent(l);
+		content.addComponent(l);
 		
-		addComponent(root);
+		addComponent(content);
 		setSpacing(true);
 		setMargin(true);
 	}

@@ -12,7 +12,10 @@ import org.uluee.web.util.UIFactory.SizeType;
 
 import com.vaadin.client.ui.Icon;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.server.Page;
 import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.server.VaadinServlet;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
@@ -46,11 +49,10 @@ public class CheckboxAndBasketLayout extends HorizontalLayout {
 		
 		@Override
 		public void buttonClick(ClickEvent event) {
-//			loginButton.removeClickListener(loginListener);
-			((Uluee_expressUI)UI.getCurrent()).setUserLoggedFlaged(false);
-			((Uluee_expressUI)UI.getCurrent()).setUserLabel("");
-			((Uluee_expressUI)UI.getCurrent()).login();
-			((Uluee_expressUI)UI.getCurrent()).getNavigator().navigateTo(NavigatorConstant.MAIN_PAGE);
+			Page.getCurrent()
+            .setLocation(VaadinServlet.getCurrent().getServletConfig().getServletContext().getContextPath());
+         VaadinSession.getCurrent().close();
+//			((Uluee_expressUI)UI.getCurrent()).getNavigator().navigateTo(NavigatorConstant.LOGIN_PAGE);
 		}
 	};
 

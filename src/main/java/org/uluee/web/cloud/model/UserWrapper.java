@@ -14,48 +14,54 @@ public class UserWrapper implements java.io.Serializable{
 	String password;
 	String cPassword;
 	String email;
+	String idUser;	
 	public String getEmail() {
 		return email;
 	}
-	public void setEmail(String email) {
+	public UserWrapper setEmail(String email) {
 		this.email = email;
+		return this;
 	}
-	String idUser;	
-
 	public String getIdUser() {
 		return idUser;
 	}
-	public void setIdUser(String idUser) {
+	public UserWrapper setIdUser(String idUser) {
 		this.idUser = idUser;
+		return this;
 	}
 	public String getFamilyName() {
 		return familyName;
 	}
-	public void setFamilyName(String familyName) {
+	public UserWrapper setFamilyName(String familyName) {
 		this.familyName = familyName;
+		return this;
 	}
 	public String getFirstName() {
 		return firstName;
 	}
-	public void setFirstName(String firstName) {
+	public UserWrapper setFirstName(String firstName) {
 		this.firstName = firstName;
+		return this;
 	}
 	public String getLoginName() {
 		return loginName;
 	}
-	public void setLoginName(String loginName) {
+	public UserWrapper setLoginName(String loginName) {
 		this.loginName = loginName;
+		return this;
 	}
 	public String getPassword() {
 		return password;
 	}
-	public void setPassword(String password) {
+	public UserWrapper setPassword(String password) {
 		this.password = password;
+		return this;
 	}
 	public String getcPassword() {
 		return cPassword;
 	}
-	public void setcPassword(String cPassword) {
+	public UserWrapper setcPassword(String cPassword) {
 		this.cPassword = cPassword;
+		return this;
 	}	
 }
