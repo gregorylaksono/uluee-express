@@ -10,6 +10,7 @@ import org.uluee.web.cloud.model.Commodity;
 import org.uluee.web.cloud.model.DataPaymentTempDTD;
 import org.uluee.web.cloud.model.FlightSchedule;
 import org.uluee.web.cloud.model.MrnWrapper;
+import org.uluee.web.cloud.model.PartnershipWrapper;
 import org.uluee.web.cloud.model.PaypalData;
 import org.uluee.web.cloud.model.Preferences;
 import org.uluee.web.cloud.model.RSAddName;
@@ -17,6 +18,7 @@ import org.uluee.web.cloud.model.ScheduleDoorToDoor;
 import org.uluee.web.cloud.model.Status;
 import org.uluee.web.cloud.model.User;
 import org.uluee.web.cloud.model.UserWrapper;
+
 
 
 
@@ -64,5 +66,8 @@ public interface IWebService {
 	public List<String> getMrnCodeByAwb(String sessionId,String ca3dg,String awbStock, String awbNo);
 	public String getCucNumberByAwb(String sessionId, String ca3dg, String awbStock, String awbNo);
 	public boolean saveCucMuc(String sessionId, String ca3dg, String awbStock, String awbNo, List<MrnWrapper> codes, String selected);
-
+	public List<PartnershipWrapper> getPartnership(String sessionId);
+	public boolean sendDeposit(String sessionId, Integer amountDeposite,String warningAmount,String  limitAmount);
+	public boolean increaseDeposit(String sessionId, String amountDeposite);	
 }
+

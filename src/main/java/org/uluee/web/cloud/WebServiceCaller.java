@@ -32,6 +32,7 @@ import org.uluee.web.cloud.model.DataPaymentTempDTD;
 import org.uluee.web.cloud.model.Flight;
 import org.uluee.web.cloud.model.FlightSchedule;
 import org.uluee.web.cloud.model.MrnWrapper;
+import org.uluee.web.cloud.model.PartnershipWrapper;
 import org.uluee.web.cloud.model.PaypalData;
 import org.uluee.web.cloud.model.Preferences;
 import org.uluee.web.cloud.model.RSAddName;
@@ -1468,6 +1469,84 @@ public class WebServiceCaller implements IWebService {
 			
 		};
 		new CallSOAPAction(params, "saveCucAndMrnNumber", callBack);
+		return rsult[0];
+	}
+
+	@Override
+	public List<PartnershipWrapper> getPartnership(String sessionId) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId",sessionId);
+		List<PartnershipWrapper> result = new ArrayList();
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				PartnershipWrapper PartnershipObj = new PartnershipWrapper();
+				String bab = data.getProperty("accountNo").toString();
+				PartnershipObj.setAccountNo(bab);
+				PartnershipObj.setAmountDeposit(data.getProperty("amountDeposit").toString()+" "+data.getProperty("currency").toString());
+				PartnershipObj.setPaymentLabel(data.getProperty("paymentLabel").toString());
+				result.add(PartnershipObj);
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+				
+			}
+			
+		};
+		new CallSOAPAction(params, "searchPartnership", callBack);
+		return result;
+	}
+
+	@Override
+	public boolean sendDeposit(String sessionId, Integer amountDeposite, String warningAmount, String limitAmount) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId",sessionId);
+		params.put("paymentTypeCode", "2");
+		params.put("amountDeposite", amountDeposite);
+		params.put("warningLimit", warningAmount.toString());
+		params.put("warningLimitDown", limitAmount.toString());
+		Boolean[] rsult = new Boolean[1];
+		rsult[0] =false;
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				rsult[0] =true;				
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+				
+			}
+			
+		};
+		new CallSOAPAction(params, "requestPartnership", callBack);
+		return rsult[0];
+	}
+
+	@Override
+	public boolean increaseDeposit(String sessionId, String amountDeposite) {
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		params.put("sessionId",sessionId);
+		params.put("amountDeposite", amountDeposite);
+		Boolean[] rsult = new Boolean[1];
+		rsult[0] = false;
+		ISOAPResultCallBack callBack = new ISOAPResultCallBack() {
+
+			@Override
+			public void handleResult(SoapObject data, String statusCode) {
+				rsult[0] =true;
+			}
+
+			@Override
+			public void handleError(String statusCode) {
+				
+			}
+			
+		};
+		new CallSOAPAction(params, "updateDepositeFFW", callBack);
 		return rsult[0];
 	}
 

@@ -1,10 +1,9 @@
 package org.uluee.web.component;
 
 import org.uluee.web.component.preference.MyLocationLayout;
+import org.uluee.web.component.preference.PartnershipLayout;
 import org.uluee.web.component.preference.UserLayout;
 
-import com.vaadin.navigator.View;
-import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
@@ -27,7 +26,7 @@ public class PreferencePage extends Panel{
 	private void createContents() {
 		VerticalLayout mylocationLayout = new MyLocationLayout();
 		VerticalLayout userLayout = new UserLayout();
-		VerticalLayout partnershipLayout = createPartnershipLayout();
+		VerticalLayout partnershipLayout = new PartnershipLayout();
 		
 		TabSheet t = new TabSheet();
 		t.addTab(mylocationLayout, "My location");
@@ -37,18 +36,6 @@ public class PreferencePage extends Panel{
 		setContent(t);
 	}
 
-	private VerticalLayout createPartnershipLayout() {
-		VerticalLayout content = new VerticalLayout();
-		
-		return content;
-	}
-
-
-	private VerticalLayout createMyLocationLayout() {
-		VerticalLayout content = new VerticalLayout();
-		return content;
-	}
-	
 	
 
 }
