@@ -34,7 +34,7 @@ public class GoogleMapNewDestLayout extends Window{
 	 * 
 	 */
 	private static final long serialVersionUID = 1351326827038424796L;
-	private TextField companyNameText;
+//	private TextField companyNameText;
 	private GoogleMap addressMap;
 	public static int SHIPPER = 1;
 	public static int CONSIGNEE = 2;
@@ -69,7 +69,7 @@ public class GoogleMapNewDestLayout extends Window{
 
 		this.parent.setExpandRatio(topLayout, 0.0f);
 		this.parent.setExpandRatio(gmapContainer, 1.0f);
-		companyNameText.setValue(companyName);
+//		companyNameText.setValue(companyName);
 		addressText.setValue(companyName);
 	}
 
@@ -98,7 +98,7 @@ public class GoogleMapNewDestLayout extends Window{
 
 		Label text = new Label("GoogleMap");
 
-		companyNameText = new TextField();
+//		companyNameText = new TextField();
 		addressText = createCompanyAutoComplete();
 		
 		final TextField emailText = new TextField();
@@ -123,26 +123,26 @@ public class GoogleMapNewDestLayout extends Window{
 			
 		});
 		emailText.setWidth(120, Unit.PIXELS);
-		companyNameText.setWidth(150, Unit.PIXELS);
+//		companyNameText.setWidth(150, Unit.PIXELS);
 		text.setWidth(null);
 //		addressText.setWidth(300, Unit.PIXELS);
 		
-		companyNameText.setInputPrompt("Company");
+//		companyNameText.setInputPrompt("Company");
 		emailText.setInputPrompt("Email");
 		parent.addComponent(text);
-		parent.addComponent(companyNameText);
+//		parent.addComponent(companyNameText);
 		parent.addComponent(addressText);
 		parent.addComponent(emailText);
 		parent.addComponent(submit);
 
 		parent.setExpandRatio(text, 0.0f);
-		parent.setExpandRatio(companyNameText, 0.0f);
+//		parent.setExpandRatio(companyNameText, 0.0f);
 		parent.setExpandRatio(addressText, 1.0f);
 		parent.setExpandRatio(emailText, 0.0f);
 		parent.setExpandRatio(submit, 0.0f);
 
 		parent.setComponentAlignment(text, Alignment.MIDDLE_LEFT);
-		parent.setComponentAlignment(companyNameText, Alignment.MIDDLE_LEFT);
+//		parent.setComponentAlignment(companyNameText, Alignment.MIDDLE_LEFT);
 		parent.setComponentAlignment(addressText, Alignment.MIDDLE_LEFT);
 		parent.setComponentAlignment(emailText, Alignment.MIDDLE_RIGHT);
 		parent.setComponentAlignment(submit, Alignment.MIDDLE_RIGHT);
@@ -175,7 +175,7 @@ public class GoogleMapNewDestLayout extends Window{
 			LatLon point = new LatLon(Double.parseDouble(latitude), Double.parseDouble(longtitude));
 			addressMap.addMarker("NOT DRAGGABLE: "+company, point, false, null);
 			addressMap.setCenter(point);
-			companyNameText.setValue(company);			
+//			companyNameText.setValue(company);			
 		});
 		return field;
 	}
